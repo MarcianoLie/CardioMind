@@ -1,7 +1,8 @@
-const { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} = require("firebase/auth");
+const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} = require("firebase/auth");
 const { doc, setDoc, collection, getDoc } = require('firebase/firestore');
 const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
+const { admin } = require("../auth/middleware.js")
 const dotenv = require("dotenv");
 
 dotenv.config();
@@ -54,59 +55,45 @@ const login = async (req, res) => {
 }
 
 // sign google
-const googleRegister = async (req, res) => {
-
+const handleGoogleAuth = async (req, res) => {
   try {
-    const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    const user = userCredential.user;
+    const idToken = req.headers.authorization?.split("Bearer ")[1];
+    if (!idToken) {
+      return res.status(401).json({ error: true, message: "Token tidak ditemukan" });
+    }
 
-    const userDocRef = doc(db, "users", user.uid);
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const { uid, name, email, picture } = decodedToken;
+
+    const userDocRef = doc(db, "users", uid);
     const userDocSnapshot = await getDoc(userDocRef);
 
     if (!userDocSnapshot.exists()) {
       await setDoc(userDocRef, {
-        displayName: user.displayName,
-        email: user.email,
-        userId: user.uid,
-        profileImage: user.photoURL,
+        userId: uid,
+        displayName: name,
+        email: email,
+        profileImage: picture || null
       });
     }
 
-
-    res.status(200).json({
+    return res.status(200).json({
       error: false,
-      message: "Berhasil login dengan Google",
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      profileImage: user.photoURL,
+      message: userDocSnapshot.exists()
+        ? "Login sukses dengan Google"
+        : "Registrasi sukses dengan Google",
+      uid,
+      email,
+      displayName: name,
+      profileImage: picture,
+      userToken: idToken
     });
   } catch (error) {
-    console.error("Error Google Register:", error);
-    res.status(400).json({ error: true, message: "Gagal register dengan Google" });
+    console.error("Error Google Auth:", error);
+    return res.status(400).json({ error: true, message: error.message });
   }
-}
+};
 
-const googleLogin = async (req, res) => {
-  try {
-    const provider = new GoogleAuthProvider();
-    const userCredential = await signInWithPopup(auth, provider);
-    const user = userCredential.user;
-
-    res.status(200).json({
-      error: false,
-      message: "Login sukses dengan Google",
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      profileImage: user.photoURL,
-    });
-  } catch (error) {
-    console.error("Error Google Login:", error);
-    res.status(400).json({ error: true, message: "Gagal login dengan Google" });
-  }
-}
 
 // reset password
 const resetPassword = async(req, res) => {
@@ -116,8 +103,10 @@ const resetPassword = async(req, res) => {
       console.log('Link reset email telah dikirimkan ke:', email);
       return res.status(200).json({message: "Link Reset Password Telah Dikirim Ke Email"});
   } catch (error) {
-      return res.status(200).json({message: "Error melakukan reset password"});
+      console.error('Reset password error:', error);
+      return res.status(400).json({ error: true, message: error.message });
   }
+    
 }
 
 //signout
@@ -133,4 +122,4 @@ const signOutUser = async(req, res) => {
 
 
 
-module.exports = { register, login, googleRegister, googleLogin, signOutUser, resetPassword };
+module.exports = { register, login, handleGoogleAuth, signOutUser, resetPassword };

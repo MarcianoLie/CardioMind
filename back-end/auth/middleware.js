@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const admin = require('firebase-admin');
+const { getAuth } = require("firebase-admin/auth")
 
 dotenv.config();
 
@@ -28,4 +29,4 @@ const authUser = async (req, res, next) => {
     }
 };
 
-module.exports = { authUser };
+module.exports = { authUser, getAuth, admin };
