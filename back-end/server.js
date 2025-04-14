@@ -26,7 +26,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/cardiomind', {
 .then(() => console.log('MongoDB connected locally!'))
 .catch(err => console.error('MongoDB connection error:', err));
   
-app.use(express.static(path.join(__dirname, '../CardioMindRio')));
+app.use(express.static(path.join(__dirname, '../front-end/dist')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
