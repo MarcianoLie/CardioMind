@@ -7,6 +7,19 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+
+const mongoose = require('mongoose');
+const userSchema = new mongoose.Schema({
+  userId: String,
+  displayName: String,
+  email: String,
+  birthPlace: String,
+  birthDate: Date,
+  phone: String,
+  profileImage: String,
+  created_at: { type: Date, default: Date.now }
+});
+const User = mongoose.model('User', userSchema, 'user');
 //sign tanpa google
 const register = async (req, res) => {
   const { name, birthPlace, birthDate, phone, email, password } = req.body;
@@ -22,10 +35,16 @@ const register = async (req, res) => {
       birthDate: birthDate,
       phone: phone,
       profileImage: null, 
+      created_at: new Date()
     };
 
     const userDocRef = doc(collection(db, 'users'), user.uid);
     await setDoc(userDocRef, userData);
+    
+    const mongoUser = new User({
+      ...userData,
+    });
+    await mongoUser.save();
 
     res.status(200).json({ error: false, message: "User berhasil terdaftar", uid: user.uid });
   } catch (error) {

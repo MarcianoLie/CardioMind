@@ -5,6 +5,7 @@ const fileUpload = require("express-fileupload");
 const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
+const mongoose = require('mongoose');
 
 
 
@@ -17,6 +18,13 @@ app.use(cors({
     origin: ["http://localhost:5500", "http://127.0.0.1:5500"], 
     credentials: true
   }));
+
+mongoose.connect('mongodb://127.0.0.1:27017/cardiomind', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected locally!'))
+.catch(err => console.error('MongoDB connection error:', err));
   
 app.use(express.static(path.join(__dirname, '../CardioMindRio')));
 app.use(express.json());

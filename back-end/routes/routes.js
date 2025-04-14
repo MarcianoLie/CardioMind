@@ -12,4 +12,8 @@ router.post('/login', login);
 router.post('/logout', authUser, signOutUser);
 router.post('/login/resetPassword', resetPassword);
 
+// router.get('/users', (req, res) => {
+//     res.send('Ini daftar users');
+// });
+
 module.exports = router;
