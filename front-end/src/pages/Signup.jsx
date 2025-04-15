@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../css/style.css";
 import Logo from "../assets/images/Logo.png";
 import Profile from "../assets/images/Profile.png";
@@ -7,8 +7,13 @@ import EyeIcon from "../assets/images/eye.png";
 import GoogleIcon from "../assets/images/google.png";
 import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
+import { auth, googleProvider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
+import axios from "axios"; 
+
 
 function SignUp() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullname: "",
     placeDob: "",
@@ -34,9 +39,26 @@ function SignUp() {
     console.log("Sign up form submitted", formData);
   };
 
-  const handleGoogleSignUp = (e) => {
+  const handleGoogleSignUp = async (e) => {
     e.preventDefault();
-    console.log("Google sign up clicked");
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+  
+      await axios.post("http://localhost:8080/googleAuth", {}, {
+        headers: {
+          Authorization: `Bearer ${idToken}`
+        },
+        withCredentials: true
+      });
+  
+      alert("Sign in sukses dengan Google!");
+      navigate("/")
+    } catch (error) {
+      console.error("Error login Google:", error);
+      alert("Gagal login dengan Google");
+    }
   };
 
   return (

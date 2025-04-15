@@ -7,6 +7,9 @@ import EyeIcon from "../assets/images/eye.png";
 import GoogleIcon from "../assets/images/google.png";
 import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
+import { auth, googleProvider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
+import axios from "axios"; 
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -92,10 +95,26 @@ function Login() {
     }
   };
 
-  const handleGoogleLogin = (e) => {
+  const handleGoogleLogin = async (e) => {
     e.preventDefault();
-    console.log("Google login clicked");
-    // Add Google authentication logic here
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+  
+      await axios.post("http://localhost:8080/googleAuth", {}, {
+        headers: {
+          Authorization: `Bearer ${idToken}`
+        },
+        withCredentials: true
+      });
+  
+      alert("Sign in sukses dengan Google!");
+      navigate("/")
+    } catch (error) {
+      console.error("Error login Google:", error);
+      alert("Gagal login dengan Google");
+    }
   };
 
   return (

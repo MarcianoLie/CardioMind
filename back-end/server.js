@@ -15,7 +15,7 @@ const port = 8080;
 const host = 'localhost';
 
 app.use(cors({
-    origin: ["http://localhost:5500", "http://127.0.0.1:5500"], 
+    origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:5173"], 
     credentials: true
   }));
 
@@ -29,7 +29,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/cardiomind', {
 app.use(express.static(path.join(__dirname, '../front-end/dist')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload());
+app.use(fileUpload()); 
 
 app.get('/', (req, res) => {
     res.send('API is running successfully');
