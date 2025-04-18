@@ -34,9 +34,60 @@ function SignUp() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Sign up form submitted", formData);
+
+    const name = document.getElementById("fullname").value;
+    const placeDob = document.getElementById("placeDob").value;
+    const number = document.getElementById("number").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    // const [birthPlace, birthDate] = placeDob.split(",");
+    const [birthPlace, birthDateStr] = placeDob.split(",");
+    const birthDate = new Date(birthDateStr);
+    if (isNaN(birthDate)) {
+      alert("Tanggal lahir tidak valid, gunakan format misalnya: 'Medan, 01/01/2000'");
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert("Password dan Konfirmasi tidak cocok");
+      return;
+    }
+    console.log({
+      name,
+      birthPlace: birthPlace?.trim(),
+      birthDate: birthDate,
+      // birthDate: birthDate?.trim(),
+      phone: number,
+      email,
+      password
+    });
+    try {
+      
+      const response = await axios.post("http://localhost:8080/register", {
+        name,
+        birthPlace: birthPlace?.trim(),
+        birthDate: birthDate,
+        phone: number,
+        email,
+        password
+      });
+      const data = response.data;
+      if (data.error) {
+        alert("Gagal daftar: " + data.message);
+      } else {
+        alert("Pendaftaran berhasil!");
+        navigate("/login");
+      }
+  
+      alert("Sign in sukses!");
+      navigate("/")
+    } catch (error) {
+      console.error("Error login :", error);
+      alert("Gagal login");
+    }
+    // console.log("Sign up form submitted", formData);
   };
 
   const handleGoogleSignUp = async (e) => {
@@ -199,7 +250,7 @@ function SignUp() {
               </div>
             </div>
 
-            <button type="submit" className="signin-btn">
+            <button type="submit" className="signin-btn" onClick={handleSubmit}>
               Sign Up
             </button>
           </form>

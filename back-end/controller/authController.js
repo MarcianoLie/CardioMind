@@ -23,6 +23,7 @@ const User = mongoose.model('User', userSchema, 'user');
 //sign tanpa google
 const register = async (req, res) => {
   const { name, birthPlace, birthDate, phone, email, password } = req.body;
+  console.log("Incoming data:", req.body);
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -48,6 +49,7 @@ const register = async (req, res) => {
 
     res.status(200).json({ error: false, message: "User berhasil terdaftar", uid: user.uid });
   } catch (error) {
+    console.error("Register Error:", error);
     res.status(400).json({ error: true, message: error.message });
   }
 };
