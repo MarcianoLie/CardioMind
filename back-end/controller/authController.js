@@ -57,18 +57,26 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const firebaseUser = userCredential.user;
+    const idToken = await firebaseUser.getIdToken();
 
-    
-      const idToken = await user.getIdToken();
+    // 🔍 Cari user di MongoDB berdasarkan UID atau email
+    const user = await User.findOne({ email: firebaseUser.email });
+    if (!user) {
+      return res.status(404).json({ error: true, message: "User tidak ditemukan di MongoDB" });
+    }
+    // 🧠 Simpan userId ke dalam session
+    req.session.userId = user._id;
+    console.log("Session userId set:", req.session.userId);
 
-      res.json({
-          error: false, 
-          message: 'Berhasil Sign In', 
-          uid: user.uid,
-          userToken: idToken 
-      });
+    res.json({
+      error: false,
+      message: 'Berhasil Sign In',
+      uid: firebaseUser.uid,
+      userId: user._id, // kirim juga kalau perlu
+      userToken: idToken,
+    });
   } catch (error) {
     console.error(error)
       res.status(404).json({ error: true, message: 'Error melakukan Sign In' });

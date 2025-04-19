@@ -6,10 +6,12 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 
 
 
+dotenv.config();
 const app = express();
 const port = 8080;
 const host = 'localhost';
@@ -31,11 +33,25 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload()); 
 
-app.get('/', (req, res) => {
-    res.send('API is running successfully');
-});
+
+
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+  // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
+  cookie: {
+    secure: false, // true kalau pakai https
+    maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
+  }
+}));
 
 app.use(router);
+
+app.get('/', (req, res) => {
+  res.send('API is running successfully');
+});
 
 app.use((req, res) => {
     res.status(404).send('404 Not Found');
@@ -45,3 +61,4 @@ app.use((req, res) => {
 app.listen(port, host, () => {
     console.log(`Server berjalan pada http://${host}:${port}`);
 });
+

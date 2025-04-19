@@ -80,7 +80,21 @@ function Login() {
     try {
       console.log("Login form submitted", formData, rememberMe);
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const response = await axios.post("http://localhost:8080/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+  
+      const { uid, userToken, message } = response.data;
+  
+      console.log("Login berhasil:", message);
+      console.log("UID:", uid);
+      console.log("Token:", userToken);
+  
+      // Simpan token ke localStorage/sessionStorage kalau perlu
+      localStorage.setItem("token", userToken);
 
       // On successful login
       navigate("/");
