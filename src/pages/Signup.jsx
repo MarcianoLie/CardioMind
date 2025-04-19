@@ -45,43 +45,6 @@ function SignUp() {
         <img src={TopEllipse} alt="" className="top-ellipse" />
         <img src={BotEllipse} alt="" className="bottom-ellipse" />
       </div>
-
-      <header>
-        <div className="left-header">
-          <div className="profile">
-            <img src={Profile} alt="Profile" className="profile-img" />
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/info">Info Kesehatan</Link>
-              </li>
-              <li>
-                <Link to="/prediksi">Prediksi</Link>
-              </li>
-              <li>
-                <Link to="/riwayat">Riwayat</Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div className="logo-center">
-          <Link to="/">
-            <img src={Logo} alt="CardioMind Logo" />
-          </Link>
-        </div>
-
-        <div className="auth-buttons">
-          <Link to="/login" className="login-btn">
-            Login
-          </Link>
-          <Link to="/signup" className="signup-btn">
-            Sign up
-          </Link>
-        </div>
-      </header>
-
       <main>
         <div className="login-container">
           <div className="login-logo">
@@ -202,12 +165,6 @@ function SignUp() {
           </div>
         </div>
       </main>
-
-      <footer>
-        <div className="footer-content">
-          <p>© CardioMind, 2025 All Rights Reserved</p>
-        </div>
-      </footer>
     </div>
   );
 }

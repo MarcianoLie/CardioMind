@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/style.css";
 import Logo from "../assets/images/Logo.png";
-import Profile from "../assets/images/Profile.png";
 import EyeIcon from "../assets/images/eye.png";
 import GoogleIcon from "../assets/images/google.png";
 import TopEllipse from "../assets/images/topEllipse.png";
@@ -105,42 +104,6 @@ function Login() {
         <img src={BotEllipse} alt="" className="bottom-ellipse" />
       </div>
 
-      <header>
-        <div className="left-header">
-          <div className="profile">
-            <img src={Profile} alt="Profile" className="profile-img" />
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/info">Info Kesehatan</Link>
-              </li>
-              <li>
-                <Link to="/prediksi">Prediksi</Link>
-              </li>
-              <li>
-                <Link to="/riwayat">Riwayat</Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div className="logo-center">
-          <Link to="/">
-            <img src={Logo} alt="CardioMind Logo" />
-          </Link>
-        </div>
-
-        <div className="auth-buttons">
-          <Link to="/login" className="login-btn">
-            Login
-          </Link>
-          <Link to="/signup" className="signup-btn">
-            Sign up
-          </Link>
-        </div>
-      </header>
-
       <main>
         <div className="login-container">
           <div className="login-logo">
@@ -228,12 +191,6 @@ function Login() {
           </div>
         </div>
       </main>
-
-      <footer>
-        <div className="footer-content">
-          <p>© CardioMind, 2025 All Rights Reserved</p>
-        </div>
-      </footer>
     </div>
   );
 }
