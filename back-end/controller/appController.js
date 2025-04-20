@@ -4,14 +4,18 @@ const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
 const { admin } = require("../auth/middleware.js")
 const dotenv = require("dotenv");
+const { mongo } = require("mongoose");
+const { User } = require("./authController.js");
 
 dotenv.config();
 
 const profile = async (req, res) => {
     try{
-        
-    } catch (e){
-
+        const userId = req.user.uid;
+        const UserProfile = await User.findOne({uid: userId});
+        res.status(200).json(UserProfile);
+    } catch (error){
+        res.status(500).json({error: true, message: error.message})
     }
 }
 

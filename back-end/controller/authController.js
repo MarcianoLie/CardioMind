@@ -1,4 +1,4 @@
-const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} = require("firebase/auth");
+const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = require("firebase/auth");
 const { doc, setDoc, collection, getDoc } = require('firebase/firestore');
 const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
@@ -34,13 +34,13 @@ const register = async (req, res) => {
       birthPlace: birthPlace,
       birthDate: birthDate,
       phone: phone,
-      profileImage: null, 
+      profileImage: null,
       created_at: new Date()
     };
 
     const userDocRef = doc(collection(db, 'users'), user.uid);
     await setDoc(userDocRef, userData);
-    
+
     const mongoUser = new User({
       ...userData,
     });
@@ -55,21 +55,21 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-    
-      const idToken = await user.getIdToken();
 
-      res.json({
-          error: false, 
-          message: 'Berhasil Sign In', 
-          uid: user.uid,
-          userToken: idToken 
-      });
+    const idToken = await user.getIdToken();
+
+    res.json({
+      error: false,
+      message: 'Berhasil Sign In',
+      uid: user.uid,
+      userToken: idToken
+    });
   } catch (error) {
     console.error(error)
-      res.status(404).json({ error: true, message: 'Error melakukan Sign In' });
+    res.status(404).json({ error: true, message: 'Error melakukan Sign In' });
   }
 }
 
@@ -84,17 +84,24 @@ const handleGoogleAuth = async (req, res) => {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { uid, name, email, picture } = decodedToken;
 
-    const userDocRef = doc(db, "users", uid);
-    const userDocSnapshot = await getDoc(userDocRef);
 
-    if (!userDocSnapshot.exists()) {
-      await setDoc(userDocRef, {
+    const existingUser = await User.findOne({ userId: uid });
+
+    if (!existingUser) {
+      const mongoUser = new User({
         userId: uid,
         displayName: name,
-        email: email,
-        profileImage: picture || null
+        email,
+        birthPlace: null, 
+        birthDate: null,
+        phone: null,
+        profileImage: picture || null,
+        created_at: new Date()
       });
+
+      await mongoUser.save();
     }
+
 
     return res.status(200).json({
       error: false,
@@ -115,30 +122,30 @@ const handleGoogleAuth = async (req, res) => {
 
 
 // reset password
-const resetPassword = async(req, res) => {
+const resetPassword = async (req, res) => {
   const { email } = req.body;
   try {
-      await sendPasswordResetEmail(auth, email);
-      console.log('Link reset email telah dikirimkan ke:', email);
-      return res.status(200).json({message: "Link Reset Password Telah Dikirim Ke Email"});
+    await sendPasswordResetEmail(auth, email);
+    console.log('Link reset email telah dikirimkan ke:', email);
+    return res.status(200).json({ message: "Link Reset Password Telah Dikirim Ke Email" });
   } catch (error) {
-      console.error('Reset password error:', error);
-      return res.status(400).json({ error: true, message: error.message });
+    console.error('Reset password error:', error);
+    return res.status(400).json({ error: true, message: error.message });
   }
-    
+
 }
 
 //signout
-const signOutUser = async(req, res) => {
+const signOutUser = async (req, res) => {
   try {
-      await signOut(auth);
-      return res.status(200).json({message: "Sign out Berhasil"});
+    await signOut(auth);
+    return res.status(200).json({ message: "Sign out Berhasil" });
   } catch (error) {
-      console.log('Error melakukan sign out:', error);
-      return res.status(500).json({message: "Gagal Melakukan Sign Out"});
+    console.log('Error melakukan sign out:', error);
+    return res.status(500).json({ message: "Gagal Melakukan Sign Out" });
   }
 }
 
 
 
-module.exports = { register, login, handleGoogleAuth, signOutUser, resetPassword };
+module.exports = { register, login, handleGoogleAuth, signOutUser, resetPassword, User }
