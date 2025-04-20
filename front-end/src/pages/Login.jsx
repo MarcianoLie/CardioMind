@@ -2,14 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/style.css";
 import Logo from "../assets/images/Logo.png";
-import Profile from "../assets/images/Profile.png";
 import EyeIcon from "../assets/images/eye.png";
 import GoogleIcon from "../assets/images/google.png";
 import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
-import { auth, googleProvider } from "../firebase";
-import { signInWithPopup } from "firebase/auth";
-import axios from "axios"; 
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -80,21 +76,7 @@ function Login() {
     try {
       console.log("Login form submitted", formData, rememberMe);
       // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const response = await axios.post("http://localhost:8080/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-  
-      const { uid, userToken, message } = response.data;
-  
-      console.log("Login berhasil:", message);
-      console.log("UID:", uid);
-      console.log("Token:", userToken);
-  
-      // Simpan token ke localStorage/sessionStorage kalau perlu
-      localStorage.setItem("token", userToken);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // On successful login
       navigate("/");
@@ -109,26 +91,10 @@ function Login() {
     }
   };
 
-  const handleGoogleLogin = async (e) => {
+  const handleGoogleLogin = (e) => {
     e.preventDefault();
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
-  
-      await axios.post("http://localhost:8080/googleAuth", {}, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        },
-        withCredentials: true
-      });
-  
-      alert("Sign in sukses dengan Google!");
-      navigate("/")
-    } catch (error) {
-      console.error("Error login Google:", error);
-      alert("Gagal login dengan Google");
-    }
+    console.log("Google login clicked");
+    // Add Google authentication logic here
   };
 
   return (
@@ -137,42 +103,6 @@ function Login() {
         <img src={TopEllipse} alt="" className="top-ellipse" />
         <img src={BotEllipse} alt="" className="bottom-ellipse" />
       </div>
-
-      <header>
-        <div className="left-header">
-          <div className="profile">
-            <img src={Profile} alt="Profile" className="profile-img" />
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/info">Info Kesehatan</Link>
-              </li>
-              <li>
-                <Link to="/prediksi">Prediksi</Link>
-              </li>
-              <li>
-                <Link to="/riwayat">Riwayat</Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div className="logo-center">
-          <Link to="/">
-            <img src={Logo} alt="CardioMind Logo" />
-          </Link>
-        </div>
-
-        <div className="auth-buttons">
-          <Link to="/login" className="login-btn">
-            Login
-          </Link>
-          <Link to="/signup" className="signup-btn">
-            Sign up
-          </Link>
-        </div>
-      </header>
 
       <main>
         <div className="login-container">
@@ -261,12 +191,6 @@ function Login() {
           </div>
         </div>
       </main>
-
-      <footer>
-        <div className="footer-content">
-          <p>© CardioMind, 2025 All Rights Reserved</p>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -129,42 +129,6 @@ function Homepage() {
         <img src={botEllipse} alt="" className="bottom-ellipse" />
       </div>
 
-      <header>
-        <div className="left-header">
-          <div className="profile">
-            <img src={Profile} alt="Profile" className="profile-img" />
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/info">Info Kesehatan</Link>
-              </li>
-              <li>
-                <Link to="/prediksi">Prediksi</Link>
-              </li>
-              <li>
-                <Link to="/riwayat">Riwayat</Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <div className="logo-center">
-          <Link to="/">
-            <img src={Logo} alt="CardioMind Logo" />
-          </Link>
-        </div>
-
-        <div className="auth-buttons">
-          <Link to="/login" className="login-btn">
-            Login
-          </Link>
-          <Link to="/signup" className="signup-btn">
-            Sign up
-          </Link>
-        </div>
-      </header>
-
       <main>
         <div className="home-content">
           <div className="solution-text">
@@ -176,25 +140,25 @@ function Homepage() {
           </div>
 
           <div className="service-boxes">
-            <div className="service-box">
+            <a href="/health-info" className="service-box">
               <img src={hospital} alt="Kesehatan Icon" />
               <h3>Info Kesehatan</h3>
-            </div>
-            <div className="service-box">
+            </a>
+            <a href="/PrediksiBunuhDiri" className="service-box">
               <img src={personSolid} alt="Stress Icon" />
-              <h3>Prediksi Tingkat Stress</h3>
-            </div>
+              <h3>Prediksi Tingkat Bunuh Diri</h3>
+            </a>
             <div className="center-image-container">
               <img src={MbaDokter} alt="Mba Dokter" className="center-image" />
             </div>
-            <div className="service-box">
+            <a href="/prediction-history" className="service-box">
               <img src={scrollSolid} alt="Prediksi Icon" />
               <h3>Riwayat Prediksi</h3>
-            </div>
-            <div className="service-box">
+            </a>
+            <a href="/cardio-prediction" className="service-box">
               <img src={love} alt="Cardiovascular Icon" />
               <h3>Prediksi Kesehatan Jantung</h3>
-            </div>
+            </a>
           </div>
         </div>
       </main>
@@ -315,12 +279,6 @@ function Homepage() {
           </div>
         </div>
       </div>
-
-      <footer>
-        <div className="footer-content">
-          <p>© CardioMind, 2025 All Rights Reserved</p>
-        </div>
-      </footer>
     </div>
   );
 }

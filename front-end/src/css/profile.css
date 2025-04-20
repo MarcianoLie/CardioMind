@@ -1,169 +1,179 @@
+/* profile.css - File CSS yang sudah dirapikan */
+
+/* Styles untuk container dan background */
 .profile-background {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  box-shadow: 0px 20px 90px rgba(0, 0, 0, 0.25);
-  border-radius: 16px;
-  background-color: #fff;
-  width: 460px;
-  height: 557px;
-}
-
-.greeting-text,
-.name-text,
-.email-text,
-.menu-label-text {
-  position: relative;
-  line-height: 120%;
-}
-
-.greeting-container {
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
-}
-
-.name-container {
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-}
-
-.email-container {
-  align-self: stretch;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  font-size: 23px;
-}
-
-.profile-info-container {
-  position: absolute;
-  top: 36px;
-  left: 103px;
-  width: 255px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 5px;
-}
-
-.button-text {
-  position: relative;
-  line-height: 120%;
-  font-weight: 800;
-}
-
-.edit-profile-button {
-  position: absolute;
-  top: 233px;
-  left: 188px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-  font-size: 16px;
-  color: #4bb9d2;
-}
-
-.home-icon {
-  width: 67px;
-  position: relative;
-  height: 59px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.menu-label-container {
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.home-menu-item {
-  width: 67px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-}
-
-.history-icon {
-  width: 71px;
-  position: relative;
-  height: 63px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.history-menu-item {
-  width: 71px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.prediction-icon {
-  width: 47px;
-  position: relative;
-  height: 63px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.prediction-label-container {
-  align-self: stretch;
-  overflow: hidden;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.prediction-menu-item {
-  width: 52px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 11px;
-}
-
-.nav-menu-container {
-  position: absolute;
-  top: 337px;
-  left: 75px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 60px;
-  font-size: 13px;
-  font-family: Inter;
-}
-
-.profile-container {
-  width: 100%;
-  position: relative;
-  height: 557px;
-  text-align: left;
-  font-size: 40px;
-  color: #000;
-  font-family: 'Plus Jakarta Sans';
-}
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    box-shadow: 0px 20px 90px rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+    background-color: #fff;
+    width: 460px;
+    height: 557px;
+  }
+  
+  .profile-container {
+    width: 100%;
+    position: relative;
+    height: 557px;
+    text-align: left;
+    font-size: 40px;
+    color: #000;
+    font-family: 'Plus Jakarta Sans';
+  }
+  
+  /* Styles untuk text elements */
+  .greeting-text,
+  .name-text,
+  .email-text,
+  .menu-label-text {
+    position: relative;
+    line-height: 120%;
+  }
+  
+  /* Styles untuk containers */
+  .greeting-container {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+  }
+  
+  .name-container {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+  }
+  
+  .email-container {
+    align-self: stretch;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+  }
+  
+  .profile-info-container {
+    position: absolute;
+    top: 36px;
+    left: 103px;
+    width: 255px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+  }
+  
+  /* Edit profile button */
+  .button-text {
+    position: relative;
+    line-height: 120%;
+    font-weight: 800;
+  }
+  
+  .edit-profile-button {
+    position: absolute;
+    top: 233px;
+    left: 188px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    font-size: 16px;
+    color: #4bb9d2;
+  }
+  
+  /* Navigation menu styles */
+  .nav-menu-container {
+    position: absolute;
+    top: 337px;
+    left: 75px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 60px;
+    font-size: 13px;
+    font-family: 'Plus Jakarta Sans';
+  }
+  
+  /* Home menu item */
+  .home-icon {
+    width: 67px;
+    position: relative;
+    height: 59px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .menu-label-container {
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .home-menu-item {
+    width: 67px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  /* History menu item */
+  .history-icon {
+    width: 71px;
+    position: relative;
+    height: 63px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .history-menu-item {
+    width: 71px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  /* Prediction menu item */
+  .prediction-icon {
+    width: 47px;
+    position: relative;
+    height: 63px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .prediction-label-container {
+    align-self: stretch;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .prediction-menu-item {
+    width: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 11px;
+  }
