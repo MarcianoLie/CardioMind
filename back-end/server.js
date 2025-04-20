@@ -21,10 +21,7 @@ app.use(cors({
     credentials: true
   }));
 
-mongoose.connect('mongodb://127.0.0.1:27017/cardiomind', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
 .then(() => console.log('MongoDB connected locally!'))
 .catch(err => console.error('MongoDB connection error:', err));
   
