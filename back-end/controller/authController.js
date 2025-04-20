@@ -39,8 +39,6 @@ const register = async (req, res) => {
       created_at: new Date()
     };
 
-    const userDocRef = doc(collection(db, 'users'), user.uid);
-    await setDoc(userDocRef, userData);
 
     const mongoUser = new User({
       ...userData,

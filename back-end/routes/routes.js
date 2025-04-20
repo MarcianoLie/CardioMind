@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser } = require("../controller/authController.js");
-const { editProfile } = require("../controller/appController.js");
+const { editProfile, profile } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
 
 
@@ -18,6 +18,7 @@ router.post('/login/resetPassword', resetPassword);
 // });
 
 // app
-router.post('/editProfile', editProfile);
+router.put('/profile', authUser, editProfile);
+router.get('/profile', authUser, profile);
 
 module.exports = router;
