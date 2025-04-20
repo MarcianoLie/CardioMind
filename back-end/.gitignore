@@ -18,3 +18,5 @@ yarn-error.log*
 .vscode/
 .idea/
 .DS_Store
+back-end/data/WiredTigerLog
+back-end/data/WiredTigerPrelog
