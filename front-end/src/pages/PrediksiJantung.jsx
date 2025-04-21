@@ -32,7 +32,7 @@ const PrediksiJantung = () => {
               />
             </div>
 
-            <h1 className="predict-title">Tingkat Resiko Bunuh Diri</h1>
+            <h1 className="predict-title">Tingkat Resiko Penyakit Jantung</h1>
 
             <p className="predict-description">
               Lorem ipsum dolor amet, consectetuer adipiscing elit. Metus
