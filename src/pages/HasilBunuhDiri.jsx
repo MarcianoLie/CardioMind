@@ -7,57 +7,14 @@ import topEllipse from "../assets/images/topEllipse.png";
 import botEllipse from "../assets/images/botEllipse.png";
 
 const HasilBunuhDiri = () => {
-  const [risk, setRisk] = useState("low");
-  const [riskText, setRiskText] = useState("Resiko Rendah");
-  const [riskDetails, setRiskDetails] = useState("");
-  const [profileText, setProfileText] = useState("");
+  const [predictionResult, setPredictionResult] = useState(null); // State to hold the prediction result
 
   useEffect(() => {
-    // Ambil jawaban dari sessionStorage
-    const gender = sessionStorage.getItem("q1_answer") || "male";
-    const age = sessionStorage.getItem("q3_age") || "32";
-    const smoker = sessionStorage.getItem("q4_answer") || "no";
-    const suicidalThoughts = sessionStorage.getItem("suicidalThoughts") || "no";
-
-    // Tentukan rentang usia
-    const ageNum = parseInt(age, 10);
-    let ageRange;
-    if (ageNum < 18) {
-      ageRange = "di bawah 18 tahun";
-    } else if (ageNum < 25) {
-      ageRange = "18 – 24 tahun";
-    } else if (ageNum < 35) {
-      ageRange = "25 – 34 tahun";
-    } else if (ageNum < 45) {
-      ageRange = "35 – 44 tahun";
-    } else if (ageNum < 55) {
-      ageRange = "45 – 54 tahun";
-    } else {
-      ageRange = "55+ tahun";
+    // Retrieve the prediction result from sessionStorage
+    const savedPrediction = sessionStorage.getItem("suicidePredictionResult");
+    if (savedPrediction) {
+      setPredictionResult(parseFloat(savedPrediction)); // Parse and set the prediction result
     }
-
-    // Buat teks profil
-    const genderText = gender === "male" ? "Laki-laki" : "Perempuan";
-    setProfileText(`Level risiko ${genderText}, ${ageRange}`);
-
-    // Hitung level risiko
-    let newRisk = "low";
-    let newRiskText = "Resiko Rendah";
-    let newRiskDetails = `Biasanya, ${genderText.toLowerCase()} sehat usia ${ageRange} berisiko 3% dibandingkan dengan risikomu.`;
-
-    if (suicidalThoughts === "yes") {
-      newRisk = "high";
-      newRiskText = "Resiko Tinggi";
-      newRiskDetails = `Biasanya, ${genderText.toLowerCase()} sehat usia ${ageRange} berisiko 35% dibandingkan dengan risikomu.`;
-    } else if (smoker === "yes") {
-      newRisk = "medium";
-      newRiskText = "Resiko Sedang";
-      newRiskDetails = `Biasanya, ${genderText.toLowerCase()} sehat usia ${ageRange} berisiko 15% dibandingkan dengan risikomu.`;
-    }
-
-    setRisk(newRisk);
-    setRiskText(newRiskText);
-    setRiskDetails(newRiskDetails);
   }, []);
 
   return (
@@ -75,13 +32,12 @@ const HasilBunuhDiri = () => {
           <div className="progress-text">Selesai</div>
 
           <div className="results-card">
-            <div className="results-info" id="user-profile">
-              {profileText}
-            </div>
-            <h2 className={`risk-level risk-${risk}`}>{riskText}</h2>
-            <p className="risk-description" id="risk-details">
-              {riskDetails}
-            </p>
+            <h2 className="risk-level">Hasil Prediksi</h2>
+            {predictionResult !== null && (
+              <div className="prediction-result">
+                <p>Skor Risiko: {predictionResult.toFixed(4)}</p>
+              </div>
+            )}
             <Link to="/PrediksiBunuhDiri" className="recheck-btn">
               Cek Ulang
             </Link>
