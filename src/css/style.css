@@ -117,6 +117,52 @@ nav ul li a {
   text-overflow: ellipsis;
 }
 
+/* Dropdown Styles */
+.dropdown-list-predict {
+  position: absolute;
+  top: 60px;
+  left: 225px;
+  background-color: #ffffff;
+  display: none; /* Initially hidden */
+  padding: 1rem 1.25rem;
+  z-index: 9999;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-link {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-link:hover {
+  background-color: #f0f0f0; /* Light grey hover effect */
+}
+
+/* Show the dropdown when hovering over or clicking the parent */
+.dropdown-container:hover .dropdown-list-predict,
+.dropdown-container .dropdown-list-predict {
+  display: block; /* Show the dropdown */
+}
+
+/* Optional: for mobile view, adjust the dropdown positioning */
+@media (max-width: 768px) {
+  .dropdown-list-predict {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+}
+
+
+
+
 .left-header {
   display: flex;
   align-items: center;

@@ -1,23 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Profile from '../assets/images/Profile.png'; // Update with correct path
-import Logo from '../assets/images/Logo.png';      // Update with correct path
-import "../css/style.css"
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Logo from "../assets/images/Logo.png"; // Update with correct path
+import "../css/style.css";
 
 const Header = () => {
-  // Simulasi status login dan nama pengguna
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Ganti sesuai dengan logika login Anda
-  const [userName, setUserName] = useState(""); // Simpan nama pengguna setelah login
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track if dropdown is open
 
-  useEffect(() => {
-    // Simulasikan pengambilan data pengguna dari session atau API
-    // Jika sudah login, set isLoggedIn ke true dan userName sesuai dengan nama pengguna
-    const loggedInUser = localStorage.getItem("user"); // Cek apakah ada user di localStorage
-    if (loggedInUser) {
-      setIsLoggedIn(true);
-      setUserName(loggedInUser); // Ambil nama pengguna dari localStorage atau API
-    }
-  }, []);
+  // Toggle dropdown visibility
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  // Close the menu when a link is clicked (for mobile)
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   return (
     <header>
@@ -25,16 +22,33 @@ const Header = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/">Home</Link>
+              <Link to="/" onClick={closeMenu}>Home</Link>
             </li>
             <li>
-              <Link to="/info">Info Kesehatan</Link>
+              <Link to="/info" onClick={closeMenu}>Info Kesehatan</Link>
+            </li>
+            {/* Prediksi menu with dropdown */}
+            <li className="dropdown-container">
+              <a
+                onClick={toggleDropdown}
+                className="dropdown__link"
+              >
+                Prediksi
+              </a>
+              {/* Dropdown Menu */}
+              {isDropdownOpen && (
+                <div className="dropdown-list-predict">
+                  <Link to="/PrediksiJantung" className="dropdown-link" onClick={closeMenu}>
+                    Kesehatan Jantung
+                  </Link>
+                  <Link to="/PrediksiBunuhdiri" className="dropdown-link" onClick={closeMenu}>
+                    Bunuh Diri
+                  </Link>
+                </div>
+              )}
             </li>
             <li>
-              <Link to="/prediksi">Prediksi</Link>
-            </li>
-            <li>
-              <Link to="/riwayat">Riwayat</Link>
+              <Link to="/riwayat" onClick={closeMenu}>Riwayat</Link>
             </li>
           </ul>
         </nav>
@@ -47,18 +61,8 @@ const Header = () => {
       </div>
 
       <div className="auth-buttons">
-        {isLoggedIn ? (
-          <span>Hi, {userName}!</span> // Menampilkan nama pengguna setelah login
-        ) : (
-          <>
-            <Link to="/login" className="login-btn">
-              Login
-            </Link>
-            <Link to="/signup" className="signup-btn">
-              Sign up
-            </Link>
-          </>
-        )}
+        <Link to="/login" className="login-btn">Login</Link>
+        <Link to="/signup" className="signup-btn">Sign up</Link>
       </div>
     </header>
   );
