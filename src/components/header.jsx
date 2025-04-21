@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../assets/images/Logo.png"; // Update with correct path
 import "../css/style.css";
 
 const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
+  const [userName, setUserName] = useState(""); // Store the user's name
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track if dropdown is open
 
   // Toggle dropdown visibility
@@ -13,8 +15,17 @@ const Header = () => {
 
   // Close the menu when a link is clicked (for mobile)
   const closeMenu = () => {
-    setIsMenuOpen(false);
+    setIsDropdownOpen(false);
   };
+
+  useEffect(() => {
+    // Check localStorage for logged-in user
+    const loggedInUser = localStorage.getItem("user");
+    if (loggedInUser) {
+      setIsLoggedIn(true);
+      setUserName(loggedInUser); // Set the user's name
+    }
+  }, []);
 
   return (
     <header>
@@ -29,10 +40,7 @@ const Header = () => {
             </li>
             {/* Prediksi menu with dropdown */}
             <li className="dropdown-container">
-              <a
-                onClick={toggleDropdown}
-                className="dropdown__link"
-              >
+              <a onClick={toggleDropdown} className="dropdown__link">
                 Prediksi
               </a>
               {/* Dropdown Menu */}
@@ -61,8 +69,18 @@ const Header = () => {
       </div>
 
       <div className="auth-buttons">
-        <Link to="/login" className="login-btn">Login</Link>
-        <Link to="/signup" className="signup-btn">Sign up</Link>
+        {isLoggedIn ? (
+          <span>Hi, {userName}!</span> // Display user's name if logged in
+        ) : (
+          <>
+            <Link to="/login" className="login-btn">
+              Login
+            </Link>
+            <Link to="/signup" className="signup-btn">
+              Sign up
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );
