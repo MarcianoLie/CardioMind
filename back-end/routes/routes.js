@@ -11,7 +11,7 @@ router.post('/googleAuth', handleGoogleAuth);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', authUser, signOutUser);
-router.post('/login/resetPassword', resetPassword);
+router.post('/resetPassword', resetPassword);
 
 // router.get('/users', (req, res) => {
 //     res.send('Ini daftar users');

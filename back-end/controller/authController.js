@@ -147,13 +147,13 @@ const resetPassword = async (req, res) => {
 //signout
 const signOutUser = async (req, res) => {
   try {
-    await signOut(auth);
+    req.session.destroy();
     return res.status(200).json({ message: "Sign out Berhasil" });
   } catch (error) {
     console.log('Error melakukan sign out:', error);
     return res.status(500).json({ message: "Gagal Melakukan Sign Out" });
   }
-}
+};
 
 
 
