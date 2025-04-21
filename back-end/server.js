@@ -22,7 +22,7 @@ app.use(cors({
   }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
-.then(() => console.log('MongoDB connected locally!'))
+.then(() => console.log('MongoDB connected globally!'))
 .catch(err => console.error('MongoDB connection error:', err));
   
 app.use(express.static(path.join(__dirname, '../front-end/dist')));
