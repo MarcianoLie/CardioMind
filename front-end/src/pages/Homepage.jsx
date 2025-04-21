@@ -155,7 +155,7 @@ function Homepage() {
               <img src={scrollSolid} alt="Prediksi Icon" />
               <h3>Riwayat Prediksi</h3>
             </a>
-            <a href="/cardio-prediction" className="service-box">
+            <a href="/PrediksiJantung" className="service-box">
               <img src={love} alt="Cardiovascular Icon" />
               <h3>Prediksi Kesehatan Jantung</h3>
             </a>
