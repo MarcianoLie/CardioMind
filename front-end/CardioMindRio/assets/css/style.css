@@ -346,6 +346,23 @@ h2 {
   margin: 0 15px;
 }
 
+.google-btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  width: 274px;
+  height: 60px;
+  margin: 0 auto;
+  padding: 0 20px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 .google-btn {
   display: flex;
   align-items: center;
@@ -558,6 +575,12 @@ footer {
   }
 
   .google-btn {
+    width: 100%;
+    max-width: 274px;
+    height: 50px;
+  }
+
+  .google-btn-login {
     width: 100%;
     max-width: 274px;
     height: 50px;

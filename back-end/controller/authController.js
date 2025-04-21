@@ -100,7 +100,7 @@ const handleGoogleAuth = async (req, res) => {
         userId: uid,
         displayName: name,
         email,
-        birthPlace: null, 
+        birthPlace: null,
         birthDate: null,
         phone: null,
         profileImage: picture || null,
@@ -113,7 +113,7 @@ const handleGoogleAuth = async (req, res) => {
 
     return res.status(200).json({
       error: false,
-      message: userDocSnapshot.exists()
+      message: existingUser
         ? "Login sukses dengan Google"
         : "Registrasi sukses dengan Google",
       uid,
@@ -122,6 +122,7 @@ const handleGoogleAuth = async (req, res) => {
       profileImage: picture,
       userToken: idToken
     });
+
   } catch (error) {
     console.error("Error Google Auth:", error);
     return res.status(400).json({ error: true, message: error.message });
