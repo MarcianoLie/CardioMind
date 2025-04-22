@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser } = require("../controller/authController.js");
-const { editProfile, profile } = require("../controller/appController.js");
+const { editProfile, profile, saveSuicidePrediction } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
 
 
@@ -20,5 +20,6 @@ router.post('/resetPassword', resetPassword);
 // app
 router.put('/profile', authUser, editProfile);
 router.get('/profile', authUser, profile);
+router.post('/suicideHistory', authUser, saveSuicidePrediction);
 
 module.exports = router;

@@ -95,6 +95,8 @@ function Login() {
   
       // Simpan token ke localStorage/sessionStorage kalau perlu
       localStorage.setItem("token", userToken);
+      localStorage.setItem("user", "true");
+
 
       // On successful login
       navigate("/");
@@ -124,6 +126,8 @@ function Login() {
       });
   
       alert("Sign in sukses dengan Google!");
+      localStorage.setItem("user", "true");
+
       navigate("/")
     } catch (error) {
       console.error("Error login Google:", error);

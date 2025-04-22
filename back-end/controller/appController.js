@@ -4,30 +4,29 @@ const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
 const { admin } = require("../auth/middleware.js")
 const dotenv = require("dotenv");
-const { mongo } = require("mongoose");
-const { User } = require("./authController.js");
+const User = require("../models/userModel.js");
+const SuicidePrediction = require('../models/suicideModel.js');
 
 dotenv.config();
 
+// profile
 const profile = async (req, res) => {
-    try {
-        const userId = req.user.uid;
-        const userProfile = await User.findOne({ userId: userId });
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ error: true, message: "Unauthorized" });
 
-        if (!userProfile) {
-            return res.status(404).json({ error: true, message: "User tidak ditemukan" });
-        }
-
-        res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
-    } catch (error) {
-        res.status(500).json({ error: true, message: error.message });
+    const userProfile = await User.findOne({ _id: userId });
+    if (!userProfile) {
+        return res.status(404).json({ error: true, message: "User tidak ditemukan" });
     }
+
+    res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
 };
 
 
 const editProfile = async (req, res) => {
     const { displayName, birthPlace, birthDate, phone } = req.body;
-    const uid = req.user.uid;
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ error: true, message: "Unauthorized" });
     try {
         const userNewData = {
             displayName: displayName,
@@ -36,7 +35,7 @@ const editProfile = async (req, res) => {
             phone: phone
         }
         const result = await User.updateOne(
-            { userId: uid },
+            { _id: userId },
             { $set: userNewData }
         );
 
@@ -44,11 +43,40 @@ const editProfile = async (req, res) => {
             return res.status(404).json({ error: true, message: "User tidak ditemukan" });
         }
 
-        res.status(200).json({ error: false, message: "Data user berhasil diubah", uid: uid });
+        res.status(200).json({ error: false, message: "Data user berhasil diubah", _id: userId });
     }
     catch (error) {
         res.status(400).json({ error: true, message: error.message });
     }
 };
 
-module.exports = { editProfile, profile };
+
+// history
+const saveSuicidePrediction = async (req, res) => {
+    const userId = req.session.userId;
+    if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+    const { message, predictionResult } = req.body;
+
+    try {
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User tidak ditemukan" });
+        }
+
+        // Gunakan userId dari MongoDB (yang _id)
+        const prediction = new SuicidePrediction({
+            userId: user.userId,  
+            message,
+            predictionResult,
+        });
+
+        await prediction.save();
+        res.status(201).json({ success: true, data: prediction });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
+
+module.exports = { editProfile, profile, saveSuicidePrediction };

@@ -1,25 +1,15 @@
 const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = require("firebase/auth");
-const { doc, setDoc, collection, getDoc } = require('firebase/firestore');
 const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
-const { admin } = require("../auth/middleware.js")
+const { admin } = require("../auth/middleware.js");
+const { User } = require("../models/userModel.js");
+
 const dotenv = require("dotenv");
 
 dotenv.config();
 
 
-const mongoose = require('mongoose');
-const userSchema = new mongoose.Schema({
-  userId: String,
-  displayName: String,
-  email: String,
-  birthPlace: String,
-  birthDate: Date,
-  phone: String,
-  profileImage: String,
-  created_at: { type: Date, default: Date.now }
-});
-const User = mongoose.model('User', userSchema, 'user');
+
 //sign tanpa google
 const register = async (req, res) => {
   const { name, birthPlace, birthDate, phone, email, password } = req.body;
@@ -93,10 +83,10 @@ const handleGoogleAuth = async (req, res) => {
     const { uid, name, email, picture } = decodedToken;
 
 
-    const existingUser = await User.findOne({ userId: uid });
+    let user = await User.findOne({ userId: uid });
 
-    if (!existingUser) {
-      const mongoUser = new User({
+    if (!user) {
+      const newUser = new User({
         userId: uid,
         displayName: name,
         email,
@@ -107,20 +97,19 @@ const handleGoogleAuth = async (req, res) => {
         created_at: new Date()
       });
 
-      await mongoUser.save();
+      user = await newUser.save(); 
     }
 
+    req.session.userId = user._id;
+    console.log("Session userId set via Google login/signup:", req.session.userId);
 
     return res.status(200).json({
       error: false,
-      message: existingUser
-        ? "Login sukses dengan Google"
-        : "Registrasi sukses dengan Google",
+      message: "Login Google sukses",
       uid,
       email,
       displayName: name,
       profileImage: picture,
-      userToken: idToken
     });
 
   } catch (error) {
@@ -157,4 +146,4 @@ const signOutUser = async (req, res) => {
 
 
 
-module.exports = { register, login, handleGoogleAuth, signOutUser, resetPassword, User }
+module.exports = { register, login, handleGoogleAuth, signOutUser, resetPassword }

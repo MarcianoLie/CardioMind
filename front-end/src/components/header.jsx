@@ -1,31 +1,74 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import Logo from "../assets/images/Logo.png"; // Update with correct path
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/images/Logo.png";
 import "../css/style.css";
 
 const Header = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track if the user is logged in
-  const [userName, setUserName] = useState(""); // Store the user's name
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // Track if dropdown is open
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Toggle dropdown visibility
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Close the menu when a link is clicked (for mobile)
+  // Close dropdown on link click
   const closeMenu = () => {
     setIsDropdownOpen(false);
   };
 
   useEffect(() => {
-    // Check localStorage for logged-in user
-    const loggedInUser = localStorage.getItem("user");
-    if (loggedInUser) {
-      setIsLoggedIn(true);
-      setUserName(loggedInUser); // Set the user's name
+    // Fungsi untuk memeriksa status login
+    const checkLoginStatus = () => {
+      const loggedInUser = localStorage.getItem("user");
+      if (loggedInUser) {
+        setIsLoggedIn(true);
+        setUserName(loggedInUser);
+      } else {
+        setIsLoggedIn(false);
+        setUserName("");
+      }
+    };
+
+    // Call checkLoginStatus immediately to ensure the state is correct on load
+    checkLoginStatus();
+
+    // Optional: Periodically check the login status
+    const intervalId = setInterval(checkLoginStatus, 1000); // Cek setiap detik
+
+    // Cleanup the interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, []); // Only run on initial render
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch("http://localhost:8080/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Hanya jika backend pakai auth
+        },
+        credentials: "include", // Jika pakai session login
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setIsLoggedIn(false);
+        setUserName("");
+        navigate("/login");
+      } else {
+        console.error("Logout gagal");
+      }
+    } catch (err) {
+      console.error("Terjadi kesalahan saat logout:", err);
     }
-  }, []);
+  };
 
   return (
     <header>
@@ -38,12 +81,10 @@ const Header = () => {
             <li>
               <Link to="/info" onClick={closeMenu}>Info Kesehatan</Link>
             </li>
-            {/* Prediksi menu with dropdown */}
             <li className="dropdown-container">
               <a onClick={toggleDropdown} className="dropdown__link">
                 Prediksi
               </a>
-              {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="dropdown-list-predict">
                   <Link to="/PrediksiJantung" className="dropdown-link" onClick={closeMenu}>
@@ -70,15 +111,14 @@ const Header = () => {
 
       <div className="auth-buttons">
         {isLoggedIn ? (
-          <span>Hi, {userName}!</span> // Display user's name if logged in
+          <div className="user-info">
+            <span>Hi, {userName}!</span>
+            <button onClick={handleLogout} className="logout-btn">Logout</button>
+          </div>
         ) : (
           <>
-            <Link to="/login" className="login-btn">
-              Login
-            </Link>
-            <Link to="/signup" className="signup-btn">
-              Sign up
-            </Link>
+            <Link to="/login" className="login-btn">Login</Link>
+            <Link to="/signup" className="signup-btn">Sign up</Link>
           </>
         )}
       </div>

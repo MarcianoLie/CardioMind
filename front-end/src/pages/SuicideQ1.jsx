@@ -31,24 +31,24 @@ const SuicideQ1 = () => {
         console.log("Attempting to load model from: /suicide/model.json");
         const loadedModel = await tf.loadGraphModel("/suicide/model.json");
         console.log("Model loaded successfully");
-        
+
         console.log("Attempting to load word index from: /suicide/word_index.json");
         const wordIndexRes = await fetch("/suicide/word_index.json");
-        
+
         if (!wordIndexRes.ok) {
           throw new Error(`HTTP error when fetching word index: ${wordIndexRes.status}`);
         }
-        
+
         const wordIndexJson = await wordIndexRes.json();
         console.log("Word index loaded successfully");
-    
+
         setModel(loadedModel);
         setWordIndex(wordIndexJson);
         setIsLoaded(true);
         console.log("All resources loaded successfully");
       } catch (error) {
         console.error("Error loading model or word index:", error);
-        
+
         // More detailed error message based on the type of error
         if (error.message.includes("fetch")) {
           alert("Network error: Could not fetch model files. Please check your internet connection.");
@@ -109,6 +109,25 @@ const SuicideQ1 = () => {
 
     // Simpan ke session dan lanjut ke halaman hasil
     sessionStorage.setItem("suicidePredictionResult", predictionValue);
+    const riskCategory = predictionValue >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
+
+    try {
+      await fetch("http://localhost:8080/suicideHistory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", 
+        body: JSON.stringify({
+          message: suicideMessage,
+          predictionResult: riskCategory,
+        }),
+      });
+      console.log("History tersimpan untuk user login.");
+    } catch (error) {
+      console.error("Gagal menyimpan history:", error);
+    }
+
     navigate("/HasilBunuhDiri");
   };
 
