@@ -17,7 +17,7 @@ const HasilJantung = () => {
     const loadModelAndPredict = async () => {
       try {
         const age = parseFloat(sessionStorage.getItem("age")) * 365.25;
-        const gender = sessionStorage.getItem("gender") === "male" ? 2 : 1;
+        const gender = sessionStorage.getItem("gender") === "male" ? 1 : 0;
         const height = parseFloat(sessionStorage.getItem("height"));
         const weight = parseFloat(sessionStorage.getItem("weight"));
         const ap_hi = parseFloat(sessionStorage.getItem("systolic"));
@@ -28,18 +28,43 @@ const HasilJantung = () => {
         const alcohol = sessionStorage.getItem("alcohol") === "yes" ? 1 : 0;
         const active = sessionStorage.getItem("active") === "yes" ? 1 : 0;
 
-        const input = [
+        const means = {
+          age: 19468.865814, height: 164.359229, weight: 74.205690, ap_hi: 128.817286, ap_lo: 96.630414
+        };
+        const stds = {
+          age: 2467.251667, height: 8.210126, weight: 14.395757, ap_hi: 154.011419, ap_lo: 188.472530
+        };
+
+        const raw = [
           age, gender, height, weight, ap_hi, ap_lo,
           cholesterol, glucose, smoke, alcohol, active
         ];
 
+        const normalized = [
+          (age - means.age) / stds.age,
+          gender,
+          (height - means.height) / stds.height,
+          (weight - means.weight) / stds.weight,
+          (ap_hi - means.ap_hi) / stds.ap_hi,
+          (ap_lo - means.ap_lo) / stds.ap_lo,
+          cholesterol<200?0:cholesterol<240?1:2,
+          glucose<70?0:glucose<100?1:2,
+          smoke,
+          alcohol,
+          active
+        ];
+        
+
+        console.log(raw);
+        console.log(normalized);
+
         setProfileText(
-          `Umur: ${(age / 365.25).toFixed(0)} tahun | Gender: ${gender === 2 ? "Laki-laki" : "Perempuan"} | Tinggi: ${height} cm | Berat: ${weight} kg`
+          `Umur: ${(age / 365.25).toFixed(0)} tahun | Gender: ${gender === 1 ? "Laki-laki" : "Perempuan"} | Tinggi: ${height} cm | Berat: ${weight} kg`
         );
 
-        const model = await tf.loadLayersModel("../back-end/cardio/model.json"); // pastikan path model benar
+        const model = await tf.loadGraphModel("/cardio/model.json"); // pastikan path model benar
 
-        const inputTensor = tf.tensor2d([input]);
+        const inputTensor = tf.tensor2d([normalized]);
         const prediction = model.predict(inputTensor);
         const score = (await prediction.data())[0];
 
