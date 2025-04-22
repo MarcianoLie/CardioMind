@@ -55,14 +55,14 @@ const login = async (req, res) => {
       return res.status(404).json({ error: true, message: "User tidak ditemukan di MongoDB" });
     }
     // 🧠 Simpan userId ke dalam session
-    req.session.userId = user._id;
+    req.session.userId = user.userId;
     console.log("Session userId set:", req.session.userId);
 
     res.json({
       error: false,
       message: 'Berhasil Sign In',
       uid: firebaseUser.uid,
-      userId: user._id, // kirim juga kalau perlu
+      userId: user.userId, // kirim juga kalau perlu
       userToken: idToken,
     });
   } catch (error) {
@@ -100,7 +100,7 @@ const handleGoogleAuth = async (req, res) => {
       user = await newUser.save(); 
     }
 
-    req.session.userId = user._id;
+    req.session.userId = user.userId;
     console.log("Session userId set via Google login/signup:", req.session.userId);
 
     return res.status(200).json({
