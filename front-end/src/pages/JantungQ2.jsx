@@ -14,13 +14,8 @@ const JantungQ2 = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Save input values when they change
-    const saveWeight = () => {
-      sessionStorage.setItem("weight", weight);
-    };
-    const saveHeight = () => {
-      sessionStorage.setItem("height", height);
-    };
+    sessionStorage.setItem("weight", weight);
+    sessionStorage.setItem("height", height);
 
     // Validation for weight and height
     const validateAndProceed = (e) => {

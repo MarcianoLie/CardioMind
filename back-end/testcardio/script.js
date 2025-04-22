@@ -26,6 +26,7 @@ function preprocessInput(formData) {
   for (let col of categoricalCols) {
     input.push(parseInt(formData[col]));
   }
+  console.log(input)
 
   return tf.tensor2d([input]);
 }
