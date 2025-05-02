@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CardioMind - Home</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="assets/css/home.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="background">
+        <img src="assets/images/topEllipse.png" alt="" class="top-ellipse" />
+        <img src="assets/images/botEllipse.png" alt="" class="bottom-ellipse" />
+      </div>
+
+      <header>
+        <div class="left-header">
+          <div class="profile">
+            <img
+              src="assets/images/Profile.png"
+              alt="Profile"
+              class="profile-img"
+            />
+          </div>
+          <nav>
+            <ul>
+              <li><a href="#">Info Kesehatan</a></li>
+              <li><a href="#">Prediksi</a></li>
+              <li><a href="#">Riwayat</a></li>
+            </ul>
+          </nav>
+        </div>
+
+        <div class="logo-center">
+          <img src="assets/images/Logo.png" alt="CardioMind Logo" />
+        </div>
+
+        <div class="auth-buttons">
+          <a href="login.html" class="login-btn">Login</a>
+          <a href="signup.html" class="signup-btn">Sign up</a>
+        </div>
+      </header>
+
+      <main>
+        <div class="home-content">
+          <div class="solution-text">
+            <h1>Solusi Pertolongan Pertama</h1>
+            <p>
+              Tanya dokter, prediksi penyakit, dan info kesehatan jantung dan
+              stress
+            </p>
+          </div>
+
+          <div class="service-boxes">
+            <div class="service-box">
+              <img src="assets/images/hospital.png" alt="Kesehatan Icon" />
+              <h3>Info Kesehatan</h3>
+            </div>
+            <div class="service-box">
+              <img src="assets/images/person-solid 1.png" alt="Stress Icon" />
+              <h3>Prediksi Tingkat Stress</h3>
+            </div>
+            <div class="center-image-container">
+              <img
+                src="assets/images/MbaDokter.png"
+                alt="Mba Dokter"
+                class="center-image"
+              />
+            </div>
+            <div class="service-box">
+              <img src="assets/images/scroll-solid 1.png" alt="Prediksi Icon" />
+              <h3>Riwayat Prediksi</h3>
+            </div>
+            <div class="service-box">
+              <img src="assets/images/love.png" alt="Cardiovascular Icon" />
+              <h3>Prediksi Kesehatan Jantung</h3>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Slider section moved outside of main to attach directly to footer -->
+      <div class="slider-section">
+        <h2 class="slider-heading">Cardio Insight</h2>
+        <div class="slider-container">
+          <div class="slider-mask"></div>
+          <div class="slider-content">
+            <div class="slides-wrapper">
+              <div class="slide prev-2" data-index="3">
+                <img src="assets/images/Slide4.png" alt="Slide 4" />
+              </div>
+              <div class="slide prev-1" data-index="4">
+                <img src="assets/images/Slide5.png" alt="Slide 5" />
+              </div>
+              <div class="slide active" data-index="0">
+                <img src="assets/images/Slide1.png" alt="Slide 1" />
+              </div>
+              <div class="slide next-1" data-index="1">
+                <img src="assets/images/Slide2.png" alt="Slide 2" />
+              </div>
+              <div class="slide next-2" data-index="2">
+                <img src="assets/images/Slide3.png" alt="Slide 3" />
+              </div>
+            </div>
+          </div>
+          <div class="slider-navigation">
+            <button
+              class="slider-button prev-button"
+              aria-label="Previous slide"
+            >
+              <img src="assets/images/left.png" alt="Previous" />
+            </button>
+            <div class="slider-dots">
+              <div
+                class="dot active"
+                data-index="0"
+                role="button"
+                aria-label="Go to slide 1"
+              ></div>
+              <div
+                class="dot"
+                data-index="1"
+                role="button"
+                aria-label="Go to slide 2"
+              ></div>
+              <div
+                class="dot"
+                data-index="2"
+                role="button"
+                aria-label="Go to slide 3"
+              ></div>
+              <div
+                class="dot"
+                data-index="3"
+                role="button"
+                aria-label="Go to slide 4"
+              ></div>
+              <div
+                class="dot"
+                data-index="4"
+                role="button"
+                aria-label="Go to slide 5"
+              ></div>
+            </div>
+            <button class="slider-button next-button" aria-label="Next slide">
+              <img src="assets/images/right.png" alt="Next" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="footer-content">
+          <p>© CardioMind, 2025 All Rights Reserved</p>
+        </div>
+      </footer>
+    </div>
+
+    <script src="assets/js/slider.js"></script>
+    <script src="assets/js/script.js"></script>
+  </body>
+</html>

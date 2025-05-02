@@ -79,7 +79,7 @@ const Header = () => {
               <Link to="/" onClick={closeMenu}>Home</Link>
             </li>
             <li>
-              <Link to="/info" onClick={closeMenu}>Info Kesehatan</Link>
+              <Link to="/infokesehatan" onClick={closeMenu}>Info Kesehatan</Link>
             </li>
             <li className="dropdown-container">
               <a onClick={toggleDropdown} className="dropdown__link">

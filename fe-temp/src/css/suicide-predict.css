@@ -1,0 +1,509 @@
+/* Suicide Prediction Pages Styles */
+
+/* Main Container */
+.suicide-predict-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Content Styles */
+.predict-content {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Image Styles */
+.predict-image {
+  width: 100%;
+  max-width: 384px;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 auto 1.5rem;
+}
+
+.predict-image img {
+  width: 384px;
+  height: 283px;
+  display: block;
+  object-fit: cover;
+}
+
+/* Title Styles */
+.predict-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #000;
+}
+
+/* Description Styles */
+.predict-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333;
+  max-width: 650px;
+  margin: 0 auto 2rem;
+}
+
+/* Start Button */
+.start-btn {
+  display: inline-block;
+  background-color: #135c60;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 2.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  transition: background-color 0.3s ease;
+}
+
+.start-btn:hover {
+  background-color: #0e464a;
+}
+
+/* Reference Section */
+.reference {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+  width: 100%;
+  max-width: 650px;
+  text-align: center;
+}
+
+.reference h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #000;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.reference p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #555;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Progress Bar Styles */
+.progress-container {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  margin-bottom: 1.5rem;
+  height: 50px;
+  border-radius: 75px;
+  overflow: hidden;
+  background-color: #caddc9; /* Light green from Figma */
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #b9e185; /* Brighter green from Figma */
+  border-radius: 75px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.5rem;
+}
+
+/* Question Styles */
+.question-container {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+
+.question {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #000;
+}
+
+/* Answer Options */
+.answer-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.option {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-size: 1rem;
+}
+
+.option:hover {
+  background-color: #f9f9f9;
+  border-color: #ccc;
+}
+
+.option.selected {
+  background-color: #e1f5e1;
+  border-color: #aee6b3;
+}
+
+/* Input fields for questions */
+.input-field {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.input-field::placeholder {
+  color: #aaa;
+}
+
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.prev-btn,
+.next-btn {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+}
+
+.prev-btn img,
+.next-btn img {
+  width: 24px;
+  height: auto;
+}
+
+.prev-btn:hover,
+.next-btn:hover {
+  opacity: 0.8;
+}
+
+.calculate-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: white;
+}
+
+.calculate-btn:hover {
+  opacity: 0.8;
+}
+
+/* Results Styles */
+.results-container {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.results-card {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.results-info {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+.risk-level {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  color: #000;
+}
+
+.risk-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: #444;
+}
+
+.recheck-btn {
+  display: inline-block;
+  background-color: transparent;
+  color: #2b7a0b;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border: 1px solid #2b7a0b;
+  border-radius: 5px;
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.recheck-btn:hover {
+  background-color: #f0f9f0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .predict-title {
+    font-size: 2.2rem;
+  }
+
+  .predict-image {
+    max-width: 340px;
+  }
+
+  .predict-image img {
+    width: 340px;
+    height: 250px;
+  }
+
+  /* Fix for responsive navigation */
+  .nav-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .predict-content {
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .predict-title {
+    font-size: 2rem;
+  }
+
+  .predict-image {
+    max-width: 300px;
+  }
+
+  .predict-image img {
+    width: 300px;
+    height: 220px;
+  }
+
+  .question {
+    font-size: 1.3rem;
+  }
+
+  /* Fix for responsive containers */
+  .suicide-predict-container,
+  .progress-container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Ensure progress bar displays correctly */
+  .progress-bar {
+    max-width: 100%;
+  }
+
+  /* Fix for option blocks */
+  .option {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 576px) {
+  .suicide-predict-container {
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .predict-content {
+    padding: 1.2rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .predict-title {
+    font-size: 1.8rem;
+  }
+
+  .predict-description {
+    font-size: 0.9rem;
+  }
+
+  .predict-image {
+    max-width: 260px;
+  }
+
+  .predict-image img {
+    width: 260px;
+    height: 190px;
+  }
+
+  .start-btn {
+    padding: 0.6rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .question {
+    font-size: 1.2rem;
+  }
+
+  .option {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .results-card {
+    padding: 1.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .risk-level {
+    font-size: 2rem;
+  }
+
+  /* Fix input fields on small screens */
+  .input-field,
+  .blood-pressure-input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fix navigation on small screens */
+  .nav-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  /* Ensure progress container is visible */
+  .progress-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .predict-title {
+    font-size: 1.6rem;
+  }
+
+  .start-btn {
+    padding: 0.5rem 1.8rem;
+    font-size: 0.85rem;
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.8rem;
+  }
+
+  .prev-btn,
+  .next-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .calculate-btn {
+    width: auto;
+    max-width: 100%;
+  }
+
+  .predict-image {
+    max-width: 220px;
+  }
+
+  .predict-image img {
+    width: 220px;
+    height: 160px;
+  }
+
+  /* Ensure container sizing */
+  main,
+  .container,
+  .suicide-predict-container {
+    width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Fix option and input styling */
+  .option,
+  .input-field,
+  .blood-pressure-input,
+  .answer-options,
+  .input-container {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Color variants for risk levels */
+.risk-low {
+  color: #27ae60;
+}
+
+.risk-medium {
+  color: #f39c12;
+}
+
+.risk-high {
+  color: #e74c3c;
+}

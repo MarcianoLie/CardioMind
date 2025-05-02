@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
   birthDate: Date,
   phone: String,
   profileImage: String,
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
+  status: String
 });
 const User = mongoose.model('User', userSchema, 'user');
 

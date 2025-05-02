@@ -26,7 +26,8 @@ const register = async (req, res) => {
       birthDate: birthDate,
       phone: phone,
       profileImage: null,
-      created_at: new Date()
+      created_at: new Date(),
+      status: "user"
     };
 
 
@@ -56,7 +57,9 @@ const login = async (req, res) => {
     }
     // 🧠 Simpan userId ke dalam session
     req.session.userId = user.userId;
+    req.session.status = user.status;
     console.log("Session userId set:", req.session.userId);
+    console.log("Session status set:", req.session.status);
 
     res.json({
       error: false,
@@ -94,13 +97,16 @@ const handleGoogleAuth = async (req, res) => {
         birthDate: null,
         phone: null,
         profileImage: picture || null,
-        created_at: new Date()
+        created_at: new Date(),
+        status: "user"
       });
 
       user = await newUser.save(); 
     }
 
     req.session.userId = user.userId;
+    req.session.status = user.status;
+    console.log("Session status set:", req.session.status);
     console.log("Session userId set via Google login/signup:", req.session.userId);
 
     return res.status(200).json({
