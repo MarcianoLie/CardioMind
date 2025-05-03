@@ -20,27 +20,36 @@ const Header = () => {
   };
 
   useEffect(() => {
-    // Fungsi untuk memeriksa status login
-    const checkLoginStatus = () => {
-      const loggedInUser = localStorage.getItem("user");
-      if (loggedInUser) {
-        setIsLoggedIn(true);
-        setUserName(loggedInUser);
-      } else {
+    const checkSession = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/check-session", {
+          method: "GET",
+          credentials: "include", // Wajib jika pakai session
+        });
+  
+        const data = await response.json();
+        if (data.isLoggedIn) {
+          setIsLoggedIn(true);
+          setUserName(data.user);
+        } else {
+          setIsLoggedIn(false);
+          setUserName("");
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+        }
+      } catch (error) {
+        console.error("Gagal mengecek sesi:", error);
         setIsLoggedIn(false);
-        setUserName("");
       }
     };
-
-    // Call checkLoginStatus immediately to ensure the state is correct on load
-    checkLoginStatus();
-
-    // Optional: Periodically check the login status
-    const intervalId = setInterval(checkLoginStatus, 1000); // Cek setiap detik
-
-    // Cleanup the interval when component unmounts
+  
+    checkSession();
+  
+    const intervalId = setInterval(checkSession, 10000); // per 10 detik cek ulang
+  
     return () => clearInterval(intervalId);
-  }, []); // Only run on initial render
+  }, []);
+  
 
   // Handle logout
   const handleLogout = async () => {

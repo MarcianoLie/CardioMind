@@ -157,8 +157,9 @@ const getComments = async (req, res) => {
 const postComments = async (req, res) => {
     const userId = req.session.userId; // asumsi login sudah dilakukan
     const { newsId, comment } = req.body;
+    console.log("Session userId set:", userId);
   
-    if (!comment || !newsId) {
+    if (!comment || !newsId || !userId) {
         return res.status(400).json({ message: "Data tidak lengkap" });
     }
   
