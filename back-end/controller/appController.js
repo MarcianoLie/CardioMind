@@ -124,11 +124,31 @@ const newsUpdate = async (req, res) => {
 const getHealthArticles = async (req, res) => {
     try {
         const articles = await News.find().sort({ pubDate: -1 });
-        res.status(200).json({ success: true, data: articles });
+        const shownArticle = articles.map(article => ({
+            _id: article._id,
+            title: article.title,
+            pubDate: article.pubDate,
+            imageUrl: article.imageUrl
+        })
+        )
+        res.status(200).json({ success: true, data: shownArticle });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
+const articleById = async (req, res) => {
+    const id = req.params.id;
+    try{
+        const article = await News.findById(id)
+        if(!article){
+            res.status(404).json({succes: true, message: "Artikel tidak ditemukan"});
+        }
+        res.status(200).json({success: true, data: article});
+    } catch (error){
+        res.status(500).json({success: false, message: error.message})
+    }
+}
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles };
+
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById };
