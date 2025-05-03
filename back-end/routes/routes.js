@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser } = require("../controller/authController.js");
-const { editProfile, profile, saveSuicidePrediction } = require("../controller/appController.js");
+const { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
 
 
@@ -19,8 +19,10 @@ router.post('/resetPassword', resetPassword);
 // });
 
 // app
-router.put('/profile', authUser, editProfile);
-router.get('/profile', authUser, profile);
-router.post('/suicideHistory', authUser, saveSuicidePrediction);
+router.put('/profile', editProfile);
+router.get('/profile', profile);
+router.post('/suicideHistory', saveSuicidePrediction);
+router.get('/news/update', newsUpdate);
+router.get('/news', getHealthArticles);
 
 module.exports = router;

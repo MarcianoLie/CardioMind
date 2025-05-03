@@ -49,12 +49,10 @@ const login = async (req, res) => {
     const firebaseUser = userCredential.user;
     const idToken = await firebaseUser.getIdToken();
 
-    // 🔍 Cari user di MongoDB berdasarkan UID atau email
     const user = await User.findOne({ email: firebaseUser.email });
     if (!user) {
       return res.status(404).json({ error: true, message: "User tidak ditemukan di MongoDB" });
     }
-    // 🧠 Simpan userId ke dalam session
     req.session.userId = user.userId;
     console.log("Session userId set:", req.session.userId);
 
@@ -62,7 +60,7 @@ const login = async (req, res) => {
       error: false,
       message: 'Berhasil Sign In',
       uid: firebaseUser.uid,
-      userId: user.userId, // kirim juga kalau perlu
+      userId: user.userId, 
       userToken: idToken,
     });
   } catch (error) {
