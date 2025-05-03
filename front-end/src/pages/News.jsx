@@ -10,15 +10,47 @@ const News = () => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (commentText.trim()) {
-      setComments([
-        ...comments,
-        { text: commentText, date: new Date().toLocaleString() },
-      ]);
-      setCommentText("");
+      const payload = {
+        comment: commentText,
+        newsId: "001", // pastikan ini sesuai dengan yang dibaca backend
+      };
+  
+      console.log("Sending comment payload:", payload);
+  
+      try {
+        const response = await fetch("http://localhost:8080/comments", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // agar session (userId) dikirim
+          body: JSON.stringify(payload),
+        });
+  
+        const result = await response.json();
+  
+        console.log("Server response:", result);
+  
+        if (response.ok) {
+          setComments([
+            ...comments,
+            { text: commentText, date: new Date().toLocaleString() },
+          ]);
+          setCommentText("");
+          handleCloseCommentBox();
+        } else {
+          alert("Gagal menambahkan komentar: " + result.message);
+        }
+      } catch (error) {
+        console.error("Error saat fetch komentar:", error);
+      }
     }
   };
+  
+  
+  
 
   const handleCloseCommentBox = () => {
     const commentBoxOverlay = document.getElementById("comment-box-overlay");
@@ -142,6 +174,9 @@ const News = () => {
               <div className="user-comment" key={index}>
                 <div className="user-comment-logo">
                   <img src={profile} alt="User profile" />
+                </div>
+                <div className="user-comment-content">
+                  <p>{comment.username}</p>
                 </div>
                 <div className="user-comment-content">
                   <p>{comment.text}</p>

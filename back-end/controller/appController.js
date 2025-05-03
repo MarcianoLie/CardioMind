@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const User = require("../models/userModel.js");
 const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
+const Comments = require("../models/commentModel.js");
 
 dotenv.config();
 
@@ -150,5 +151,32 @@ const articleById = async (req, res) => {
     }
 }
 
+const getComments = async (req, res) => {
+    
+}
+const postComments = async (req, res) => {
+    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const { newsId, comment } = req.body;
+  
+    if (!comment || !newsId) {
+        return res.status(400).json({ message: "Data tidak lengkap" });
+    }
+  
+    try {
+      const newComment = new Comments({
+        userId,
+        newsId, // untuk prototipe
+        comment,
+        createdAt: new Date(),
+      });
+  
+      await newComment.save();
+      res.status(201).json({ message: "Komentar berhasil ditambahkan" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Terjadi kesalahan saat menyimpan komentar" });
+    }
+};
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById };
+
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments };
