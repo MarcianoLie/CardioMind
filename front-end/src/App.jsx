@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import Header from "./components/header"; // Ensure the import path is correct
 import Footer from "./components/footer";
 import Homepage from "./pages/Homepage";
+import InfoKesehatan from "./pages/infokesehatan";
+import News from "./pages/News";
 import Login from "./pages/Login";
 import SignUp from "./pages/Signup";
 import ProfilePage from "./pages/Profile";
@@ -31,6 +33,8 @@ function App() {
         <Route path="/editprofile" element={<EditProfilePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/infokesehatan" element={<InfoKesehatan />} />
+        <Route path="/news" element={<News />} />
         <Route path="/PrediksiBunuhDiri" element={<PrediksiBunuhDiri />} />
         <Route path="/suicideq1" element={<SuicideQ1 />} />
         <Route path="/HasilBunuhDiri" element={<HasilBunuhDiri />} />

@@ -140,7 +140,7 @@ function Homepage() {
           </div>
 
           <div className="service-boxes">
-            <a href="/health-info" className="service-box">
+            <a href="/infokesehatan" className="service-box">
               <img src={hospital} alt="Kesehatan Icon" />
               <h3>Info Kesehatan</h3>
             </a>
@@ -201,7 +201,7 @@ function Homepage() {
                 data-index="1"
                 style={{ zIndex: getSlideZIndex(1) }}
               >
-                <img src={Slide2} alt="Slide 2" />
+                <img src={Slide2} alt="Slide 2"/>
               </div>
               <div
                 className={`slide ${getSlideClass(2)}`}

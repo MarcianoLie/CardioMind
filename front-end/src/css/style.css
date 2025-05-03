@@ -13,18 +13,15 @@ html,
 body,
 .container,
 main {
-  scrollbar-width: none;
-  /* Firefox */
-  -ms-overflow-style: none;
-  /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 .container::-webkit-scrollbar,
 main::-webkit-scrollbar {
-  display: none;
-  /* Chrome, Safari, Opera */
+  display: none; /* Chrome, Safari, Opera */
   width: 0;
   height: 0;
 }
@@ -43,8 +40,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  /* Prevent horizontal scroll */
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 /* Background Elements */
@@ -104,13 +100,11 @@ nav ul {
   list-style: none;
   gap: clamp(12px, 2vw, 30px);
   flex-wrap: nowrap;
-  min-width: 0;
-  /* Allow flex item to shrink below min-content */
+  min-width: 0; /* Allow flex item to shrink below min-content */
 }
 
 nav ul li {
-  min-width: 0;
-  /* Allow flex item to shrink below min-content */
+  min-width: 0; /* Allow flex item to shrink below min-content */
 }
 
 nav ul li a {
@@ -129,8 +123,7 @@ nav ul li a {
   top: 60px;
   left: 225px;
   background-color: #ffffff;
-  display: none;
-  /* Initially hidden */
+  display: none; /* Initially hidden */
   padding: 1rem 1.25rem;
   z-index: 9999;
   border-radius: 8px;
@@ -147,15 +140,13 @@ nav ul li a {
 }
 
 .dropdown-link:hover {
-  background-color: #f0f0f0;
-  /* Light grey hover effect */
+  background-color: #f0f0f0; /* Light grey hover effect */
 }
 
 /* Show the dropdown when hovering over or clicking the parent */
 .dropdown-container:hover .dropdown-list-predict,
 .dropdown-container .dropdown-list-predict {
-  display: block;
-  /* Show the dropdown */
+  display: block; /* Show the dropdown */
 }
 
 /* Optional: for mobile view, adjust the dropdown positioning */
@@ -179,8 +170,7 @@ nav ul li a {
   flex: 1;
   justify-content: flex-start;
   z-index: 2;
-  min-width: 0;
-  /* Allow flex item to shrink below min-content */
+  min-width: 0; /* Allow flex item to shrink below min-content */
 }
 
 .logo-center {
@@ -210,8 +200,7 @@ nav ul li a {
   flex: 1;
   justify-content: flex-end;
   z-index: 2;
-  min-width: 0;
-  /* Allow flex item to shrink below min-content */
+  min-width: 0; /* Allow flex item to shrink below min-content */
 }
 
 .login-btn {
@@ -251,12 +240,10 @@ main {
   justify-content: center;
   align-items: center;
   padding: 20px;
-  padding-bottom: 60px;
-  /* Add space for fixed footer */
+  padding-bottom: 60px; /* Add space for fixed footer */
   max-width: 100%;
   overflow-x: hidden;
-  min-height: calc(100vh - 60px);
-  /* Subtract header height */
+  min-height: calc(100vh - 60px); /* Subtract header height */
 }
 
 .login-container {
