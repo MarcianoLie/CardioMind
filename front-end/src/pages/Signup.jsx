@@ -65,7 +65,7 @@ function SignUp() {
      });
      try {
        
-       const response = await axios.post("http://localhost:8080/register", {
+       const response = await axios.post("http://localhost:8080/api/register", {
          name,
          birthPlace: birthPlace?.trim(),
          birthDate: birthDate,
@@ -97,7 +97,7 @@ function SignUp() {
       const user = result.user;
       const idToken = await user.getIdToken();
   
-      await axios.post("http://localhost:8080/googleAuth", {}, {
+      await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },

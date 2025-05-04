@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import "../css/style.css"
 import "../css/news.css"
 import tennis from "../assets/images/Slide2.png"
@@ -20,7 +20,7 @@ const News = () => {
       console.log("Sending comment payload:", payload);
   
       try {
-        const response = await fetch("http://localhost:8080/comments", {
+        const response = await fetch("http://localhost:8080/api/comments", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -48,6 +48,32 @@ const News = () => {
       }
     }
   };
+  useEffect(() => {
+    const fetchComments = async () => {
+      const newsId = "001"
+      try {
+        console.log(newsId)
+        const response = await fetch(`http://localhost:8080/api/comments/${newsId}`);
+        const result = await response.json();
+        console.log(result)
+
+        if (response.ok) {
+          setComments(result.data); // Asumsi hasilnya dalam bentuk { comments: [...] }
+        } else {
+          console.error("Gagal mengambil komentar:", result.message);
+        }
+      } catch (error) {
+        console.error("Terjadi kesalahan saat mengambil komentar:", error);
+      }
+    };
+
+    fetchComments();
+    // Set interval setiap 1 detik
+    const interval = setInterval(fetchComments, 1000);
+
+    // Bersihkan interval saat komponen unmount
+    return () => clearInterval(interval);
+  }, []); // Efek hanya dijalankan saat newsId berubah
   
   
   
@@ -179,7 +205,10 @@ const News = () => {
                   <p>{comment.username}</p>
                 </div>
                 <div className="user-comment-content">
-                  <p>{comment.text}</p>
+                  <p>{comment.comment}</p>
+                </div>
+                <div className="user-comment-content">
+                  <p>{comment.createdAt}</p>
                 </div>
               </div>
             ))}

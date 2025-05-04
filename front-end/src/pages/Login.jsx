@@ -82,7 +82,7 @@ function Login() {
       // Simulate API call
       // await new Promise((resolve) => setTimeout(resolve, 1000));
  
-      const response = await axios.post("http://localhost:8080/login", {
+      const response = await axios.post("http://localhost:8080/api/login", {
         email: formData.email,
         password: formData.password,
       });
@@ -118,7 +118,7 @@ function Login() {
       const user = result.user;
       const idToken = await user.getIdToken();
   
-      await axios.post("http://localhost:8080/googleAuth", {}, {
+      await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },

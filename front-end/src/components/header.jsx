@@ -22,7 +22,7 @@ const Header = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8080/check-session", {
+        const response = await fetch("http://localhost:8080/api/check-session", {
           method: "GET",
           credentials: "include", // Wajib jika pakai session
         });
@@ -56,7 +56,7 @@ const Header = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8080/logout", {
+      const response = await fetch("http://localhost:8080/api/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
