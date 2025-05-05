@@ -44,27 +44,38 @@ app.use(session({
 }));
 
 // app.use(router);
+/////////////
+// app.use("/api", router);
 
+
+
+
+// app.use(express.static(path.join(__dirname, '../front-end/dist')));
+// app.get('/', (req, res) => {
+//   res.send('API is running successfully');
+// });
+// // console.log("aaa")
+// // Semua request selain API diarahkan ke index.html
+// // app.get("*", (req, res) => {
+// //   res.sendFile(path.join(__dirname, "../front-end/dist/index.html"));
+// //   console.log(`not a API request`);
+// // });
+// app.use((req, res) => {
+//   res.status(404).send('404 Not Found');
+// });
+
+///////////
+// Serve static files dari React
+app.use(express.static(path.join(__dirname, '../front-end/dist')));
+
+// API routes
 app.use("/api", router);
 
-
-
-
-app.use(express.static(path.join(__dirname, '../front-end/dist')));
-app.get('/', (req, res) => {
-  res.send('API is running successfully');
-});
-// console.log("aaa")
-// Semua request selain API diarahkan ke index.html
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(__dirname, "../front-end/dist/index.html"));
-//   console.log(`not a API request`);
-// });
-app.use((req, res) => {
-  res.status(404).send('404 Not Found');
+// Handle React routing: return index.html untuk semua request yang bukan API
+app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
+  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
 });
 
-// console.log("bbb")
 app.listen(port, host, () => {
   console.log(`Server berjalan pada http://${host}:${port}`);
 });
