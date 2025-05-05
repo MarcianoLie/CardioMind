@@ -5,7 +5,8 @@ import "../css/suicidequestion.css"
 import "../css/style.css"
 import * as tf from "@tensorflow/tfjs";
 import botEllipse from "../assets/images/botEllipse.png";
-import topEllipse from "../assets/images/topEllipse.png"
+import topEllipse from "../assets/images/topEllipse.png";
+import axios from "axios"; 
 
 const HasilJantung = () => {
   const [risk, setRisk] = useState("low");
@@ -79,41 +80,22 @@ const HasilJantung = () => {
           ? "Hasil menunjukkan Anda memiliki kemungkinan cukup tinggi mengidap penyakit jantung. Disarankan untuk konsultasi dengan dokter."
           : "Anda tergolong dalam risiko rendah. Tetap jaga gaya hidup sehat!"
         );
-
         try {
-          const response = await fetch("http://localhost:8080/api/heartHistory", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include", 
-            body: JSON.stringify({
-              age: parseFloat((age / 365.25).toFixed(2)),
-              gender: gender === 1 ? "male" : "female",
-              height,
-              weight,
-              systolic: ap_hi,
-              diastolic: ap_lo,
-              cholesterol: cholesterol < 200 ? "normal" : cholesterol < 240 ? "above normal" : "well above normal",
-              glucose: glucose < 70 ? "normal" : glucose < 100 ? "above normal" : "well above normal",
-              smoke: smoke === 1 ? "yes" : "no",
-              alcohol: alcohol === 1 ? "yes" : "no",
-              active: active === 1 ? "yes" : "no",
-              predictionResult: `${(score * 100).toFixed(2)}% ${score >= 0.5 ? "potensi sakit jantung" : "tidak berpotensi sakit jantung"}`, // Kirim sebagai string dengan status
-            }),
+          const response = await axios.post("http://localhost:8080/api/postcardiohistory", {
+            age, gender, height, weight, ap_hi, ap_lo,
+            cholesterol, glucose, smoke, alcohol, active, score
           });
-
-          const result = await response.json();
-          console.log(result);
-          if (!response.ok) {
-            console.log("Error save db")
-            throw new Error(result.message || "Gagal menyimpan data");
+        
+          const data = response.data;
+        
+          if (data.error) {
+            console.error("Gagal record: " + data.message);
+          } else {
+            console.log("Record berhasil!");
           }
-          console.log("Data prediksi berhasil disimpan:", result);
         } catch (error) {
-          console.error("Gagal menyimpan ke backend:", error);
+          console.error("Gagal mengirim data ke server:", error.response?.data || error.message);
         }
-
       } catch (err) {
         console.error("Prediction error:", err);
         setRiskText("Gagal memuat prediksi.");

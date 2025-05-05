@@ -4,8 +4,7 @@ const User = require("../models/userModel.js");
 const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
 const Comments = require("../models/commentModel.js");
-const HeartPredictionHistory = require("../models/cardioModel.js");
-
+const CardioPredict = require("../models/cardioModel.js");
 
 dotenv.config();
 
@@ -216,6 +215,31 @@ const postComments = async (req, res) => {
       res.status(500).json({ message: "Terjadi kesalahan saat menyimpan komentar" });
     }
 };
+const postCardioPredict = async (req, res) => {
+    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const { age, gender, height, weight, ap_hi, ap_lo,
+        cholesterol, glucose, smoke, alcohol, active, score } = req.body;
+    console.log("Session userId set for record:", userId);
+  
+    if (!score || !userId) {
+        return res.status(400).json({ message: "Data tidak lengkap" });
+    }
+  
+    try {
+      const newCardioRecord = new CardioPredict({
+        userId,
+        age, gender, height, weight, ap_hi, ap_lo,
+        cholesterol, glucose, smoke, alcohol, active, score,
+        createdAt: new Date(),
+      });
+  
+      await newCardioRecord.save();
+      res.status(201).json({ message: "cardio predict berhasil ditambahkan" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Terjadi kesalahan saat menyimpan cardio predict" });
+    }
+};
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments };
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict };

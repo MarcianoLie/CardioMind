@@ -1,20 +1,22 @@
+
+
 const mongoose = require("mongoose");
 
-const HeartPredictionHistorySchema = mongoose.Schema({
-    userId: String, 
-    age: Number,
-    gender: { type: String, enum: ["male", "female"] },
-    height: Number,
-    weight: Number,
-    systolic: Number,
-    diastolic: Number,
-    cholesterol: { type: String, enum: ["normal", "above normal", "well above normal"]},
-    glucose: { type: String, enum: ["normal", "above normal", "well above normal"]},
-    smoke: { type: String, enum: ["yes", "no"] },
-    alcohol: { type: String, enum: ["yes", "no"] },
-    active: { type: String, enum: ["yes", "no"] },
-    predictionResult: String ,
-    createdAt: { type: Date, default: Date.now },
+const cardioSchema = new mongoose.Schema({
+    userId: String,
+    age: Number, 
+    gender: String, 
+    height: Number, 
+    weight: Number, 
+    ap_hi: Number, 
+    ap_lo: Number,      
+    cholesterol: Number, 
+    glucose: Number, 
+    smoke: String, 
+    alcohol: String, 
+    active: String,
+    score: Number,
+    createdAt: {type: Date, default: Date.now,},
 });
 
-module.exports = mongoose.model("HeartPredictionHistory", HeartPredictionHistorySchema);
+module.exports = mongoose.model("cardioPredict", cardioSchema);
