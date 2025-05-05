@@ -76,6 +76,14 @@ app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
   res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
 });
 
+// app.get('*', (req, res) => {
+//   if (!req.path.startsWith('/api')) {
+//     res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
+//   } else {
+//     res.status(404).json({ error: "API route not found" });
+//   }
+// });
+
 app.listen(port, host, () => {
   console.log(`Server berjalan pada http://${host}:${port}`);
 });
