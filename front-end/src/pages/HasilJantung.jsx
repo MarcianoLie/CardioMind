@@ -5,7 +5,8 @@ import "../css/suicidequestion.css"
 import "../css/style.css"
 import * as tf from "@tensorflow/tfjs";
 import botEllipse from "../assets/images/botEllipse.png";
-import topEllipse from "../assets/images/topEllipse.png"
+import topEllipse from "../assets/images/topEllipse.png";
+import axios from "axios"; 
 
 const HasilJantung = () => {
   const [risk, setRisk] = useState("low");
@@ -79,15 +80,21 @@ const HasilJantung = () => {
           ? "Hasil menunjukkan Anda memiliki kemungkinan cukup tinggi mengidap penyakit jantung. Disarankan untuk konsultasi dengan dokter."
           : "Anda tergolong dalam risiko rendah. Tetap jaga gaya hidup sehat!"
         );
-        const response = await axios.post("http://localhost:8080/api/postcardiohistory", {
-          age, gender, height, weight, ap_hi, ap_lo,
-          cholesterol, glucose, smoke, alcohol, active, score
-        });
-        const data = response.data;
-        if (data.error) {
-          console.log("Gagal record: " + data.message);
-        } else {
-          console.log("record berhasil!");
+        try {
+          const response = await axios.post("http://localhost:8080/api/postcardiohistory", {
+            age, gender, height, weight, ap_hi, ap_lo,
+            cholesterol, glucose, smoke, alcohol, active, score
+          });
+        
+          const data = response.data;
+        
+          if (data.error) {
+            console.error("Gagal record: " + data.message);
+          } else {
+            console.log("Record berhasil!");
+          }
+        } catch (error) {
+          console.error("Gagal mengirim data ke server:", error.response?.data || error.message);
         }
       } catch (err) {
         console.error("Prediction error:", err);

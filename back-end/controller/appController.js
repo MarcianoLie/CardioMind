@@ -224,7 +224,7 @@ const postCardioPredict = async (req, res) => {
     const userId = req.session.userId; // asumsi login sudah dilakukan
     const { age, gender, height, weight, ap_hi, ap_lo,
         cholesterol, glucose, smoke, alcohol, active, score } = req.body;
-    console.log("Session userId set:", userId);
+    console.log("Session userId set for record:", userId);
   
     if (!score || !userId) {
         return res.status(400).json({ message: "Data tidak lengkap" });
