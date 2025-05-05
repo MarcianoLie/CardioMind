@@ -112,7 +112,7 @@ const SuicideQ1 = () => {
     const riskCategory = predictionValue >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
 
     try {
-      await fetch("http://localhost:8080/suicideHistory", {
+      await fetch("http://localhost:8080/api/suicideHistory", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -5,16 +5,18 @@ import tennis from "../assets/images/Slide2.png"
 import anjing from "../assets/images/Slide5.png"
 import profile from "../assets/images/Profile.png"
 import logo from "../assets/images/Logo.png"
+import { useParams } from "react-router-dom";
 
 const News = () => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
+  const { newsId } = useParams();
 
   const handleAddComment = async () => {
     if (commentText.trim()) {
       const payload = {
         comment: commentText,
-        newsId: "001", // pastikan ini sesuai dengan yang dibaca backend
+        newsId: newsId, // pastikan ini sesuai dengan yang dibaca backend
       };
   
       console.log("Sending comment payload:", payload);
