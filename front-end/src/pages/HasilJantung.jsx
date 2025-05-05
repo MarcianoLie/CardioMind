@@ -79,6 +79,16 @@ const HasilJantung = () => {
           ? "Hasil menunjukkan Anda memiliki kemungkinan cukup tinggi mengidap penyakit jantung. Disarankan untuk konsultasi dengan dokter."
           : "Anda tergolong dalam risiko rendah. Tetap jaga gaya hidup sehat!"
         );
+        const response = await axios.post("http://localhost:8080/api/postcardiohistory", {
+          age, gender, height, weight, ap_hi, ap_lo,
+          cholesterol, glucose, smoke, alcohol, active, score
+        });
+        const data = response.data;
+        if (data.error) {
+          console.log("Gagal record: " + data.message);
+        } else {
+          console.log("record berhasil!");
+        }
       } catch (err) {
         console.error("Prediction error:", err);
         setRiskText("Gagal memuat prediksi.");
