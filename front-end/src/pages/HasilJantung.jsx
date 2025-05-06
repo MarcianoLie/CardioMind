@@ -48,13 +48,13 @@ const HasilJantung = () => {
           (weight - means.weight) / stds.weight,
           (ap_hi - means.ap_hi) / stds.ap_hi,
           (ap_lo - means.ap_lo) / stds.ap_lo,
-          cholesterol<200?0:cholesterol<240?1:2,
-          glucose<70?0:glucose<100?1:2,
+          cholesterol < 200 ? 0 : cholesterol < 240 ? 1 : 2,
+          glucose < 70 ? 0 : glucose < 100 ? 1 : 2,
           smoke,
           alcohol,
           active
         ];
-        
+
 
         console.log(raw);
         console.log(normalized);
@@ -104,6 +104,7 @@ const HasilJantung = () => {
     };
 
     loadModelAndPredict();
+
   }, []);
 
   return (

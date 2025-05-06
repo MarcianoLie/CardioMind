@@ -11,7 +11,6 @@ dotenv.config();
 // profile
 const profile = async (req, res) => {
     const userId = req.session.userId;
-    if (!userId) return res.status(401).json({ error: true, message: "Unauthorized" });
 
     const userProfile = await User.findOne({ userId: userId });
     if (!userProfile) {
@@ -53,18 +52,12 @@ const editProfile = async (req, res) => {
 // history
 const saveSuicidePrediction = async (req, res) => {
     const userId = req.session.userId;
-    if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
     const { message, predictionResult } = req.body;
 
     try {
-        const user = await User.findOne({ "userId": userId });
-
-        if (!user) {
-            return res.status(404).json({ success: false, message: "User tidak ditemukan" });
-        }
 
         const prediction = new SuicidePrediction({
-            userId: user.userId,
+            userId: userId,
             message,
             predictionResult,
         });
@@ -75,6 +68,8 @@ const saveSuicidePrediction = async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 };
+
+
 
 
 // artikel update
