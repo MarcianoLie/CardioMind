@@ -1,5 +1,7 @@
 /* Suicide Prediction Pages Styles */
 
+@import "tailwindcss";
+
 /* Main Container */
 .suicide-predict-container {
   max-width: 1200px;

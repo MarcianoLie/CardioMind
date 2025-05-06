@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/images/Logo.png";
+import LogoSmall from "../assets/images/logo-mobile.svg";
+import ProfileImg from "../assets/images/Profile.png";
 import "../css/style.css";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const sidebarRef = useRef(null);
+  const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
 
   // Toggle dropdown visibility
@@ -14,10 +20,63 @@ const Header = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // Close dropdown on link click
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    // When opening mobile menu, close dropdown if open
+    if (!isMobileMenuOpen && isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  };
+
+  // Close menu on link click
   const closeMenu = () => {
     setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false);
   };
+
+  // Toggle profile dropdown
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Add event listener for close button
+  useEffect(() => {
+    const handleCloseClick = (e) => {
+      // Check if the click was on the close button (::before pseudo-element)
+      // We can approximate by checking if click was at the top-left region of the sidebar
+      if (sidebarRef.current && isMobileMenuOpen) {
+        const { top, left } = e.target.getBoundingClientRect();
+        if (top < 50 && left < 50) {
+          closeMenu();
+        }
+      }
+    };
+
+    if (isMobileMenuOpen && sidebarRef.current) {
+      sidebarRef.current.addEventListener('click', handleCloseClick);
+    }
+
+    return () => {
+      if (sidebarRef.current) {
+        sidebarRef.current.removeEventListener('click', handleCloseClick);
+      }
+    };
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -26,7 +85,7 @@ const Header = () => {
           method: "GET",
           credentials: "include", // Wajib jika pakai session
         });
-  
+
         const data = await response.json();
         if (data.isLoggedIn) {
           setIsLoggedIn(true);
@@ -42,14 +101,14 @@ const Header = () => {
         setIsLoggedIn(false);
       }
     };
-  
+
     checkSession();
-  
+
     const intervalId = setInterval(checkSession, 10000); // per 10 detik cek ulang
-  
+
     return () => clearInterval(intervalId);
   }, []);
-  
+
 
   // Handle logout
   const handleLogout = async () => {
@@ -81,7 +140,13 @@ const Header = () => {
 
   return (
     <header>
-      <div className="left-header">
+      <div className={`hamburger-menu ${isMobileMenuOpen ? 'open' : ''}`} onClick={toggleMobileMenu}>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div className={`left-header ${isMobileMenuOpen ? 'open' : ''}`} ref={sidebarRef}>
         <nav>
           <ul>
             <li>
@@ -92,7 +157,7 @@ const Header = () => {
             </li>
             <li className="dropdown-container">
               <a onClick={toggleDropdown} className="dropdown__link">
-                Prediksi
+                Prediksi <span className="dropdown-arrow">&#9662;</span>
               </a>
               {isDropdownOpen && (
                 <div className="dropdown-list-predict">
@@ -114,15 +179,38 @@ const Header = () => {
 
       <div className="logo-center">
         <Link to="/">
-          <img src={Logo} alt="CardioMind Logo" />
+          <img className="logo-large" src={Logo} alt="CardioMind Logo" />
+          <img className="logo-small" src={LogoSmall} alt="CardioMind Logo Small" />
         </Link>
       </div>
 
       <div className="auth-buttons">
         {isLoggedIn ? (
-          <div className="user-info">
-            <span>Hi, {userName}!</span>
-            <button onClick={handleLogout} className="logout-btn">Logout</button>
+          <div className="user-info" ref={profileDropdownRef}>
+            <div className="profile-img-container" onClick={toggleProfileDropdown}>
+              <img src={ProfileImg} alt="Profile" className="profile-image" />
+            </div>
+            {isProfileDropdownOpen && (
+              <div className="profile-dropdown">
+                <div className="profile-dropdown-header">
+                  <img src={ProfileImg} alt="Profile" className="dropdown-profile-image" />
+                  <div className="dropdown-user-info">
+                    <span className="dropdown-username">{userName}</span>
+                  </div>
+                </div>
+                <div className="profile-dropdown-menu">
+                  <Link to="/profile" className="dropdown-item" onClick={() => setIsProfileDropdownOpen(false)}>
+                    <span className="dropdown-item-icon">👤</span>
+                    Profile
+                  </Link>
+                  <div className="dropdown-divider"></div>
+                  <div className="dropdown-item" onClick={handleLogout}>
+                    <span className="dropdown-item-icon">🚪</span>
+                    Logout
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -131,6 +219,8 @@ const Header = () => {
           </>
         )}
       </div>
+
+      {isMobileMenuOpen && <div className="mobile-menu-overlay" onClick={toggleMobileMenu}></div>}
     </header>
   );
 };
