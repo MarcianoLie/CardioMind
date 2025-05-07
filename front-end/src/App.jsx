@@ -22,6 +22,10 @@ import JantungQ7 from "./pages/JantungQ7.jsx";
 import JantungQ8 from "./pages/JantungQ8.jsx";
 import JantungQ9 from "./pages/JantungQ9.jsx";
 import HasilJantung from "./pages/HasilJantung.jsx";
+import EditProfile from "./pages/EditProfile";
+
+
+
 
 function App() {
   return (
@@ -49,6 +53,7 @@ function App() {
         <Route path="/JantungQ8" element={<JantungQ8 />} />
         <Route path="/JantungQ9" element={<JantungQ9 />} />
         <Route path="/HasilJantung" element={<HasilJantung />} />
+        <Route path="/editprofile" element={<EditProfile />} />
       </Routes>
       <Footer />
     </div>

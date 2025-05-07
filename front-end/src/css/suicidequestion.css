@@ -1,4 +1,7 @@
 /* Specific styles for this page */
+
+@import "tailwindcss";
+
 .calculate-btn {
     background-color: #135c60;
     color: white;

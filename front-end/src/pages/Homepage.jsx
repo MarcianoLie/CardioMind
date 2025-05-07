@@ -27,6 +27,15 @@ function Homepage() {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
+  // Slide links - add your desired URLs here
+  const slideLinks = [
+    "/infokesehatan", // Slide 1 link
+    "/PrediksiJantung", // Slide 2 link
+    "/PrediksiBunuhDiri", // Slide 3 link
+    "/riwayat", // Slide 4 link
+    "#", // Slide 5 link - replace with actual link
+  ];
+
   const totalSlides = 5;
 
   const nextSlide = () => {
@@ -122,6 +131,21 @@ function Homepage() {
     };
   }, []);
 
+  // Function to render slide content with link if active
+  const renderSlideContent = (slideIndex, imgSrc, altText) => {
+    const isActive = slideIndex === currentIndex;
+
+    if (isActive) {
+      return (
+        <Link to={slideLinks[slideIndex]} className="slide-link">
+          <img src={imgSrc} alt={altText} />
+        </Link>
+      );
+    }
+
+    return <img src={imgSrc} alt={altText} />;
+  };
+
   return (
     <div className="container">
       <div className="background">
@@ -180,35 +204,35 @@ function Homepage() {
                 data-index="3"
                 style={{ zIndex: getSlideZIndex(3) }}
               >
-                <img src={Slide4} alt="Slide 4" />
+                {renderSlideContent(3, Slide4, "Slide 4")}
               </div>
               <div
                 className={`slide ${getSlideClass(4)}`}
                 data-index="4"
                 style={{ zIndex: getSlideZIndex(4) }}
               >
-                <img src={Slide5} alt="Slide 5" />
+                {renderSlideContent(4, Slide5, "Slide 5")}
               </div>
               <div
                 className={`slide ${getSlideClass(0)}`}
                 data-index="0"
                 style={{ zIndex: getSlideZIndex(0) }}
               >
-                <img src={Slide1} alt="Slide 1" />
+                {renderSlideContent(0, Slide1, "Slide 1")}
               </div>
               <div
                 className={`slide ${getSlideClass(1)}`}
                 data-index="1"
                 style={{ zIndex: getSlideZIndex(1) }}
               >
-                <img src={Slide2} alt="Slide 2"/>
+                {renderSlideContent(1, Slide2, "Slide 2")}
               </div>
               <div
                 className={`slide ${getSlideClass(2)}`}
                 data-index="2"
                 style={{ zIndex: getSlideZIndex(2) }}
               >
-                <img src={Slide3} alt="Slide 3" />
+                {renderSlideContent(2, Slide3, "Slide 3")}
               </div>
             </div>
           </div>
@@ -243,25 +267,25 @@ function Homepage() {
                         ? isVerySmall
                           ? "12px"
                           : isMobile
-                          ? "14px"
-                          : "16px"
+                            ? "14px"
+                            : "16px"
                         : isVerySmall
-                        ? "8px"
-                        : isMobile
-                        ? "10px"
-                        : "12px",
+                          ? "8px"
+                          : isMobile
+                            ? "10px"
+                            : "12px",
                     height:
                       currentIndex === index
                         ? isVerySmall
                           ? "12px"
                           : isMobile
-                          ? "14px"
-                          : "16px"
+                            ? "14px"
+                            : "16px"
                         : isVerySmall
-                        ? "8px"
-                        : isMobile
-                        ? "10px"
-                        : "12px",
+                          ? "8px"
+                          : isMobile
+                            ? "10px"
+                            : "12px",
                   }}
                 ></div>
               ))}

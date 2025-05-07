@@ -1,133 +1,195 @@
-import { Link } from "react-router-dom";
-import "../css/home.css";
-import "../css/style.css";
-import "../css/profile.css";
-import "../css/editprofile.css";
-
-// Images
+import React, { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate } from "react-router-dom";
+import "../css/userprofile.css"
 import topEllipse from "../assets/images/topEllipse.png";
 import botEllipse from "../assets/images/botEllipse.png";
-import ProfileIcon from "../assets/images/Profile.png";
-import Logo from "../assets/images/Logo.png";
 import IconRumah from "../assets/images/icon-rumah.svg";
 import IconRiwayat from "../assets/images/icon-riwayat.svg";
 import IconPrediksi from "../assets/images/icon-prediksi.svg";
 import IconProfile from "../assets/images/icon-profile.svg";
 
-// Component untuk menu navigasi
-// Mempertahankan struktur yang sama dengan CSS yang ada
-const NavigationMenu = () => {
-  return (
-    <div className="nav-menu-container">
-      <div className="home-menu-item">
-        <img className="home-icon" alt="" src={IconRumah} />
-        <div className="menu-label-container">
-          <div className="menu-label-text">Home</div>
-        </div>
-      </div>
-      <div className="history-menu-item">
-        <img className="history-icon" alt="" src={IconRiwayat} />
-        <div className="menu-label-container">
-          <div className="menu-label-text">Riwayat</div>
-        </div>
-      </div>
-      <div className="prediction-menu-item">
-        <img className="prediction-icon" alt="" src={IconPrediksi} />
-        <div className="prediction-label-container">
-          <div className="menu-label-text">Prediksi</div>
-        </div>
-      </div>
-    </div>
-  );
-};
 
-// Component untuk detail profil
-const ProfileDetail = ({ label, value }) => {
-  return (
-    <>
-      <div className="detail-label-container">
-        <b className="detail-label-text">{label}</b>
-      </div>
-      <div className="detail-value-container">
-        <div className="detail-value-text">{value}</div>
-      </div>
-    </>
-  );
-};
 
-// Component utama ProfilePage
-const ProfilePage = () => {
-  const userInfo = {
-    name: "Azka Lie",
-    shortName: "Azka",
-    email: "azka@mail.unpad.ac.id",
-    phone: "081513989611",
-    gender: "Laki laki",
-    birthDate: "17-07-2004"
+function ProfilePage() {
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    gender: '',
+    dob: '',
+    profileImage: ''
+  });
+  
+  const profileUploadRef = useRef(null);
+  const profileImageRef = useRef(null);
+  const profileImagesRef = useRef([]);
+  
+  // Utility function to capitalize first letter of a string
+  function capitalizeFirstLetter(string) {
+    if (!string) return string;
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+  
+  // Handle image upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        // Update state
+        setProfileData(prev => ({
+          ...prev,
+          profileImage: event.target.result
+        }));
+        
+        // Store in localStorage to persist across pages
+        localStorage.setItem("profileImage", event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
-
-  const handleEditProfile = () => {
-    // Implementasi fungsi edit profile di sini
-    console.log("Edit profile clicked");
+  
+  useEffect(() => {
+    // Load profile data from localStorage if available
+    const savedName = localStorage.getItem("profileName");
+    const savedEmail = localStorage.getItem("profileEmail");
+    const savedPhone = localStorage.getItem("profilePhone");
+    const savedGender = localStorage.getItem("profileGender");
+    const savedDOB = localStorage.getItem("profileDOB");
+    const savedProfileImage = localStorage.getItem("profileImage");
+    
+    setProfileData({
+      name: savedName || '',
+      email: savedEmail || '',
+      phone: savedPhone || '',
+      gender: savedGender || '',
+      dob: savedDOB || '',
+      profileImage: savedProfileImage || 'assets/images/Profile.png'
+    });
+  }, []);
+  
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      // Format as DD-MM-YYYY
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+    return dateString;
   };
+  
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const firstName = profileData.name ? profileData.name.split(" ")[0] : 'Azka';
 
   return (
     <div className="container">
-      {/* Background Elements */}
       <div className="background">
         <img src={topEllipse} alt="" className="top-ellipse" />
         <img src={botEllipse} alt="" className="bottom-ellipse" />
       </div>
-      
       <main>
-        {/* Profile Information Section */}
-        <div className="profile-container">
-          <div className="profile-background"></div>
-          
-          <div className="profile-info-container">
-            <div className="greeting-container">
-              <div className="greeting-text">Hi,</div>
+        <div className="profile-section">
+          {/* Left side card with basic info and icons */}
+          <div className="profile-card">
+            <div className="profile-header">
+              <h2>Hi,</h2>
+              <h1>{capitalizeFirstLetter(firstName)}</h1>
+              <p className="profile-email">{profileData.email || 'azka@mail.unpad.ac.id'}</p>
+              <Link to="/editprofile" className="edit-profile-link">Edit Profile</Link>
             </div>
-            <div className="name-container">
-              <div className="name-text">{userInfo.shortName}</div>
-            </div>
-            <div className="email-container">
-              <div className="email-text">{userInfo.email}</div>
+            
+            <div className="profile-nav">
+              <div className="nav-item">
+                <Link to="/">
+                  <img src={IconRumah} alt="Home" />
+                  <span>Home</span>
+                </Link>
+              </div>
+              <div className="nav-item">
+                <Link to="#">
+                  <img src={IconRiwayat} alt="Riwayat" />
+                  <span>Riwayat</span>
+                </Link>
+              </div>
+              <div className="nav-item">
+                <Link to="/home">
+                  <img src={IconPrediksi} alt="Prediksi" />
+                  <span>Prediksi</span>
+                </Link>
+              </div>
             </div>
           </div>
-          
-          <div
-            className="edit-profile-button"
-            id="frameContainer1"
-            onClick={handleEditProfile}
-          >
-            <div className="button-text">Edit Profile</div>
-          </div>
-          
-          <NavigationMenu />
-        </div>
-        
-        {/* Detailed Profile Card */}
-        <div className="edit-profile-wrapper">
-          <div className="profile-card-background"></div>
-          
-          <div className="profile-title-container">
-            <b className="profile-title-text">Profile</b>
-          </div>
-          
-          <img className="profile-avatar" alt="Profile" src={IconProfile} />
-          
-          <div className="profile-details-container">
-            <ProfileDetail label="Nama" value={userInfo.name} />
-            <ProfileDetail label="Email" value={userInfo.email} />
-            <ProfileDetail label="No Telp." value={userInfo.phone} />
-            <ProfileDetail label="Jenis Kelamin" value={userInfo.gender} />
-            <ProfileDetail label="Tanggal Lahir" value={userInfo.birthDate} />
+
+          {/* Right side profile section */}
+          <div className="edit-profile-section">
+            <h2>Profile</h2>
+            
+            <div className="profile-picture-container">
+              <div className="profile-picture">
+                <img 
+                  src={profileData.profileImage || {IconProfile}} 
+                  alt="User profile picture" 
+                  id="profile-image"
+                  ref={profileImageRef}
+                />
+              </div>
+            </div>
+            
+            <div className="profile-details">
+              <div className="detail-group">
+                <label>Nama</label>
+                <p className="detail-value" id="profile-name">
+                  {profileData.name || 'Azka Lie'}
+                </p>
+              </div>
+              
+              <div className="detail-group">
+                <label>Email</label>
+                <p className="detail-value" id="profile-email">
+                  {profileData.email || 'azka@mail.unpad.ac.id'}
+                </p>
+              </div>
+              
+              <div className="detail-group">
+                <label>No Telp.</label>
+                <p className="detail-value" id="profile-phone">
+                  {profileData.phone || '081513989611'}
+                </p>
+              </div>
+              
+              <div className="detail-group">
+                <label>Jenis Kelamin</label>
+                <p className="detail-value" id="profile-gender">
+                  {profileData.gender || 'Laki-laki'}
+                </p>
+              </div>
+              
+              <div className="detail-group">
+                <label>Tanggal Lahir</label>
+                <p className="detail-value" id="profile-dob">
+                  {formatDate(profileData.dob) || '17-07-2004'}
+                </p>
+              </div>
+              
+              <Link to="/editprofile" id="edit-btn">Edit Profile</Link>
+            </div>
           </div>
         </div>
       </main>
+      
+      {/* Hidden file upload input for profile image */}
+      <input 
+        type="file" 
+        id="profile-upload" 
+        style={{ display: 'none' }} 
+        ref={profileUploadRef}
+        onChange={handleImageUpload}
+      />
     </div>
   );
-};
+}
 
 export default ProfilePage;
