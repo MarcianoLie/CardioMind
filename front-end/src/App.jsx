@@ -10,7 +10,7 @@ import ProfilePage from "./pages/Profile";
 import EditProfilePage from "./pages/EditProfile";
 import PrediksiBunuhDiri from "./pages/PrediksiBunuhdiri";
 import SuicideQ1 from "./pages/SuicideQ1.jsx";
-import HasilBunuhDiri from "./pages/hasilbunuhdiri.jsx";
+import HasilBunuhDiri from "./pages/hasilBunuhdiri.jsx";
 import PrediksiJantung from "./pages/PrediksiJantung.jsx";
 import JantungQ1 from "./pages/JantungQ1.jsx";
 import JantungQ2 from "./pages/JantungQ2.jsx";
