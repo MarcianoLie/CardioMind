@@ -15,9 +15,9 @@ function EditProfile() {
     name: 'Azka Lie',
     email: 'azka@mail.unpad.ac.id',
     phone: '081513989611',
-    gender: 'Laki-laki',
+    pob: 'Laki-laki',
     dob: '',
-    profileImage: 'assets/images/Profile.png'
+    // profileImage: 'assets/images/Profile.png'
   });
   
   const [showSavedPopup, setShowSavedPopup] = useState(false);
@@ -59,7 +59,7 @@ function EditProfile() {
       'nama': 'name',
       'email': 'email',
       'telp': 'phone',
-      'gender': 'gender',
+      'pob': 'pob',
       'dob': 'dob'
     };
     
@@ -67,6 +67,38 @@ function EditProfile() {
       ...prev,
       [fieldMapping[id]]: value
     }));
+  };
+  const handleSave = async () => {
+    console.log(profileData);
+    try {
+      const userNewData = {
+        displayName: profileData.name,
+        birthPlace: profileData.pob,
+        birthDate: profileData.dob,
+        phone: profileData.phone,
+      };
+      const payload = userNewData;
+      const response = await fetch('http://localhost:8080/api/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const result = await response.json();
+      console.log('Response:', result);
+  
+      if (response.ok) {
+        // Jika berhasil, lakukan sesuatu, seperti memberi notifikasi atau menyimpan data lokal
+        alert('Profile berhasil disimpan!');
+      } else {
+        alert('Terjadi kesalahan: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error saat mengirim data:', error);
+      alert('Terjadi kesalahan saat mengirim data.');
+    }
   };
   
   // Handle form submission
@@ -77,7 +109,7 @@ function EditProfile() {
     localStorage.setItem("profileName", profileData.name);
     localStorage.setItem("profileEmail", profileData.email);
     localStorage.setItem("profilePhone", profileData.phone);
-    localStorage.setItem("profileGender", profileData.gender);
+    localStorage.setItem("profilepob", profileData.pob);
     localStorage.setItem("profileDOB", profileData.dob);
     
     // Show success popup
@@ -85,8 +117,8 @@ function EditProfile() {
     
     // Set timeout to redirect to profile page after showing the popup
     setTimeout(() => {
-      window.location.href = "profile.html";
-    }, 2000);
+      window.location.href = "profile";
+    }, 10000);
   };
   
   // Handle "Thanks!" button click in popup
@@ -119,13 +151,41 @@ function EditProfile() {
     localStorage.setItem("isLoggedIn", "false");
     window.location.href = "/";
   };
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/profile", {
+        credentials: "include", // agar session (userId) dikirim
+      });
+      const result = await response.json();
+      console.log(result)
+
+      if (response.ok) {
+        console.log(result.data);
+        // console.log("ini data"+result.user.email);
+        setProfileData({
+          name: result.user.displayName || '',
+          email: result.user.email || '',
+          phone: result.user.phone || '',
+          dob: result.user.birthDate || '',
+          pob: result.user.birthPlace || '',
+          profileImage: result.user.profileImage || 'assets/images/Profile.png', // fallback image jika kosong
+        });
+      } else {
+        console.error("Gagal mengambil data:", result.message);
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengambil data:", error);
+    }
+  };
   
   useEffect(() => {
+    fetchProfile();
     // Load profile data from localStorage if available
     const savedName = localStorage.getItem("profileName");
     const savedEmail = localStorage.getItem("profileEmail");
     const savedPhone = localStorage.getItem("profilePhone");
-    const savedGender = localStorage.getItem("profileGender");
+    const savedpob = localStorage.getItem("profilepob");
     const savedDOB = localStorage.getItem("profileDOB");
     const savedProfileImage = localStorage.getItem("profileImage");
     
@@ -134,7 +194,7 @@ function EditProfile() {
       name: savedName || prev.name,
       email: savedEmail || prev.email,
       phone: savedPhone || prev.phone,
-      gender: savedGender || prev.gender,
+      pob: savedpob || prev.pob,
       dob: savedDOB || prev.dob,
       profileImage: savedProfileImage || prev.profileImage
     }));
@@ -231,10 +291,9 @@ function EditProfile() {
                     id="email"
                     value={profileData.email}
                     onChange={handleInputChange}
+                    readOnly
                   />
-                  <button type="button" className="edit-btn" onClick={handleEditClick}>
-                    <img src={IconEdit} alt="Edit" />
-                  </button>
+                  
                 </div>
               </div>
               
@@ -254,17 +313,14 @@ function EditProfile() {
               </div>
               
               <div className="form-group">
-                <label htmlFor="gender">Gender</label>
+                <label htmlFor="pob">Tempat Lahir</label>
                 <div className="input-with-edit">
-                  <select
-                    id="gender"
-                    name="gender"
-                    value={profileData.gender}
+                  <input
+                    id="pob"
+                    name="pob"
+                    value={profileData.pob}
                     onChange={handleInputChange}
-                  >
-                    <option value="Laki-laki">Laki-laki</option>
-                    <option value="Perempuan">Perempuan</option>
-                  </select>
+                  />
                   <button type="button" className="edit-btn" onClick={handleEditClick}>
                     <img src={IconEdit} alt="Edit" />
                   </button>
@@ -274,20 +330,22 @@ function EditProfile() {
               <div className="form-group">
                 <label htmlFor="dob">Date of Birth</label>
                 <div className="input-with-edit">
-                  <input
-                    type="date"
-                    id="dob"
-                    name="dob"
-                    value={profileData.dob}
-                    onChange={handleInputChange}
-                  />
+                <input
+                  type="date"
+                  id="dob"
+                  name="dob"
+                  value={profileData.dob ? new Date(profileData.dob).toLocaleDateString('en-CA') : ''} 
+                  onChange={handleInputChange}
+                />
+
+
                   <button type="button" className="edit-btn" onClick={handleEditClick}>
                     <img src={IconEdit} alt="Edit" className="edit-icon" />
                   </button>
                 </div>
               </div>
               
-              <button type="submit" id="confirm-btn">Confirm</button>
+              <button type="submit" id="confirm-btn" onClick={handleSave}>Confirm</button>
             </form>
           </div>
         </div>

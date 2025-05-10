@@ -49,7 +49,36 @@ function ProfilePage() {
     }
   };
   
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/profile", {
+        credentials: "include", // agar session (userId) dikirim
+      });
+      const result = await response.json();
+      console.log(result)
+
+      if (response.ok) {
+        console.log(result.data);
+        // console.log("ini data"+result.user.email);
+        setProfileData({
+          name: result.user.displayName || '',
+          email: result.user.email || '',
+          phone: result.user.phone || '',
+          dob: result.user.birthDate || '',
+          pob: result.user.birthPlace || '',
+          profileImage: result.user.profileImage || 'assets/images/Profile.png', // fallback image jika kosong
+        });
+      } else {
+        console.error("Gagal mengambil data:", result.message);
+      }
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengambil data:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchProfile();
+    console.log("a")
     // Load profile data from localStorage if available
     const savedName = localStorage.getItem("profileName");
     const savedEmail = localStorage.getItem("profileEmail");
@@ -95,7 +124,7 @@ function ProfilePage() {
           {/* Left side card with basic info and icons */}
           <div className="profile-card">
             <div className="profile-header">
-              <h2>Hi,</h2>
+              <h2>Hai!,</h2>
               <h1>{capitalizeFirstLetter(firstName)}</h1>
               <p className="profile-email">{profileData.email || 'azka@mail.unpad.ac.id'}</p>
               <Link to="/editprofile" className="edit-profile-link">Edit Profile</Link>
@@ -161,9 +190,9 @@ function ProfilePage() {
               </div>
               
               <div className="detail-group">
-                <label>Jenis Kelamin</label>
+                <label>Tempat Lahir</label>
                 <p className="detail-value" id="profile-gender">
-                  {profileData.gender || 'Laki-laki'}
+                  {profileData.pob || 'Jakarta'}
                 </p>
               </div>
               
