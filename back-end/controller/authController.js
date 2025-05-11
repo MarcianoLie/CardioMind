@@ -1,4 +1,4 @@
-const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } = require("firebase/auth");
+const { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification } = require("firebase/auth");
 const { db, auth } = require("../auth/firebase-config.js");
 const { sendPasswordResetEmail } = require('firebase/auth');
 const { admin } = require("../auth/middleware.js");
@@ -17,6 +17,8 @@ const register = async (req, res) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    await sendEmailVerification(user);
 
     const userData = {
       displayName: name,

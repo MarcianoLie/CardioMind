@@ -14,6 +14,7 @@
     "@tailwindcss/vite": "^4.1.5",
     "@tensorflow/tfjs": "^3.21.0",
     "axios": "^1.8.4",
+    "dompurify": "^3.2.5",
     "firebase": "^11.6.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
