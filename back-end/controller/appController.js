@@ -1,6 +1,6 @@
 const FeedParser = require("feedparser-promised");
 const dotenv = require("dotenv");
-const User = require("../models/userModel.js");
+const { User } = require('../models/userModel');
 const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
 const Comments = require("../models/commentModel.js");
@@ -11,6 +11,7 @@ dotenv.config();
 // profile
 const profile = async (req, res) => {
     const userId = req.session.userId;
+    console.log(userId);
 
     const userProfile = await User.findOne({ userId: userId });
     if (!userProfile) {
@@ -241,5 +242,24 @@ const postCardioPredict = async (req, res) => {
     }
 };
 
+// const getUser = async (req, res) => {
+//     try {
+//       const userId = req.session.userId;
+//       if (!userId) {
+//         return res.status(401).json({ success: false, message: "Unauthorized: No session" });
+//       }
+  
+//       const user = await User.findOne({ userId }); // mencocokkan dengan field userId dalam model
+//       if (!user) {
+//         return res.status(404).json({ success: false, message: "User not found" });
+//       }
+  
+//       res.status(200).json({ success: true, data: user });
+//     } catch (error) {
+//       res.status(500).json({ success: false, message: error.message });
+//     }
+//   };
+  
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict };
+
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict};
