@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser, checkSession } = require("../controller/authController.js");
-const { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, postComments, getComments, postCardioPredict, postImageProfile } = require("../controller/appController.js");
+const { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, postComments, getComments, postCardioPredict, postImageProfile, getCardioHistory } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
 
 
@@ -26,6 +26,7 @@ router.post('/updateImage',postImageProfile);
 router.get('/news/update', newsUpdate);
 router.get('/news', getHealthArticles); 
 router.get('/comments/:newsId', getComments); //gw ubah dlu buat komen
+router.get('/riwayatCardio/', getCardioHistory); 
 router.get('/news/:id', articleById)
 router.post("/comments", postComments);
 router.get("/check-session", checkSession);

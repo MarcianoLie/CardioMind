@@ -301,7 +301,64 @@ const postImageProfile = async (req, res) => {
 //       res.status(500).json({ success: false, message: error.message });
 //     }
 //   };
+
+
+const getCardioHistory = async (req, res) => {
+    try {
+        const newsId = req.params.newsId; // mengambil newsId dari URL parameter
+
+        const cardioPredict = await CardioPredict.aggregate([
+            {
+                $match: { newsId: newsId } // filter berdasarkan newsId
+            },
+            {
+                $lookup: {
+                    from: "user", // nama collection di MongoDB
+                    localField: "userId",
+                    foreignField: "userId",
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
+            },
+            {
+                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
+            },
+            {
+                $project: {
+                    // comment: 1,
+                    // createdAt: 1,
+                    // userId: 1,
+                    // username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
+                    userId:1,
+                    age:1, 
+                    gender:1, 
+                    height:1, 
+                    weight:1, 
+                    ap_hi:1, 
+                    ap_lo:1,
+                    cholesterol:1, 
+                    glucose:1, 
+                    smoke:1, 
+                    alcohol:1,
+                    active:1, 
+                    score:1,
+                    createdAt:1
+                }
+            }
+        ]);
+
+        if (cardioPredict.length === 0) {
+            return res.status(404).json({ success: false, message: "History tidak ditemukan" });
+        }
+
+        res.status(200).json({ success: true, data: cardioPredict });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
   
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile};
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory};
