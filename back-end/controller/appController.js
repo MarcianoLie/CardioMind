@@ -5,6 +5,8 @@ const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
 const Comments = require("../models/commentModel.js");
 const CardioPredict = require("../models/cardioModel.js");
+// const multer = require('multer');
+// const path = require('path');
 
 dotenv.config();
 
@@ -241,6 +243,46 @@ const postCardioPredict = async (req, res) => {
       res.status(500).json({ message: "Terjadi kesalahan saat menyimpan cardio predict" });
     }
 };
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'uploads/');
+//   },
+//   filename: function (req, file, cb) {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   },
+// });
+
+// const upload = multer({ 
+//   storage: storage, 
+//   limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+// });
+
+const postImageProfile = async (req, res) => {  
+  const userId = req.session.userId; // asumsi user sudah login
+  const { profileImage } = req.body;
+
+  if (!profileImage || !userId) {
+    return res.status(400).json({ message: "Gambar atau userId tidak tersedia" });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { userId },
+      { profileImage },
+      { new: true, upsert: false } // tidak buat user baru, hanya update
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    res.status(200).json({ message: "Gambar profil berhasil diperbarui", data: updatedUser });
+  } catch (err) {
+    console.error("Error updating profile image:", err);
+    res.status(500).json({ message: "Terjadi kesalahan saat menyimpan gambar" });
+  }
+};
+
 
 // const getUser = async (req, res) => {
 //     try {
@@ -262,4 +304,4 @@ const postCardioPredict = async (req, res) => {
   
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict};
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile};

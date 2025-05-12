@@ -104,7 +104,7 @@ const Header = () => {
 
     checkSession();
 
-    const intervalId = setInterval(checkSession, 10000); // per 10 detik cek ulang
+    const intervalId = setInterval(checkSession, 1000); // per 10 detik cek ulang
 
     return () => clearInterval(intervalId);
   }, []);
