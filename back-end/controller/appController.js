@@ -4,6 +4,7 @@ const { User } = require('../models/userModel');
 const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
 const Comments = require("../models/commentModel.js");
+const Reply = require("../models/replyModel.js");
 const CardioPredict = require("../models/cardioModel.js");
 // const multer = require('multer');
 // const path = require('path');
@@ -218,6 +219,30 @@ const postComments = async (req, res) => {
       res.status(500).json({ message: "Terjadi kesalahan saat menyimpan komentar" });
     }
 };
+const postReply = async (req, res) => {
+    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const { commentId, reply } = req.body;
+    console.log("Session userId set:", userId);
+  
+    if (!commentId || !reply || !userId) {
+        return res.status(400).json({ message: "Data tidak lengkap" });
+    }
+  
+    try {
+      const newReply = new Reply({
+        userId,
+        commentId, // untuk prototipe
+        reply,
+        createdAt: new Date(),
+      });
+  
+      await newReply.save();
+      res.status(201).json({ message: "Reply berhasil ditambahkan" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Terjadi kesalahan saat menyimpan Reply" });
+    }
+};
 const postCardioPredict = async (req, res) => {
     const userId = req.session.userId; // asumsi login sudah dilakukan
     const { age, gender, height, weight, ap_hi, ap_lo,
@@ -361,4 +386,4 @@ const getCardioHistory = async (req, res) => {
   
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory};
+module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply};

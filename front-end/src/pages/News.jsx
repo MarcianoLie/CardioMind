@@ -11,6 +11,7 @@ import logo from "../assets/images/Logo.png";
 
 const News = () => {
   const [commentText, setCommentText] = useState("");
+  const [replyText, setReplyText] = useState("");
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [newsData, setNewsData] = useState(null);
@@ -76,6 +77,38 @@ const News = () => {
         }
       } catch (error) {
         console.error("Error adding comment:", error);
+      }
+    }
+  };
+  const handleAddReply = async () => {
+    if (replyText.trim()) {
+      const payload = {
+        reply: replyText,
+        commentId: replyingTo,
+      };
+
+      try {
+        const response = await fetch("http://localhost:8080/api/reply", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          fetchComments();
+          setReplyText("");
+          setReplyingTo(null);
+          handleCloseCommentBox();
+        } else {
+          alert("Failed to add reply: " + result.message);
+        }
+      } catch (error) {
+        console.error("Error adding reply:", error);
       }
     }
   };
@@ -352,7 +385,8 @@ const News = () => {
               <button 
                 onClick={() => { 
                   setReplyingTo(null); 
-                  setCommentText(""); 
+                  setReplyText(""); 
+                  handleAddReply
                 }} 
                 className="cancel-reply"
               >
