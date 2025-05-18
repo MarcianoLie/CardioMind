@@ -193,6 +193,47 @@ const getComments = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+const getReplies = async (req, res) => {
+    try {
+        const commentId = req.params.commentId; // mengambil newsId dari URL parameter
+
+        const replies = await Reply.aggregate([
+            {
+                $match: { commentId: commentId } // filter berdasarkan commrntId
+            },
+            {
+                $lookup: {
+                    from: "user", // nama collection di MongoDB
+                    localField: "userId",
+                    foreignField: "userId",
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
+            },
+            {
+                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
+            },
+            {
+                $project: {
+                    reply: 1,
+                    createdAt: 1,
+                    userId: 1,
+                    username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
+                }
+            }
+        ]);
+
+        if (replies.length === 0) {
+            return res.status(404).json({ success: false, message: "Replies tidak ditemukan" });
+        }
+
+        res.status(200).json({ success: true, data: replies });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
 const postComments = async (req, res) => {
