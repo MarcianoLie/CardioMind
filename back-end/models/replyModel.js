@@ -7,4 +7,4 @@ const replySchema = new mongoose.Schema({
     createdAt: Date,
 });
 
-module.exports = mongoose.model("Reply", replySchema);
+module.exports = mongoose.model("Reply", replySchema, "reply");
