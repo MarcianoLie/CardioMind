@@ -226,7 +226,7 @@ const getReplies = async (req, res) => {
         ]);
 
         if (replies.length === 0) {
-            return res.status(404).json({ success: false, message: "Replies tidak ditemukan" });
+            return res.status(200).json({ success: true, data: replies, message: "Replies tidak ditemukan" });
         }
 
         res.status(200).json({ success: true, data: replies });
@@ -427,4 +427,4 @@ const getCardioHistory = async (req, res) => {
   
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply};
+module.exports = { getReplies ,editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply};

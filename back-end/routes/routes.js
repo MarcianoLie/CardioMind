@@ -1,6 +1,6 @@
 const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser, checkSession } = require("../controller/authController.js");
-const { postReply ,editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, postComments, getComments, postCardioPredict, postImageProfile, getCardioHistory } = require("../controller/appController.js");
+const { postReply, getReplies ,editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, postComments, getComments, postCardioPredict, postImageProfile, getCardioHistory } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
 
 
@@ -30,6 +30,7 @@ router.get('/riwayatCardio/', getCardioHistory);
 router.get('/news/:id', articleById)
 router.post("/comments", postComments);
 router.post("/reply", postReply);
+router.get("/reply/:commentId", getReplies);
 router.get("/check-session", checkSession);
 router.post("/postcardiohistory", postCardioPredict);
 

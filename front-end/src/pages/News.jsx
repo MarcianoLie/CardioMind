@@ -24,6 +24,7 @@ const News = () => {
 
   // Comment state variables
   const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState({});
   const [commentText, setCommentText] = useState("");
   const [replyText, setReplyText] = useState({});
   const [showReplyInput, setShowReplyInput] = useState({});
@@ -99,7 +100,16 @@ const News = () => {
       const result = await response.json();
 
       if (response.ok) {
-        setComments(result.data || []);
+        const newComments = result.data || [];
+        // Cek apakah newComments berbeda dengan comments lama sebelum setState
+        setComments(prevComments => {
+          // Bisa pakai JSON.stringify sederhana, tapi untuk data besar atau nested, sebaiknya pakai deep equality check
+          if (JSON.stringify(prevComments) !== JSON.stringify(newComments)) {
+            return newComments;
+          } else {
+            return prevComments; // tidak diubah
+          }
+        });
       } else {
         console.error("Failed to fetch comments:", result.message);
         // Fallback to localStorage if API fails
@@ -117,32 +127,75 @@ const News = () => {
       }
     }
   };
+  // Fetch replies from backend
+  const fetchReplies = async (commentId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/reply/${commentId}`);
+      const result = await response.json();
+
+      if (response.ok) {
+        setReplies(prev => ({
+          ...prev,
+          [commentId]: result.data || [],
+        }));
+        console.log(`Replies for ${commentId}:`, result.data);
+      } else {
+        console.error("Failed to fetch replies:", result.message);
+        // Fallback to localStorage if API fails
+        const savedComments = localStorage.getItem(`replies-${newsId}`);
+        if (savedComments) {
+          setComments(JSON.parse(savedComments));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching reply:", error);
+      // Fallback to localStorage if API fails
+      const savedComments = localStorage.getItem(`reply-${newsId}`);
+      if (savedComments) {
+        setComments(JSON.parse(savedComments));
+      }
+    }
+  };
 
   useEffect(() => {
-    const fetchNewsData = async () => {
+    const fetchAllData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/news/${newsId}`);
-        const result = await response.json();
-
-        if (response.ok) {
-          setNewsData(result.data);
+        // Fetch berita
+        const newsResponse = await fetch(`http://localhost:8080/api/news/${newsId}`);
+        const newsResult = await newsResponse.json();
+        if (newsResponse.ok) {
+          setNewsData(newsResult.data);
         } else {
-          setError(result.message || "Failed to fetch news data");
+          setError(newsResult.message || "Failed to fetch news data");
         }
+
+        // Fetch profil user
+        fetchUserProfile();
+
+        // Fetch komentar
+        const commentResponse = await fetch(`http://localhost:8080/api/comments/${newsId}`);
+        const commentResult = await commentResponse.json();
+        if (commentResponse.ok) {
+          setComments(commentResult.data || []);
+          // console.log("komen ada")
+          // console.log("komen ada")
+        }
+        
       } catch (error) {
-        setError("An error occurred while fetching news data");
-        console.error("Error fetching news data:", error);
+        setError("Error while fetching data");
+        console.error("Fetch error:", error);
       } finally {
         setLoading(false);
       }
     };
+    
+    // console.log("fetch all data")
+    fetchAllData();
 
-    fetchNewsData();
-    fetchUserProfile();
-    fetchComments();
+    const interval = setInterval(() => {
+      fetchComments();
+    }, 10000); // 10 detik
 
-    // Periodic comment refresh
-    const interval = setInterval(fetchComments, 1000); // Refresh every 10 seconds
     return () => clearInterval(interval);
   }, [newsId]);
 
@@ -152,6 +205,22 @@ const News = () => {
       localStorage.setItem(`comments-${newsId}`, JSON.stringify(comments));
     }
   }, [comments, newsId]);
+  useEffect(() => {
+    console.log('Replies updated:', replies);
+    console.log('apakah ada:', replies['682a6b6c55f0d79cff660c57']);
+  }, [replies]);
+  useEffect(() => {
+    if (comments.length === 0) return;
+
+    console.log("a");
+
+    comments.forEach((comment) => {
+      fetchReplies(comment._id); // <-- pastikan pakai _id kalau dari MongoDB
+    });
+
+    console.log("b");
+  }, [comments]); // dijalankan setiap `comments` berubah
+
 
   // Toggle visibility of replies for a comment
   const toggleRepliesVisibility = (commentId) => {
@@ -250,10 +319,11 @@ const News = () => {
 
       if (response.ok) {
         fetchComments(); // Refresh comments from server
-        setReplyText(prev => ({ ...prev, [commentId]: "" }));
+        fetchReplies(commentId);
+        // setReplyText(prev => ({ ...prev, [commentId]: "" }));
         setShowReplyInput(prev => ({ ...prev, [commentId]: false }));
-        // Show replies after adding a new reply
-        setShowReplies(prev => ({ ...prev, [commentId]: true }));
+        // // Show replies after adding a new reply
+        // setShowReplies(prev => ({ ...prev, [commentId]: true }));
       } else {
         alert("Failed to add reply: " + result.message);
 
@@ -471,9 +541,9 @@ const News = () => {
 
             {/* Comments List */}
             <div className="comments-list">
-              {topLevelComments.length > 0 ? (
-                topLevelComments.map(comment => {
-                  const replies = getRepliesForComment(comment._id);
+              {comments.length > 0 ? (
+                comments.map(comment => {
+                  // const replies = getRepliesForComment(comment._id);
                   const replyCount = replies.length;
 
                   return (
@@ -499,7 +569,7 @@ const News = () => {
                             </button>
 
                             {/* Reply count and toggle button */}
-                            {replyCount > 0 && (
+                            {replies[comment._id] && replies[comment._id].length > 0 && (
                               <button
                                 className="toggle-replies-button"
                                 onClick={() => toggleRepliesVisibility(comment._id)}
@@ -507,9 +577,10 @@ const News = () => {
                                 <span className="reply-toggle-icon">
                                   {showReplies[comment._id] ? '▼' : '►'}
                                 </span>
-                                {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
+                                {replies[comment._id].length} {replies[comment._id].length === 1 ? 'reply' : 'replies'}
                               </button>
                             )}
+
                           </div>
 
                           {/* Reply input area */}
@@ -536,12 +607,13 @@ const News = () => {
                               </button>
                             </div>
                           )}
-
                           {/* Replies list with toggle visibility */}
-                          {replies && replies.length > 0 && showReplies[comment._id] && (
+                          {console.log('Replies:', replies[comment._id], ' with:', comment._id)}
+                          {console.log('Replies:', replies)}
+                          {replies[comment._id] && showReplies[comment._id] && (
                             <div className="replies-list">
-                              {replies.map(reply => (
-                                <div className="reply" key={reply.id}>
+                              {replies[comment._id].map(reply => (
+                                <div className="reply" key={reply._id}>
                                   <div className="comment-avatar">
                                     <img src={profile} alt={reply.username} />
                                   </div>
@@ -551,7 +623,7 @@ const News = () => {
                                       <span className="comment-date">{formatDate(reply.timestamp || reply.createdAt)}</span>
                                     </div>
                                     <div className="comment-text">
-                                      {reply.text || reply.comment}
+                                      {reply.reply || reply.comment}
                                     </div>
                                   </div>
                                 </div>
