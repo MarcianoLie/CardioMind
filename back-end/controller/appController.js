@@ -4,6 +4,7 @@ const { User } = require('../models/userModel');
 const SuicidePrediction = require('../models/suicideModel.js');
 const News = require("../models/newsModel.js");
 const Comments = require("../models/commentModel.js");
+const Reply = require("../models/replyModel.js");
 const CardioPredict = require("../models/cardioModel.js");
 // const multer = require('multer');
 // const path = require('path');
@@ -193,6 +194,47 @@ const getComments = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+const getReplies = async (req, res) => {
+    try {
+        const commentId = req.params.commentId; // mengambil newsId dari URL parameter
+
+        const replies = await Reply.aggregate([
+            {
+                $match: { commentId: commentId } // filter berdasarkan commrntId
+            },
+            {
+                $lookup: {
+                    from: "user", // nama collection di MongoDB
+                    localField: "userId",
+                    foreignField: "userId",
+                    as: "userData"
+                }
+            },
+            {
+                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
+            },
+            {
+                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
+            },
+            {
+                $project: {
+                    reply: 1,
+                    createdAt: 1,
+                    userId: 1,
+                    username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
+                }
+            }
+        ]);
+
+        if (replies.length === 0) {
+            return res.status(200).json({ success: true, data: replies, message: "Replies tidak ditemukan" });
+        }
+
+        res.status(200).json({ success: true, data: replies });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
 const postComments = async (req, res) => {
@@ -217,6 +259,30 @@ const postComments = async (req, res) => {
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Terjadi kesalahan saat menyimpan komentar" });
+    }
+};
+const postReply = async (req, res) => {
+    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const { commentId, reply } = req.body;
+    console.log("Session userId set:", userId);
+  
+    if (!commentId || !reply || !userId) {
+        return res.status(400).json({ message: "Data tidak lengkap" });
+    }
+  
+    try {
+      const newReply = new Reply({
+        userId,
+        commentId, // untuk prototipe
+        reply,
+        createdAt: new Date(),
+      });
+  
+      await newReply.save();
+      res.status(201).json({ message: "Reply berhasil ditambahkan" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Terjadi kesalahan saat menyimpan Reply" });
     }
 };
 const postCardioPredict = async (req, res) => {
@@ -362,4 +428,4 @@ const getCardioHistory = async (req, res) => {
   
 
 
-module.exports = { editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory};
+module.exports = { getReplies ,editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply};

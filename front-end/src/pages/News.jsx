@@ -10,13 +10,25 @@ import profile from "../assets/images/Profile.png";
 import logo from "../assets/images/Logo.png";
 
 const News = () => {
-  const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState([]);
-  const [replyingTo, setReplyingTo] = useState(null);
   const [newsData, setNewsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { newsId } = useParams();
+
+  // User profile state
+  const [userData, setUserData] = useState({
+    name: '',
+    email: '',
+    profileImage: ''
+  });
+
+  // Comment state variables
+  const [comments, setComments] = useState([]);
+  const [replies, setReplies] = useState({});
+  const [commentText, setCommentText] = useState("");
+  const [replyText, setReplyText] = useState({});
+  const [showReplyInput, setShowReplyInput] = useState({});
+  const [showReplies, setShowReplies] = useState({});
 
   // Format date safely
   const formatDate = (dateString) => {
@@ -32,13 +44,13 @@ const News = () => {
   // Process HTML content with security and additional styling
   const processHtmlContent = (html) => {
     if (!html) return "";
-    
+
     // Add classes to specific elements for better styling
     let processed = html
       .replace(/<img/g, '<img class="article-image"')
       .replace(/<table/g, '<table class="article-table"')
       .replace(/<a/g, '<a target="_blank" rel="noopener noreferrer"');
-    
+
     // Sanitize HTML to prevent XSS attacks
     return DOMPurify.sanitize(processed, {
       ADD_ATTR: ['target'], // Allow target attribute for links
@@ -46,101 +58,342 @@ const News = () => {
     });
   };
 
-  const handleAddComment = async () => {
-    if (commentText.trim()) {
-      const payload = {
-        comment: commentText,
-        newsId: newsId,
-        parentId: replyingTo
-      };
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/profile", {
+        credentials: "include", // Include session cookies
+      });
+      const result = await response.json();
 
-      try {
-        const response = await fetch("http://localhost:8080/api/comments", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(payload),
+      if (response.ok) {
+        setUserData({
+          name: result.user.displayName || 'Anonymous',
+          email: result.user.email || '',
+          profileImage: result.user.profileImage || profile
         });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          fetchComments();
-          setCommentText("");
-          setReplyingTo(null);
-          handleCloseCommentBox();
-        } else {
-          alert("Failed to add comment: " + result.message);
-        }
-      } catch (error) {
-        console.error("Error adding comment:", error);
+      } else {
+        console.error("Failed to fetch user profile:", result.message);
+        // Use localStorage as fallback
+        const savedName = localStorage.getItem("profileName");
+        setUserData({
+          name: savedName || 'Anonymous',
+          email: localStorage.getItem("profileEmail") || '',
+          profileImage: localStorage.getItem("profileImage") || profile
+        });
       }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      // Use localStorage as fallback
+      setUserData({
+        name: localStorage.getItem("profileName") || 'Anonymous',
+        email: localStorage.getItem("profileEmail") || '',
+        profileImage: localStorage.getItem("profileImage") || profile
+      });
     }
   };
 
+  // Fetch comments from backend
   const fetchComments = async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/comments/${newsId}`);
       const result = await response.json();
 
       if (response.ok) {
-        setComments(result.data || []);
+        const newComments = result.data || [];
+        // Cek apakah newComments berbeda dengan comments lama sebelum setState
+        setComments(prevComments => {
+          // Bisa pakai JSON.stringify sederhana, tapi untuk data besar atau nested, sebaiknya pakai deep equality check
+          if (JSON.stringify(prevComments) !== JSON.stringify(newComments)) {
+            return newComments;
+          } else {
+            return prevComments; // tidak diubah
+          }
+        });
       } else {
         console.error("Failed to fetch comments:", result.message);
+        // Fallback to localStorage if API fails
+        const savedComments = localStorage.getItem(`comments-${newsId}`);
+        if (savedComments) {
+          setComments(JSON.parse(savedComments));
+        }
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
+      // Fallback to localStorage if API fails
+      const savedComments = localStorage.getItem(`comments-${newsId}`);
+      if (savedComments) {
+        setComments(JSON.parse(savedComments));
+      }
+    }
+  };
+  // Fetch replies from backend
+  const fetchReplies = async (commentId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/reply/${commentId}`);
+      const result = await response.json();
+
+      if (response.ok) {
+        setReplies(prev => ({
+          ...prev,
+          [commentId]: result.data || [],
+        }));
+        console.log(`Replies for ${commentId}:`, result.data);
+      } else {
+        console.error("Failed to fetch replies:", result.message);
+        // Fallback to localStorage if API fails
+        const savedComments = localStorage.getItem(`replies-${newsId}`);
+        if (savedComments) {
+          setComments(JSON.parse(savedComments));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching reply:", error);
+      // Fallback to localStorage if API fails
+      const savedComments = localStorage.getItem(`reply-${newsId}`);
+      if (savedComments) {
+        setComments(JSON.parse(savedComments));
+      }
     }
   };
 
   useEffect(() => {
-    const fetchNewsData = async () => {
+    const fetchAllData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/news/${newsId}`);
-        const result = await response.json();
-
-        if (response.ok) {
-          setNewsData(result.data);
+        // Fetch berita
+        const newsResponse = await fetch(`http://localhost:8080/api/news/${newsId}`);
+        const newsResult = await newsResponse.json();
+        if (newsResponse.ok) {
+          setNewsData(newsResult.data);
         } else {
-          setError(result.message || "Failed to fetch news data");
+          setError(newsResult.message || "Failed to fetch news data");
         }
+
+        // Fetch profil user
+        fetchUserProfile();
+
+        // Fetch komentar
+        const commentResponse = await fetch(`http://localhost:8080/api/comments/${newsId}`);
+        const commentResult = await commentResponse.json();
+        if (commentResponse.ok) {
+          setComments(commentResult.data || []);
+          // console.log("komen ada")
+          // console.log("komen ada")
+        }
+        
       } catch (error) {
-        setError("An error occurred while fetching news data");
-        console.error("Error fetching news data:", error);
+        setError("Error while fetching data");
+        console.error("Fetch error:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchNewsData();
-    fetchComments();
     
-    const interval = setInterval(fetchComments, 1000);
+    // console.log("fetch all data")
+    fetchAllData();
+
+    const interval = setInterval(() => {
+      fetchComments();
+    }, 10000); // 10 detik
+
     return () => clearInterval(interval);
   }, [newsId]);
 
-  const handleReply = (commentId, username) => {
-    setReplyingTo(commentId);
-    setCommentText(`@${username} `);
-    handleOpenCommentBox();
+  // Save comments to localStorage as backup
+  useEffect(() => {
+    if (comments.length > 0) {
+      localStorage.setItem(`comments-${newsId}`, JSON.stringify(comments));
+    }
+  }, [comments, newsId]);
+  useEffect(() => {
+    console.log('Replies updated:', replies);
+    console.log('apakah ada:', replies['682a6b6c55f0d79cff660c57']);
+  }, [replies]);
+  useEffect(() => {
+    if (comments.length === 0) return;
+
+    console.log("a");
+
+    comments.forEach((comment) => {
+      fetchReplies(comment._id); // <-- pastikan pakai _id kalau dari MongoDB
+    });
+
+    console.log("b");
+  }, [comments]); // dijalankan setiap `comments` berubah
+
+
+  // Toggle visibility of replies for a comment
+  const toggleRepliesVisibility = (commentId) => {
+    setShowReplies(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
   };
 
-  const handleCloseCommentBox = () => {
-    const commentBoxOverlay = document.getElementById("comment-box-overlay");
-    if (commentBoxOverlay) {
-      commentBoxOverlay.style.display = "none";
-      document.body.style.overflow = "auto";
+  // Add a new comment
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+
+    if (commentText.trim() === "") {
+      alert("Please enter your comment");
+      return;
+    }
+
+    const commentData = {
+      comment: commentText,
+      newsId: newsId,
+    };
+
+    try {
+      console.log(commentData.comment+" "+commentData.newsId)
+      const response = await fetch("http://localhost:8080/api/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(commentData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        fetchComments(); // Refresh comments from server
+        setCommentText("");
+      } else {
+        alert("Failed to add comment: " + result.message);
+
+        // Fallback: add comment locally if API fails
+        const newComment = {
+          id: Date.now().toString(),
+          username: userData.name,
+          text: commentText,
+          timestamp: new Date().toISOString(),
+          replies: []
+        };
+
+        setComments(prevComments => [newComment, ...prevComments]);
+        setCommentText("");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+
+      // Fallback: add comment locally if API fails
+      const newComment = {
+        id: Date.now().toString(),
+        username: userData.name,
+        text: commentText,
+        timestamp: new Date().toISOString(),
+        replies: []
+      };
+
+      setComments(prevComments => [newComment, ...prevComments]);
+      setCommentText("");
     }
   };
 
-  const handleOpenCommentBox = () => {
-    const commentBoxOverlay = document.getElementById("comment-box-overlay");
-    if (commentBoxOverlay) {
-      commentBoxOverlay.style.display = "flex";
-      document.body.style.overflow = "hidden";
+  // Add a reply to a comment
+  const handleAddReply = async (commentId) => {
+    if (!replyText[commentId] || replyText[commentId].trim() === "") {
+      alert("Please enter your reply");
+      return;
     }
+
+    const replyData = {
+      reply: replyText[commentId],
+      commentId: commentId,
+    };
+
+    try {
+      console.log("Data:"+replyData.reply+" dan "+replyData.commentId)
+      const response = await fetch("http://localhost:8080/api/reply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(replyData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        fetchComments(); // Refresh comments from server
+        fetchReplies(commentId);
+        // setReplyText(prev => ({ ...prev, [commentId]: "" }));
+        setShowReplyInput(prev => ({ ...prev, [commentId]: false }));
+        // // Show replies after adding a new reply
+        // setShowReplies(prev => ({ ...prev, [commentId]: true }));
+      } else {
+        alert("Failed to add reply: " + result.message);
+
+        // Fallback: add reply locally if API fails
+        const newReply = {
+          id: Date.now().toString(),
+          username: userData.name,
+          text: replyText[commentId],
+          timestamp: new Date().toISOString(),
+        };
+
+        const updatedComments = comments.map(comment => {
+          if (comment.id === commentId) {
+            return {
+              ...comment,
+              replies: [...comment.replies, newReply]
+            };
+          }
+          return comment;
+        });
+
+        setComments(updatedComments);
+        setReplyText(prev => ({ ...prev, [commentId]: "" }));
+        setShowReplyInput(prev => ({ ...prev, [commentId]: false }));
+        // Show replies after adding a new reply
+        setShowReplies(prev => ({ ...prev, [commentId]: true }));
+      }
+    } catch (error) {
+      console.error("Error adding reply:", error);
+
+      // Fallback: add reply locally if API fails
+      const newReply = {
+        id: Date.now().toString(),
+        username: userData.name,
+        text: replyText[commentId],
+        timestamp: new Date().toISOString(),
+      };
+
+      const updatedComments = comments.map(comment => {
+        if (comment.id === commentId) {
+          return {
+            ...comment,
+            replies: [...comment.replies, newReply]
+          };
+        }
+        return comment;
+      });
+
+      setComments(updatedComments);
+      setReplyText(prev => ({ ...prev, [commentId]: "" }));
+      setShowReplyInput(prev => ({ ...prev, [commentId]: false }));
+      // Show replies after adding a new reply
+      setShowReplies(prev => ({ ...prev, [commentId]: true }));
+    }
+  };
+
+  // Toggle reply input field visibility
+  const toggleReplyInput = (commentId) => {
+    setShowReplyInput(prev => ({
+      ...prev,
+      [commentId]: !prev[commentId]
+    }));
+  };
+
+  // Handle reply text change
+  const handleReplyTextChange = (commentId, text) => {
+    setReplyText(prev => ({
+      ...prev,
+      [commentId]: text
+    }));
   };
 
   if (loading) {
@@ -157,7 +410,7 @@ const News = () => {
       <div className="error-container">
         <h2>Error Loading Article</h2>
         <p>{error}</p>
-        <button 
+        <button
           className="retry-button"
           onClick={() => window.location.reload()}
         >
@@ -178,6 +431,14 @@ const News = () => {
       </div>
     );
   }
+
+  // Get top-level comments (comments without parents)
+  const topLevelComments = comments.filter(comment => !comment.parentId);
+
+  // Get replies for a specific comment
+  const getRepliesForComment = (commentId) => {
+    return comments.filter(comment => comment.parentId === commentId);
+  };
 
   return (
     <div className="container">
@@ -239,53 +500,145 @@ const News = () => {
           {/* Article content with HTML rendering */}
           <div
             className="article-content"
-            dangerouslySetInnerHTML={{ 
-              __html: processHtmlContent(newsData?.description) 
+            dangerouslySetInnerHTML={{
+              __html: processHtmlContent(newsData?.description)
             }}
           />
 
           <hr className="content-divider" />
 
+          {/* Comment Section */}
           <div className="comment-section">
-            <div className="comment-title">
-              <h2>Comments</h2>
-              <div
-                className="add-comment-btn"
-                id="add-comment-btn"
-                onClick={handleOpenCommentBox}
-              >
-                <div className="plus-icon"></div>
+            <h2>Comments</h2>
+
+            {/* Comment Form */}
+            <div className="comment-form">
+              <div className="user-info">
+                <div className="user-avatar">
+                  <img src={userData.profileImage || profile} alt="Your profile" />
+                </div>
+                <div className="user-name">
+                  Commenting as <strong>{userData.name}</strong>
+                </div>
               </div>
+
+              <div className="form-group">
+                <textarea
+                  id="comment"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Write your comment here..."
+                />
+              </div>
+
+              <button
+                className="submit-button"
+                onClick={handleAddComment}
+              >
+                Post Comment
+              </button>
             </div>
 
-            {comments.map((comment) => (
-              <div className="user-comment" key={comment.id}>
-                <div className="user-comment-logo">
-                  <img src={profile} alt="User profile" />
-                </div>
-                <div className="user-comment-body">
-                  <div className="user-comment-header">
-                    <strong className="username">
-                      {comment.username || "Anonymous"}
-                    </strong>
-                    <div className="timestamp-container">
-                      <span className="comment-time">
-                        {formatDate(comment.createdAt)}
-                      </span>
-                      <button
-                        className="reply-button"
-                        onClick={() => handleReply(comment.id, comment.username)}
-                      >
-                        Reply
-                      </button>
+            {/* Comments List */}
+            <div className="comments-list">
+              {comments.length > 0 ? (
+                comments.map(comment => {
+                  // const replies = getRepliesForComment(comment._id);
+                  const replyCount = replies.length;
+
+                  return (
+                    <div className="comment-thread" key={comment._id}>
+                      <div className="comment">
+                        <div className="comment-avatar">
+                          <img src={profile} alt={comment.username} />
+                        </div>
+                        <div className="comment-content">
+                          <div className="comment-header">
+                            <h3 className="comment-username">{comment.username}</h3>
+                            <span className="comment-date">{formatDate(comment.timestamp || comment.createdAt)}</span>
+                          </div>
+                          <div className="comment-text">
+                            {comment.text || comment.comment}
+                          </div>
+                          <div className="comment-actions">
+                            <button
+                              className="reply-button"
+                              onClick={() => toggleReplyInput(comment._id)}
+                            >
+                              Reply
+                            </button>
+
+                            {/* Reply count and toggle button */}
+                            {replies[comment._id] && replies[comment._id].length > 0 && (
+                              <button
+                                className="toggle-replies-button"
+                                onClick={() => toggleRepliesVisibility(comment._id)}
+                              >
+                                <span className="reply-toggle-icon">
+                                  {showReplies[comment._id] ? '▼' : '►'}
+                                </span>
+                                {replies[comment._id].length} {replies[comment._id].length === 1 ? 'reply' : 'replies'}
+                              </button>
+                            )}
+
+                          </div>
+
+                          {/* Reply input area */}
+                          {showReplyInput[comment._id] && (
+                            <div className="reply-form">
+                              <div className="user-info small">
+                                <div className="user-avatar small">
+                                  <img src={userData.profileImage || profile} alt="Your profile" />
+                                </div>
+                                <div className="user-name">
+                                  Replying as <strong>{userData.name}</strong>
+                                </div>
+                              </div>
+                              <textarea
+                                placeholder="Write your reply..."
+                                value={replyText[comment._id] || ''}
+                                onChange={(e) => handleReplyTextChange(comment._id, e.target.value)}
+                              />
+                              <button
+                                className="submit-reply-button"
+                                onClick={() => handleAddReply(comment._id)}
+                              >
+                                Post Reply
+                              </button>
+                            </div>
+                          )}
+                          {/* Replies list with toggle visibility */}
+                          {console.log('Replies:', replies[comment._id], ' with:', comment._id)}
+                          {console.log('Replies:', replies)}
+                          {replies[comment._id] && showReplies[comment._id] && (
+                            <div className="replies-list">
+                              {replies[comment._id].map(reply => (
+                                <div className="reply" key={reply._id}>
+                                  <div className="comment-avatar">
+                                    <img src={profile} alt={reply.username} />
+                                  </div>
+                                  <div className="comment-content">
+                                    <div className="comment-header">
+                                      <h3 className="comment-username">{reply.username}</h3>
+                                      <span className="comment-date">{formatDate(reply.timestamp || reply.createdAt)}</span>
+                                    </div>
+                                    <div className="comment-text">
+                                      {reply.reply || reply.comment}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="user-comment-text">
-                    <p>{comment.comment}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+                  );
+                })
+              ) : (
+                <p className="no-comments">No comments yet. Be the first to comment!</p>
+              )}
+            </div>
           </div>
 
           <hr className="content-divider" />
@@ -315,69 +668,6 @@ const News = () => {
           </div>
         </div>
       </main>
-
-      {/* Comment box overlay */}
-      <div 
-        className="comment-box-overlay" 
-        id="comment-box-overlay" 
-        style={{ display: "none" }}
-      >
-        <div className="comment-box">
-          <div 
-            className="comment-back-button" 
-            onClick={handleCloseCommentBox}
-          >
-            <svg
-              width="18"
-              height="15"
-              viewBox="0 0 18 15"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M1 7.5H17M1 7.5L7.5 1M1 7.5L7.5 14"
-                stroke="black"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <div className="comment-box-logo">
-            <img src={logo} alt="CardioMind Logo" />
-          </div>
-          {replyingTo && (
-            <div className="replying-to-info">
-              Replying to comment
-              <button 
-                onClick={() => { 
-                  setReplyingTo(null); 
-                  setCommentText(""); 
-                }} 
-                className="cancel-reply"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-          <textarea
-            className="comment-textarea"
-            placeholder={
-              replyingTo 
-                ? "Write your reply here..." 
-                : "Write your comment here..."
-            }
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-          ></textarea>
-          <button 
-            className="comment-submit-btn" 
-            onClick={handleAddComment}
-          >
-            {replyingTo ? "REPLY" : "SEND"}
-          </button>
-        </div>
-      </div>
     </div>
   );
 };
