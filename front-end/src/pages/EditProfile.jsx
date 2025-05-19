@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import SavedIcon from "../assets/images/saved.png"
+import SavedIcon from "../assets/images/saved.png";
 import IconRumah from "../assets/images/icon-rumah.svg";
 import IconRiwayat from "../assets/images/icon-riwayat.svg";
 import IconPrediksi from "../assets/images/icon-prediksi.svg";
@@ -9,52 +9,168 @@ import IconEdit from "../assets/images/pen.png";
 import topEllipse from "../assets/images/topEllipse.png";
 import botEllipse from "../assets/images/botEllipse.png";
 
-
 function EditProfile() {
   const [profileData, setProfileData] = useState({
-    name: 'Azka Lie',
-    email: 'azka@mail.unpad.ac.id',
-    phone: '081513989611',
-    pob: 'Laki-laki',
+    name: '',
+    email: '',
+    phone: '',
+    pob: '',
     dob: '',
-    // profileImage: 'assets/images/Profile.png'
+    profileImage: ''
   });
-  
+
   const [showSavedPopup, setShowSavedPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const profileUploadRef = useRef(null);
   const profileImageRef = useRef(null);
-  const profileImagesRef = useRef([]);
-  
+
   // Utility function to capitalize first letter of a string
   function capitalizeFirstLetter(string) {
     if (!string) return string;
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-  
-  // Handle image upload
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        // Update state with new image
-        setProfileData(prev => ({
-          ...prev,
-          profileImage: event.target.result
-        }));
-        
-        // Store in localStorage to persist across pages
-        localStorage.setItem("profileImage", event.target.result);
-      };
-      reader.readAsDataURL(file);
+
+  // Format date for input[type="date"]
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().split('T')[0];
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return '';
     }
   };
-  
+
+  // Fetch profile data from API
+  const fetchProfile = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:8080/api/profile", {
+        credentials: "include",
+      });
+      const result = await response.json();
+
+      if (response.ok && result.user) {
+        setProfileData({
+          name: result.user.displayName || '',
+          email: result.user.email || '',
+          phone: result.user.phone || '',
+          dob: formatDateForInput(result.user.birthDate),
+          pob: result.user.birthPlace || '',
+          profileImage: result.user.profileImage || 'assets/images/Profile.png'
+        });
+      } else {
+        throw new Error(result.message || "Gagal mengambil data profil");
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      setError(error.message);
+      // Fallback to localStorage if API fails
+      loadFromLocalStorage();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load data from localStorage as fallback
+  const loadFromLocalStorage = () => {
+    const savedName = localStorage.getItem("profileName");
+    const savedEmail = localStorage.getItem("profileEmail");
+    const savedPhone = localStorage.getItem("profilePhone");
+    const savedpob = localStorage.getItem("profilepob");
+    const savedDOB = localStorage.getItem("profileDOB");
+    const savedProfileImage = localStorage.getItem("profileImage");
+
+    setProfileData(prev => ({
+      ...prev,
+      name: prev.name || savedName || '',
+      email: prev.email || savedEmail || '',
+      phone: prev.phone || savedPhone || '',
+      pob: prev.pob || savedpob || '',
+      dob: prev.dob || savedDOB || '',
+      profileImage: prev.profileImage || savedProfileImage || 'assets/images/Profile.png'
+    }));
+  };
+
+  // Handle image upload with compression
+  const compressImage = (file, { quality = 0.7, maxWidth = 800 } = {}) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              const compressedReader = new FileReader();
+              compressedReader.readAsDataURL(blob);
+              compressedReader.onloadend = () => {
+                resolve(compressedReader.result);
+              };
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+      };
+    });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.match('image.*')) {
+      alert('Harap pilih file gambar (JPEG, PNG)');
+      return;
+    }
+
+    try {
+      // Kompresi gambar sebelum disimpan
+      const compressedImage = await compressImage(file, {
+        quality: 0.7,
+        maxWidth: 800
+      });
+
+      setProfileData(prev => ({
+        ...prev,
+        profileImage: compressedImage
+      }));
+
+      // Simpan ke localStorage
+      localStorage.setItem("profileImage", compressedImage);
+    } catch (error) {
+      console.error('Error compressing image:', error);
+      alert('Gagal memproses gambar');
+    }
+  };
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    
-    // Map field IDs to state keys
+
     const fieldMapping = {
       'nama': 'name',
       'email': 'email',
@@ -62,71 +178,95 @@ function EditProfile() {
       'pob': 'pob',
       'dob': 'dob'
     };
-    
+
     setProfileData(prev => ({
       ...prev,
       [fieldMapping[id]]: value
     }));
   };
-  const handleSave = async () => {
-    console.log(profileData);
+
+  // Save profile data to API
+  const handleSave = async (e) => {
+    e.preventDefault();
     try {
+      // Siapkan data tanpa profileImage dulu
       const userNewData = {
         displayName: profileData.name,
         birthPlace: profileData.pob,
         birthDate: profileData.dob,
-        phone: profileData.phone,
+        phone: profileData.phone
       };
-      const payload = userNewData;
-      const response = await fetch('http://localhost:8080/api/profile', {
+
+      // Kirim data profil dulu
+      const profileResponse = await fetch('http://localhost:8080/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        credentials: 'include',
+        body: JSON.stringify(userNewData),
       });
-  
-      const result = await response.json();
-      console.log('Response:', result);
-  
-      if (response.ok) {
-        // Jika berhasil, lakukan sesuatu, seperti memberi notifikasi atau menyimpan data lokal
-        alert('Profile berhasil disimpan!');
-      } else {
-        alert('Terjadi kesalahan: ' + result.message);
+
+      const profileResult = await profileResponse.json();
+
+      if (!profileResponse.ok) {
+        throw new Error(profileResult.message || "Gagal menyimpan profil");
       }
+
+      // Jika ada gambar, upload terpisah
+      if (profileData.profileImage && profileData.profileImage.startsWith('data:')) {
+        await uploadImage(profileData.profileImage);
+      }
+
+      // Simpan ke localStorage
+      localStorage.setItem("profileName", profileData.name);
+      localStorage.setItem("profileEmail", profileData.email);
+      localStorage.setItem("profilePhone", profileData.phone);
+      localStorage.setItem("profilepob", profileData.pob);
+      localStorage.setItem("profileDOB", profileData.dob);
+      localStorage.setItem("profileImage", profileData.profileImage);
+
+      setShowSavedPopup(true);
     } catch (error) {
-      console.error('Error saat mengirim data:', error);
-      alert('Terjadi kesalahan saat mengirim data.');
+      console.error('Error saving profile:', error);
+      alert('Terjadi kesalahan saat menyimpan: ' + error.message);
     }
   };
-  
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Save to localStorage for persistence
-    localStorage.setItem("profileName", profileData.name);
-    localStorage.setItem("profileEmail", profileData.email);
-    localStorage.setItem("profilePhone", profileData.phone);
-    localStorage.setItem("profilepob", profileData.pob);
-    localStorage.setItem("profileDOB", profileData.dob);
-    
-    // Show success popup
-    setShowSavedPopup(true);
-    
-    // Set timeout to redirect to profile page after showing the popup
-    setTimeout(() => {
-      window.location.href = "profile";
-    }, 10000);
+
+  // Fungsi khusus untuk upload gambar
+  const uploadImage = async (base64Image) => {
+    try {
+      // Potong prefix base64 jika ada
+      const base64Data = base64Image.split(',')[1] || base64Image;
+
+      const response = await fetch('http://localhost:8080/api/updateImage', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ profileImage: base64Data }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Gagal mengunggah gambar");
+      }
+
+      return result;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
   };
-  
+
   // Handle "Thanks!" button click in popup
   const handleThanksClick = () => {
     setShowSavedPopup(false);
     window.location.href = "/profile";
   };
-  
+
   // Handle edit button clicks (focus on the input)
   const handleEditClick = (e) => {
     const input = e.target.closest('.edit-btn').previousElementSibling;
@@ -135,73 +275,24 @@ function EditProfile() {
       input.select();
     }
   };
-  
-  // Dropdown toggle handler
-  const handleDropdownToggle = (e) => {
-    e.preventDefault();
-    const dropdownMenu = e.target.nextElementSibling;
-    if (dropdownMenu) {
-      dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
-    }
-  };
-  
-  // Handle logout
-  const handleLogout = (e) => {
-    e.preventDefault();
-    localStorage.setItem("isLoggedIn", "false");
-    window.location.href = "/";
-  };
 
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/api/profile", {
-        credentials: "include", // agar session (userId) dikirim
-      });
-      const result = await response.json();
-      console.log(result)
-
-      if (response.ok) {
-        console.log(result.data);
-        // console.log("ini data"+result.user.email);
-        setProfileData({
-          name: result.user.displayName || '',
-          email: result.user.email || '',
-          phone: result.user.phone || '',
-          dob: result.user.birthDate || '',
-          pob: result.user.birthPlace || '',
-          profileImage: result.user.profileImage || 'assets/images/Profile.png', // fallback image jika kosong
-        });
-      } else {
-        console.error("Gagal mengambil data:", result.message);
-      }
-    } catch (error) {
-      console.error("Terjadi kesalahan saat mengambil data:", error);
-    }
-  };
-  
+  // Initialize component
   useEffect(() => {
     fetchProfile();
-    // Load profile data from localStorage if available
-    const savedName = localStorage.getItem("profileName");
-    const savedEmail = localStorage.getItem("profileEmail");
-    const savedPhone = localStorage.getItem("profilePhone");
-    const savedpob = localStorage.getItem("profilepob");
-    const savedDOB = localStorage.getItem("profileDOB");
-    const savedProfileImage = localStorage.getItem("profileImage");
-    
-    setProfileData(prev => ({
-      ...prev,
-      name: savedName || prev.name,
-      email: savedEmail || prev.email,
-      phone: savedPhone || prev.phone,
-      pob: savedpob || prev.pob,
-      dob: savedDOB || prev.dob,
-      profileImage: savedProfileImage || prev.profileImage
-    }));
   }, []);
-  
+
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-  const firstName = profileData.name ? profileData.name.split(" ")[0] : 'Azka';
+  const firstName = profileData.name ? profileData.name.split(" ")[0] : '';
+
+  if (isLoading) {
+    return (
+      <div className="container">
+        <div className="loading-overlay">
+          <p>Memuat data profil...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -209,6 +300,14 @@ function EditProfile() {
         <img src={topEllipse} alt="" className="top-ellipse" />
         <img src={botEllipse} alt="" className="bottom-ellipse" />
       </div>
+
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+          <button onClick={fetchProfile}>Coba Lagi</button>
+        </div>
+      )}
+
       <main>
         <div className="profile-section">
           {/* Left side card with basic info and icons */}
@@ -218,7 +317,7 @@ function EditProfile() {
               <h1>{capitalizeFirstLetter(firstName)}</h1>
               <p className="profile-email">{profileData.email}</p>
             </div>
-            
+
             <div className="profile-nav">
               <div className="nav-item">
                 <Link to="/">
@@ -244,30 +343,33 @@ function EditProfile() {
           {/* Right side edit profile section */}
           <div className="edit-profile-section">
             <h2>Profile</h2>
-            
+
             <div className="profile-picture-container">
               <div className="profile-picture">
-                <img 
-                  src={profileData.profileImage} 
-                  alt="User profile picture" 
+                <img
+                  src={profileData.profileImage}
+                  alt="User profile picture"
                   id="profile-image"
                   ref={profileImageRef}
+                  onError={(e) => {
+                    e.target.src = 'assets/images/Profile.png';
+                  }}
                 />
                 <label htmlFor="profile-upload" className="upload-overlay">
                   <img src={IconEdit} alt="Edit" className="edit-icon" />
                 </label>
-                <input 
-                  type="file" 
-                  id="profile-upload" 
-                  accept="image/*" 
+                <input
+                  type="file"
+                  id="profile-upload"
+                  accept="image/*"
                   style={{ display: 'none' }}
                   ref={profileUploadRef}
                   onChange={handleImageUpload}
                 />
               </div>
             </div>
-            
-            <form id="edit-profile-form" onSubmit={handleSubmit}>
+
+            <form id="edit-profile-form" onSubmit={handleSave}>
               <div className="form-group">
                 <label htmlFor="nama">Nama</label>
                 <div className="input-with-edit">
@@ -276,13 +378,14 @@ function EditProfile() {
                     id="nama"
                     value={profileData.name}
                     onChange={handleInputChange}
+                    required
                   />
                   <button type="button" className="edit-btn" onClick={handleEditClick}>
                     <img src={IconEdit} alt="Edit" />
                   </button>
                 </div>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="email">Email</label>
                 <div className="input-with-edit">
@@ -293,10 +396,9 @@ function EditProfile() {
                     onChange={handleInputChange}
                     readOnly
                   />
-                  
                 </div>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="telp">No Telp.</label>
                 <div className="input-with-edit">
@@ -305,13 +407,14 @@ function EditProfile() {
                     id="telp"
                     value={profileData.phone}
                     onChange={handleInputChange}
+                    required
                   />
                   <button type="button" className="edit-btn" onClick={handleEditClick}>
                     <img src={IconEdit} alt="Edit" />
                   </button>
                 </div>
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="pob">Tempat Lahir</label>
                 <div className="input-with-edit">
@@ -326,26 +429,24 @@ function EditProfile() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="form-group">
-                <label htmlFor="dob">Date of Birth</label>
+                <label htmlFor="dob">Tanggal Lahir</label>
                 <div className="input-with-edit">
-                <input
-                  type="date"
-                  id="dob"
-                  name="dob"
-                  value={profileData.dob ? new Date(profileData.dob).toLocaleDateString('en-CA') : ''} 
-                  onChange={handleInputChange}
-                />
-
-
+                  <input
+                    type="date"
+                    id="dob"
+                    name="dob"
+                    value={profileData.dob}
+                    onChange={handleInputChange}
+                  />
                   <button type="button" className="edit-btn" onClick={handleEditClick}>
                     <img src={IconEdit} alt="Edit" className="edit-icon" />
                   </button>
                 </div>
               </div>
-              
-              <button type="submit" id="confirm-btn" onClick={handleSave}>Confirm</button>
+
+              <button type="submit" id="confirm-btn">Simpan Perubahan</button>
             </form>
           </div>
         </div>
@@ -355,8 +456,8 @@ function EditProfile() {
       <div className={`saved-popup ${showSavedPopup ? 'show' : ''}`} id="saved-popup">
         <div className="popup-content">
           <img src={SavedIcon} alt="Saved" />
-          <h3>Saved</h3>
-          <button id="thanks-btn" onClick={handleThanksClick}>Thanks!</button>
+          <h3>Perubahan Disimpan</h3>
+          <button id="thanks-btn" onClick={handleThanksClick}>OK</button>
         </div>
       </div>
     </div>

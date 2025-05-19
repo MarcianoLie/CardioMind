@@ -9,7 +9,7 @@ import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
-import axios from "axios"; 
+import axios from "axios";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -81,22 +81,37 @@ function Login() {
       console.log("Login form submitted", formData, rememberMe);
       // Simulate API call
       // await new Promise((resolve) => setTimeout(resolve, 1000));
- 
+
       const response = await axios.post("http://localhost:8080/api/login", {
         email: formData.email,
         password: formData.password,
       });
-  
+
       const { uid, userToken, message } = response.data;
-  
+
       console.log("Login berhasil:", message);
       console.log("UID:", uid);
       console.log("Token:", userToken);
-  
+      try {
+        const profileResponse = await fetch("http://localhost:8080/api/profile", {
+          credentials: "include",
+        });
+        const profileResult = await profileResponse.json();
+
+        if (profileResponse.ok) {
+          localStorage.setItem("profileName", profileResult.user.displayName || '');
+          localStorage.setItem("profileImage", "data:image/jpeg;base64," + user.profileImage || '');
+
+          console.log("Data profil berhasil disimpan ke localStorage");
+        }
+      } catch (profileError) {
+        console.error("Error mengambil profil:", profileError);
+        localStorage.setItem("profileName", user.displayName || '');
+        localStorage.setItem("profileImage", user.photoURL || '');
+      }
+
       // Simpan token ke localStorage/sessionStorage kalau perlu
       localStorage.setItem("token", userToken);
-      localStorage.setItem("user", "true");
-
 
       // On successful login
       navigate("/");
@@ -117,14 +132,32 @@ function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
-  
+
       await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
         withCredentials: true
       });
-  
+
+      try {
+        const profileResponse = await fetch("http://localhost:8080/api/profile", {
+          credentials: "include",
+        });
+        const profileResult = await profileResponse.json();
+
+        if (profileResponse.ok) {
+          localStorage.setItem("profileName", profileResult.user.displayName || '');
+          localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+
+          console.log("Data profil berhasil disimpan ke localStorage");
+        }
+      } catch (profileError) {
+        console.error("Error mengambil profil:", profileError);
+        localStorage.setItem("profileName", user.displayName || '');
+        localStorage.setItem("profileImage", user.photoURL || '');
+      }
+
       alert("Sign in sukses dengan Google!");
       localStorage.setItem("user", "true");
 

@@ -91,26 +91,46 @@ function SignUp() {
   };
 
   const handleGoogleSignUp = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+    const idToken = await user.getIdToken();
+
+    // Melakukan autentikasi dengan backend
+    const response = await axios.post("http://localhost:8080/api/googleAuth", {}, {
+      headers: {
+        Authorization: `Bearer ${idToken}`
+      },
+      withCredentials: true
+    });
+
+    // Setelah login berhasil, ambil profil
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
-  
-      await axios.post("http://localhost:8080/api/googleAuth", {}, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        },
-        withCredentials: true
+      const profileResponse = await fetch("http://localhost:8080/api/profile", {
+        credentials: "include",
       });
-  
-      alert("Sign in sukses dengan Google!");
-      navigate("/")
-    } catch (error) {
-      console.error("Error login Google:", error);
-      alert("Gagal login dengan Google");
+      const profileResult = await profileResponse.json();
+
+      if (profileResponse.ok) {
+        localStorage.setItem("profileName", profileResult.user.displayName || '');
+        localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+        
+        console.log("Data profil berhasil disimpan ke localStorage");
+      }
+    } catch (profileError) {
+      console.error("Error mengambil profil:", profileError);
+      localStorage.setItem("profileName", user.displayName || '');
+      localStorage.setItem("profileImage", user.photoURL || '');
     }
-  };
+
+    alert("Sign in sukses dengan Google!");
+    navigate("/");
+  } catch (error) {
+    console.error("Error login Google:", error);
+    alert("Gagal login dengan Google");
+  }
+};
 
   return (
     <div className="container">

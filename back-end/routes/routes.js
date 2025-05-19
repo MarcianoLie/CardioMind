@@ -22,7 +22,7 @@ router.post('/resetPassword', resetPassword);
 router.put('/profile', editProfile);
 router.get('/profile', profile);
 router.post('/suicideHistory', saveSuicidePrediction);
-router.post('/updateImage',postImageProfile);
+router.put('/updateImage',postImageProfile);
 router.get('/news/update', newsUpdate);
 router.get('/news', getHealthArticles); 
 router.get('/comments/:newsId', getComments); //gw ubah dlu buat komen

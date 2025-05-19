@@ -70,7 +70,7 @@ const News = () => {
         setUserData({
           name: result.user.displayName || 'Anonymous',
           email: result.user.email || '',
-          profileImage: result.user.profileImage || profile
+          profileImage: "data:image/jpeg;base64," + result.user.profileImage || profile
         });
       } else {
         console.error("Failed to fetch user profile:", result.message);

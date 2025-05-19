@@ -8,6 +8,7 @@ import "../css/style.css";
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [profileImage, setProfileImage] = useState(""); // Default image
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -89,11 +90,28 @@ const Header = () => {
         const data = await response.json();
         if (data.isLoggedIn) {
           setIsLoggedIn(true);
-          setUserName(data.user);
+
+          // Cek localStorage untuk nama dan gambar profil
+          const storedDisplayName = localStorage.getItem("profileName");
+          const storedProfileImage = localStorage.getItem("profileImage");
+
+          // Gunakan data dari localStorage jika tersedia
+          if (storedDisplayName) {
+            setUserName(storedDisplayName);
+          } else {
+            setUserName(data.user); // Fallback ke data dari API
+          }
+
+          // Gunakan gambar profil dari localStorage jika tersedia
+          if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "") {
+            setProfileImage(storedProfileImage);
+          }
         } else {
           setIsLoggedIn(false);
           setUserName("");
-          localStorage.removeItem("user");
+          setProfileImage(ProfileImg); // Reset ke gambar default
+          localStorage.removeItem("profileName");
+          localStorage.removeItem("profileImage");
           localStorage.removeItem("token");
         }
       } catch (error) {
@@ -104,7 +122,19 @@ const Header = () => {
 
     checkSession();
 
-    const intervalId = setInterval(checkSession, 1000); // per 10 detik cek ulang
+    // Cek lokal storage saat komponen dimuat
+    const storedDisplayName = localStorage.getItem("profileName");
+    const storedProfileImage = localStorage.getItem("profileImage");
+
+    if (storedDisplayName) {
+      setUserName(storedDisplayName);
+    }
+
+    if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "") {
+      setProfileImage(storedProfileImage);
+    }
+
+    const intervalId = setInterval(checkSession, 1000); // per detik cek ulang
 
     return () => clearInterval(intervalId);
   }, []);
@@ -126,9 +156,11 @@ const Header = () => {
 
       if (response.ok) {
         localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        localStorage.removeItem("profileName");
+        localStorage.removeItem("profileImage");
         setIsLoggedIn(false);
         setUserName("");
+        setProfileImage(ProfileImg); // Reset ke gambar default
         navigate("/login");
       } else {
         console.error("Logout gagal");
@@ -188,12 +220,12 @@ const Header = () => {
         {isLoggedIn ? (
           <div className="user-info" ref={profileDropdownRef}>
             <div className="profile-img-container" onClick={toggleProfileDropdown}>
-              <img src={ProfileImg} alt="Profile" className="profile-image" />
+              <img src={profileImage} alt="Profile" className="profile-image" />
             </div>
             {isProfileDropdownOpen && (
               <div className="profile-dropdown">
                 <div className="profile-dropdown-header">
-                  <img src={ProfileImg} alt="Profile" className="dropdown-profile-image" />
+                  <img src={profileImage} alt="Profile" className="dropdown-profile-image" />
                   <div className="dropdown-user-info">
                     <span className="dropdown-username">{userName}</span>
                   </div>
