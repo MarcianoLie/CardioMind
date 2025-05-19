@@ -27,6 +27,7 @@ const profile = async (req, res) => {
 const editProfile = async (req, res) => {
     const { displayName, birthPlace, birthDate, phone } = req.body;
     const userId = req.session.userId;
+    console.log(userId);
     if (!userId) return res.status(401).json({ error: true, message: "Unauthorized" });
     try {
         const userNewData = {

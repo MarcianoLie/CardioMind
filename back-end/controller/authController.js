@@ -154,7 +154,7 @@ const checkSession = (req, res) => {
   if (req.session && req.session.userId) {
     return res.status(200).json({ isLoggedIn: true, user: req.session.username || "User" });
   } else {
-    return res.status(200).json({ isLoggedIn: false });
+    return res.status(401).json({ isLoggedIn: false });
   }
 };
 
