@@ -97,10 +97,11 @@ function Login() {
           credentials: "include",
         });
         const profileResult = await profileResponse.json();
+        const user = profileResult.user;
 
         if (profileResponse.ok) {
-          localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", "data:image/jpeg;base64," + user.profileImage || '');
+          localStorage.setItem("profileName", user.displayName || '');
+          localStorage.setItem("profileImage", user.profileImage || '');
 
           console.log("Data profil berhasil disimpan ke localStorage");
         }
