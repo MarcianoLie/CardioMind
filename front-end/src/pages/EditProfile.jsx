@@ -177,7 +177,7 @@ function EditProfile() {
       }));
 
       // Simpan ke localStorage
-      localStorage.setItem("profileImage", compressedImage);
+      localStorage.setItem("newProfileImage", compressedImage);
     } catch (error) {
       console.error('Error compressing image:', error);
       alert('Gagal memproses gambar');
@@ -273,6 +273,7 @@ function EditProfile() {
     try {
       // Potong prefix base64 jika ada
       const base64Data = base64Image.split(',')[1] || base64Image;
+      localStorage.setItem("profileImage",base64Data)
 
       const response = await fetch('http://localhost:8080/api/updateImage', {
         method: 'PUT',
@@ -328,6 +329,7 @@ function EditProfile() {
       </div>
     );
   }
+  console.log(profileData.profileImage)
 
   return (
     <div className="container">
@@ -383,7 +385,7 @@ function EditProfile() {
               <div className="profile-picture">
                 <img
                   // src={formatProfileImage(profileData.profileImage)}
-                  src={formatProfileImage((!profileData.profileImage)
+                  src={localStorage.getItem("newProfileImage")||formatProfileImage((!profileData.profileImage)
                                         ? profile
                                         : (profileData.profileImage.startsWith('http')
                                             ? profileData.profileImage
