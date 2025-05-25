@@ -314,6 +314,8 @@ function EditProfile() {
 
   // Initialize component
   useEffect(() => {
+    localStorage.setItem("newProfileImage",null)
+    localStorage.setItem("newProfileImage",localStorage.getItem("profileImage"))
     fetchProfile();
   }, []);
 
