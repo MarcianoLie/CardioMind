@@ -77,7 +77,7 @@ function SignUp() {
        if (data.error) {
          alert("Gagal daftar: " + data.message);
        } else {
-         alert("Pendaftaran berhasil!");
+         alert("Pendaftaran berhasil! Silakan cek email kamu untuk verifikasi sebelum login.");
          navigate("/login");
        }
    

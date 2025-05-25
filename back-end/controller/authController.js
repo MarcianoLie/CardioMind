@@ -49,6 +49,10 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    if (!userCredential.user.emailVerified) {
+      alert("Email belum diverifikasi. Cek inbox email kamu.");
+      return;
+    }
     const firebaseUser = userCredential.user;
     const idToken = await firebaseUser.getIdToken();
 
@@ -65,7 +69,7 @@ const login = async (req, res) => {
       error: false,
       message: 'Berhasil Sign In',
       uid: firebaseUser.uid,
-      userId: user.userId, 
+      userId: user.userId,
       userToken: idToken,
     });
   } catch (error) {
@@ -101,7 +105,7 @@ const handleGoogleAuth = async (req, res) => {
         status: "user"
       });
 
-      user = await newUser.save(); 
+      user = await newUser.save();
     }
 
     req.session.userId = user.userId;
