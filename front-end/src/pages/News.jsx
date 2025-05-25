@@ -140,12 +140,15 @@ const News = () => {
       if (base64Data.startsWith('data:image')) {
         return base64Data;
       }
-      
       // Jika sudah URL lengkap (http://)
       if (base64Data.startsWith('http')) {
         const encodedUrl = encodeURIComponent(base64Data);
         return `http://localhost:8080/api/img/${encodedUrl}`;
       }
+      if (base64Data.endsWith('.png')) {
+        return base64Data;
+      }
+      
       
       // Jika base64 tanpa prefix
       return `data:image/jpeg;base64,${base64Data}`;

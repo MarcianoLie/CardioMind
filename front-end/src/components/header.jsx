@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/images/Logo.png";
 import LogoSmall from "../assets/images/logo-mobile.svg";
 import ProfileImg from "../assets/images/Profile.png";
+import profile from "../assets/images/Profile.png";
 import "../css/style.css";
 
 const Header = () => {
@@ -20,6 +21,28 @@ const Header = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  const formatProfileImage = (base64Data) => {
+          if (!base64Data) return profile;
+          
+          // Jika sudah memiliki prefix data:image
+          if (base64Data.startsWith('data:image')) {
+            return base64Data;
+          }
+          
+          // Jika sudah URL lengkap (http://)
+          if (base64Data.startsWith('http')) {
+            const encodedUrl = encodeURIComponent(base64Data);
+            return `http://localhost:8080/api/img/${encodedUrl}`;
+          }
+
+          if (base64Data.endsWith('.png')) {
+            return base64Data;
+          }
+          
+          // Jika base64 tanpa prefix
+          return `data:image/jpeg;base64,${base64Data}`;
+        };
 
   // Toggle mobile menu
   const toggleMobileMenu = () => {
@@ -103,13 +126,16 @@ const Header = () => {
           }
 
           // Gunakan gambar profil dari localStorage jika tersedia
-          if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "") {
+          if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "" && storedProfileImage !== null) {
+            console.log(storedProfileImage)
+            console.log(profile)
             setProfileImage(storedProfileImage);
           }
         } else {
           setIsLoggedIn(false);
           setUserName("");
-          setProfileImage(ProfileImg); // Reset ke gambar default
+          console.log(profile)
+          setProfileImage(profile); // Reset ke gambar default
           localStorage.removeItem("profileName");
           localStorage.removeItem("profileImage");
           localStorage.removeItem("token");
@@ -221,12 +247,12 @@ const Header = () => {
           <div className="user-info" ref={profileDropdownRef}>
             <div className="profile-img-container" onClick={toggleProfileDropdown}>
               {/* <img src={profileImage} alt="Profile" className="profile-image" /> */}
-              <img src={profileImage} alt="Profile" className="dropdown-profile-image" />
+              <img src={formatProfileImage(profileImage)} alt="Profile" className="dropdown-profile-image" />
             </div>
             {isProfileDropdownOpen && (
               <div className="profile-dropdown">
                 <div className="profile-dropdown-header">
-                  <img src={profileImage} alt="Profile" className="dropdown-profile-image" />
+                  <img src={formatProfileImage(profileImage)} alt="Profile" className="dropdown-profile-image" />
                   <div className="dropdown-user-info">
                     <span className="dropdown-username">{userName}</span>
                   </div>

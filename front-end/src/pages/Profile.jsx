@@ -7,6 +7,7 @@ import IconRumah from "../assets/images/icon-rumah.svg";
 import IconRiwayat from "../assets/images/icon-riwayat.svg";
 import IconPrediksi from "../assets/images/icon-prediksi.svg";
 import IconProfile from "../assets/images/icon-profile.svg";
+import profile from "../assets/images/Profile.png";
 
 function ProfilePage() {
   const [profileData, setProfileData] = useState({
