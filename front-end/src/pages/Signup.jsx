@@ -2,21 +2,21 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../css/style.css";
 import Logo from "../assets/images/Logo.png";
-import Profile from "../assets/images/Profile.png";
 import EyeIcon from "../assets/images/eye.png";
 import GoogleIcon from "../assets/images/google.png";
 import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
-import axios from "axios"; 
- 
+import axios from "axios";
+
 
 function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullname: "",
-    placeDob: "",
+    birthPlace: "",
+    birthDate: "",
     number: "",
     email: "",
     password: "",
@@ -37,57 +37,54 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("fullname").value;
-     const placeDob = document.getElementById("placeDob").value;
-     const number = document.getElementById("number").value;
-     const email = document.getElementById("email").value;
-     const password = document.getElementById("password").value;
-     const confirmPassword = document.getElementById("confirmPassword").value;
-     // const [birthPlace, birthDate] = placeDob.split(",");
-     const [birthPlace, birthDateStr] = placeDob.split(",");
-     const birthDate = new Date(birthDateStr);
-     if (isNaN(birthDate)) {
-       alert("Tanggal lahir tidak valid, gunakan format misalnya: 'Medan, 01/01/2000'");
-       return;
-     }
-     if (password !== confirmPassword) {
-       alert("Password dan Konfirmasi tidak cocok");
-       return;
-     }
-     console.log({
-       name,
-       birthPlace: birthPlace?.trim(),
-       birthDate: birthDate,
-       // birthDate: birthDate?.trim(),
-       phone: number,
-       email,
-       password
-     });
-     try {
-       
-       const response = await axios.post("http://localhost:8080/api/register", {
-         name,
-         birthPlace: birthPlace?.trim(),
-         birthDate: birthDate,
-         phone: number,
-         email,
-         password
-       });
-       const data = response.data;
-       if (data.error) {
-         alert("Gagal daftar: " + data.message);
-       } else {
-         alert("Pendaftaran berhasil!");
-         navigate("/login");
-       }
-   
-       alert("Sign in sukses!");
-       navigate("/")
-     } catch (error) {
-       console.error("Error login :", error);
-       alert("Gagal login");
-     }
-     // console.log("Sign up form submitted", formData);
+    const name = formData.fullname;
+    const birthPlace = formData.birthPlace;
+    const birthDate = new Date(formData.birthDate);
+    const number = formData.number;
+    const email = formData.email;
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
+
+    if (isNaN(birthDate)) {
+      alert("Tanggal lahir tidak valid");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Password dan Konfirmasi tidak cocok");
+      return;
+    }
+
+    console.log({
+      name,
+      birthPlace,
+      birthDate,
+      phone: number,
+      email,
+      password
+    });
+
+    try {
+      const response = await axios.post("http://localhost:8080/api/register", {
+        name,
+        birthPlace,
+        birthDate,
+        phone: number,
+        email,
+        password
+      });
+
+      const data = response.data;
+      if (data.error) {
+        alert("Gagal daftar: " + data.message);
+      } else {
+        alert("Pendaftaran berhasil!");
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Error registrasi:", error);
+      alert("Gagal registrasi");
+    }
   };
 
   const handleGoogleSignUp = async (e) => {
@@ -96,14 +93,14 @@ function SignUp() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
-  
+
       await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
         withCredentials: true
       });
-  
+
       alert("Sign in sukses dengan Google!");
       navigate("/")
     } catch (error) {
@@ -141,11 +138,23 @@ function SignUp() {
             <div className="form-group">
               <input
                 type="text"
-                id="placeDob"
-                placeholder="Place, Date of Birth"
-                value={formData.placeDob}
+                id="birthPlace"
+                placeholder="Tempat Lahir"
+                value={formData.birthPlace}
                 onChange={handleChange}
                 required
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="date"
+                id="birthDate"
+                placeholder="Tanggal Lahir"
+                value={formData.birthDate}
+                onChange={handleChange}
+                required
+                className="date-input"
               />
             </div>
 
