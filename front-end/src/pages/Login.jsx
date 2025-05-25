@@ -98,14 +98,10 @@ function Login() {
           credentials: "include",
         });
         const profileResult = await profileResponse.json();
-        console.log(profileResponse.ok)
-        console.log(profileResult)
 
         if (profileResponse.ok) {
-          console.log("ok:");
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          console.log("Data profil berhasil disimpan ke localStorage\nUsername :",localStorage.getItem("profileName"));
-          localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+          localStorage.setItem("profileImage", "data:image/jpeg;base64," + user.profileImage || '');
 
         } else {
           console.log("Username : ",profileResult.user.displayName)
