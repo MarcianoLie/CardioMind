@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../css/history.css";
 import topEllipse from "../assets/images/topEllipse.png";
@@ -8,84 +8,130 @@ import stress from "../assets/images/stress.png";
 import jantung from "../assets/images/jantung.png";
 
 const Riwayat = () => {
+  const [suicidePredictions, setSuicidePredictions] = useState([]);
+  const [cardioPredictions, setCardioPredictions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("semua");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
+  const [profileImage, setProfileImage] = useState("");
+
   useEffect(() => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-    const loginBtn = document.querySelector(".auth-buttons .login-btn");
-    const signupBtn = document.querySelector(".auth-buttons .signup-btn");
-    const profileCardImg = document.getElementById("profile-card-img");
-    const profileUsername = document.getElementById("profile-username");
-
-    if (isLoggedIn === "true" && loginBtn && signupBtn) {
-      // Change buttons to show logout instead
-      loginBtn.textContent = "Logout";
-      loginBtn.href = "#";
-      signupBtn.style.display = "none";
-
-      // Add logout functionality
-      loginBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        localStorage.setItem("isLoggedIn", "false");
-        window.location.reload();
-      });
-
-      // Load username from localStorage if available
-      const savedUsername = localStorage.getItem("username");
-      if (savedUsername && profileUsername) {
-        profileUsername.textContent = savedUsername;
-      }
-    } else {
-      // Redirect to login page if not logged in
-      // Uncomment this if you want to restrict access to logged in users only
-      // window.location.href = "login.html";
-    }
-
-    // Load profile image from localStorage if available for header
-    const savedProfileImage = localStorage.getItem("profileImage");
-    const profileImg = document.querySelector(".profile-img");
-    if (savedProfileImage && profileImg) {
-      profileImg.src = savedProfileImage;
-
-      // Also update the profile card image
-      if (profileCardImg) {
-        profileCardImg.src = savedProfileImage;
-      }
-    }
-
-    // Add dropdown functionality
-    const dropdownToggle = document.querySelector(".dropdown-toggle");
-    if (dropdownToggle) {
-      dropdownToggle.addEventListener("click", function (e) {
-        e.preventDefault();
-        const dropdownMenu = this.nextElementSibling;
-        dropdownMenu.style.display =
-          dropdownMenu.style.display === "flex" ? "none" : "flex";
-      });
-    }
-
-    // Tab filtering functionality
-    const tabs = document.querySelectorAll(".tab");
-    const predictionCards = document.querySelectorAll(".prediction-card");
-
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", function () {
-        // Remove active class from all tabs and add to clicked tab
-        tabs.forEach((t) => t.classList.remove("active"));
-        this.classList.add("active");
-
-        const filterType = this.dataset.type;
-
-        // Filter cards based on selected tab
-        predictionCards.forEach((card) => {
-          if (filterType === "semua" || card.dataset.category === filterType) {
-            card.style.display = "flex";
-          } else {
-            card.style.display = "none";
-          }
+    const checkSession = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/check-session", {
+          method: "GET",
+          credentials: "include",
         });
-      });
-    });
+
+        const data = await response.json();
+        if (data.isLoggedIn) {
+          setIsLoggedIn(true);
+          const storedDisplayName = localStorage.getItem("profileName");
+          const storedProfileImage = localStorage.getItem("profileImage");
+          setUsername(storedDisplayName || "User");
+          setProfileImage(storedProfileImage);
+          // Fetch data secara paralel
+          await Promise.all([
+            fetchSuicidePredictions(),
+            fetchCardioPredictions()
+          ]);
+
+          setLoading(false);
+        } else {
+          window.location.href = "/login";
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+        window.location.href = "/login";
+      }
+    };
+
+    checkSession();
   }, []);
+
+  const fetchSuicidePredictions = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/suicideHistory", {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setSuicidePredictions(sortedData);
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch suicide predictions:", error);
+    }
+  };
+
+  const fetchCardioPredictions = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/riwayatCardio", {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setCardioPredictions(sortedData);
+      }
+
+    } catch (error) {
+      console.error("Failed to fetch cardio predictions:", error);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('id-ID', options);
+  };
+
+  const getRiskLevel = (result) => {
+    if (!result) return "Tidak diketahui";
+    if (typeof result === 'string') {
+      if (result.toLowerCase().includes("high") || result.toLowerCase().includes("tinggi")) return "Tinggi";
+      if (result.toLowerCase().includes("medium") || result.toLowerCase().includes("sedang")) return "Sedang";
+      return "Rendah";
+    }
+    return result >= 0.5 ? "Tinggi" : "Rendah";
+  };
+
+
+  const filteredPredictions = (() => {
+    if (activeTab === "semua") {
+      const all = [
+        ...suicidePredictions.map(p => ({ ...p, type: 'stress' })),
+        ...cardioPredictions.map(p => ({ ...p, type: 'jantung' }))
+      ];
+      return all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    }
+    if (activeTab === "stress") {
+      return suicidePredictions.map(p => ({ ...p, type: 'stress' }));
+    }
+    if (activeTab === "jantung") {
+      return cardioPredictions.map(p => ({ ...p, type: 'jantung' }));
+    }
+    return [];
+  })();
+
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:8080/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <div className="container">
@@ -101,27 +147,35 @@ const Riwayat = () => {
             <div className="profile-image">
               <img
                 id="profile-card-img"
-                src={profile}
+                src={profileImage || profile}
                 alt="Profile Icon"
               />
             </div>
             <h2 className="username" id="profile-username">
-              Azka
+              {username}
             </h2>
 
             <div className="prediction-stats">
               <div className="stats-images">
-                {/* Stress prediction stats */}
                 <div className="stat-icon">
                   <img src={stress} alt="Stress Icon" />
                 </div>
-                <div className="stat-level">Level : Rendah</div>
+                Level: {suicidePredictions.length > 0
+                  ? getRiskLevel(suicidePredictions[0].predictionResult)
+                  : "Tidak ada data"}
 
-                {/* Heart prediction stats */}
+
                 <div className="stat-icon">
                   <img src={jantung} alt="Heart Icon" />
                 </div>
-                <div className="stat-level">Level : Rendah</div>
+                <div className="stat-level">
+                  Level: {cardioPredictions.length > 0
+                    ? (cardioPredictions[0].score >= 0.5
+                      ? "Berpotensi Sakit Jantung"
+                      : "Tidak Berpotensi Sakit Jantung")
+                    : "Tidak ada data"}
+                </div>
+
               </div>
             </div>
           </div>
@@ -140,74 +194,91 @@ const Riwayat = () => {
               </svg>
             </Link>
 
+            <div className="auth-buttons">
+              {isLoggedIn && (
+                <button className="login-btn" onClick={handleLogout}>
+                  Logout
+                </button>
+              )}
+            </div>
+
             <h1 className="history-title">Riwayat Prediksi</h1>
 
-            {/* Filter tabs */}
             <div className="history-tabs">
-              <div className="tab active" data-type="semua">
+              <div
+                className={`tab ${activeTab === "semua" ? "active" : ""}`}
+                onClick={() => setActiveTab("semua")}
+              >
                 Semua
               </div>
-              <div className="tab" data-type="stress">
+              <div
+                className={`tab ${activeTab === "stress" ? "active" : ""}`}
+                onClick={() => setActiveTab("stress")}
+              >
                 Stress
               </div>
-              <div className="tab" data-type="jantung">
+              <div
+                className={`tab ${activeTab === "jantung" ? "active" : ""}`}
+                onClick={() => setActiveTab("jantung")}
+              >
                 Jantung
               </div>
             </div>
 
-            {/* Prediction cards */}
             <div className="prediction-cards">
-              {/* First prediction */}
-              <div className="prediction-card" data-category="stress">
-                <div className="prediction-image">
-                  <img src={stress} alt="Stress Icon" />
-                </div>
-                <div className="prediction-info">
-                  <h3 className="prediction-title">
-                    Prediksi Tingkat Bunuh Diri
-                  </h3>
-                  <p className="prediction-level">
-                    Level : <span>Rendah</span>
-                  </p>
-                </div>
-                <a href="#" className="prediction-details">
-                  Lihat Detail Prediksi
-                </a>
-              </div>
+              {loading ? (
+                <div className="loading-spinner">Memuat data...</div>
+              ) : filteredPredictions.length === 0 ? (
+                <p className="no-data">Tidak ada riwayat prediksi</p>
+              ) : (
+                filteredPredictions.map((prediction) => (
+                  <div key={prediction._id} className="prediction-card" data-category={prediction.type}>
+                    <div className="prediction-image">
+                      <img src={prediction.type === "jantung" ? jantung : stress} alt="Icon" />
+                    </div>
+                    <div className="prediction-info">
+                      <h3 className="prediction-title">
+                        {prediction.type === "jantung"
+                          ? "Prediksi Risiko Jantung"
+                          : "Prediksi Tingkat Bunuh Diri"}
+                      </h3>
 
-              {/* Second prediction */}
-              <div className="prediction-card" data-category="jantung">
-                <div className="prediction-image">
-                  <img src={jantung} alt="Heart Icon" />
-                </div>
-                <div className="prediction-info">
-                  <h3 className="prediction-title">Prediksi Tingkat Jantung</h3>
-                  <p className="prediction-level">
-                    Level : <span>Rendah</span>
-                  </p>
-                </div>
-                <a href="#" className="prediction-details">
-                  Lihat Detail Prediksi
-                </a>
-              </div>
-
-              {/* Third prediction */}
-              <div className="prediction-card" data-category="stress">
-                <div className="prediction-image">
-                  <img src={stress} alt="Stress Icon" />
-                </div>
-                <div className="prediction-info">
-                  <h3 className="prediction-title">
-                    Prediksi Tingkat Bunuh Diri
-                  </h3>
-                  <p className="prediction-level">
-                    Level : <span>Rendah</span>
-                  </p>
-                </div>
-                <a href="#" className="prediction-details">
-                  Lihat Detail Prediksi
-                </a>
-              </div>
+                      {prediction.type === "jantung" ? (
+                        <>
+                          <p className="prediction-message">
+                            Skor Risiko: {(prediction.score * 100).toFixed(2)}%
+                          </p>
+                          <p className="prediction-level">
+                            Kesimpulan: <span>
+                              {prediction.score >= 0.5
+                                ? "Berpotensi Sakit Jantung"
+                                : "Tidak Berpotensi Sakit Jantung"}
+                            </span>
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="prediction-message">
+                            {prediction.message.length > 50
+                              ? `${prediction.message.substring(0, 50)}...`
+                              : prediction.message}
+                          </p>
+                          <p className="prediction-level">
+                            Level: <span>{getRiskLevel(prediction.predictionResult)}</span>
+                          </p>
+                        </>
+                      )}
+                      <p className="prediction-date">{formatDate(prediction.createdAt)}</p>
+                    </div>
+                    <Link
+                      to={`/detail-prediksi/${prediction._id}`}
+                      className="prediction-details"
+                    >
+                      Lihat Detail Prediksi
+                    </Link>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

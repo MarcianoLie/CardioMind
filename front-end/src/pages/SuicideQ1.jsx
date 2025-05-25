@@ -9,23 +9,29 @@ import "../css/suicidequestion.css";
 
 const SuicideQ1 = () => {
   const navigate = useNavigate();
-  const [suicideMessage, setSuicideMessage] = useState("");
+  const [suicideMessages, setSuicideMessages] = useState(["", "", "", "", ""]);
   const [model, setModel] = useState(null);
   const [wordIndex, setWordIndex] = useState({});
   const [predictionResult, setPredictionResult] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
-
 
   useEffect(() => {
     if (!sessionStorage.getItem("surveyStarted")) {
       navigate("/PrediksiBunuhDiri");
     }
 
+    // Ambil pesan yang tersimpan sebelumnya
     if (sessionStorage.getItem("suicideMessage")) {
-      setSuicideMessage(sessionStorage.getItem("suicideMessage"));
+      try {
+        const savedMessages = JSON.parse(sessionStorage.getItem("suicideMessage"));
+        if (Array.isArray(savedMessages) && savedMessages.length === 5) {
+          setSuicideMessages(savedMessages);
+        }
+      } catch (e) {
+        console.error("Failed to parse saved messages", e);
+      }
     }
 
-    // Load model and word index
     const loadResources = async () => {
       try {
         console.log("Attempting to load model from: /suicide/model.json");
@@ -48,21 +54,19 @@ const SuicideQ1 = () => {
         console.log("All resources loaded successfully");
       } catch (error) {
         console.error("Error loading model or word index:", error);
-
-        // More detailed error message based on the type of error
-        if (error.message.includes("fetch")) {
-          alert("Network error: Could not fetch model files. Please check your internet connection.");
-        } else if (error.message.includes("JSON")) {
-          alert("Format error: The model files appear to be corrupted or in an incorrect format.");
-        } else {
-          alert("Gagal memuat model prediksi. Error: " + error.message);
-        }
+        alert("Gagal memuat model prediksi. Error: " + error.message);
       }
     };
 
-
     loadResources();
   }, [navigate]);
+
+  const handleSuicideMessageChange = (index, value) => {
+    const updatedMessages = [...suicideMessages];
+    updatedMessages[index] = value;
+    setSuicideMessages(updatedMessages);
+    sessionStorage.setItem("suicideMessage", JSON.stringify(updatedMessages));
+  };
 
   const tokenize = (text, wordIndexMap, maxLen = 100) => {
     const words = text
@@ -82,34 +86,38 @@ const SuicideQ1 = () => {
     return tf.tensor2d([tokens]);
   };
 
-  const handleSuicideMessage = (e) => {
-    setSuicideMessage(e.target.value);
-    sessionStorage.setItem("suicideMessage", e.target.value);
-  };
-
   const handleCalculateClick = async () => {
-    if (!suicideMessage.trim()) {
-      alert("Please enter a message before continuing.");
+    const validMessages = suicideMessages.filter((msg) => msg.trim() !== "");
+    if (validMessages.length === 0) {
+      alert("Please enter at least one message.");
       return;
     }
 
-    if (!isLoaded || !model || !Object.keys(wordIndex).length) {
+    if (!isLoaded || !model || Object.keys(wordIndex).length === 0) {
       alert("Model atau kamus kata belum selesai dimuat. Mohon tunggu sebentar...");
       return;
     }
 
+    let sum = 0;
 
-    const inputTensor = tokenize(suicideMessage, wordIndex);
-    const prediction = model.predict(inputTensor);
-    const predictionValue = (await prediction.data())[0];
-    prediction.dispose();
-    inputTensor.dispose();
+    for (const msg of validMessages) {
+      const inputTensor = tokenize(msg, wordIndex);
+      const prediction = model.predict(inputTensor);
+      const value = (await prediction.data())[0];
+      prediction.dispose();
+      inputTensor.dispose();
 
-    setPredictionResult(predictionValue);
+      sum += value;
+    }
 
-    // Simpan ke session dan lanjut ke halaman hasil
-    sessionStorage.setItem("suicidePredictionResult", predictionValue);
-    const riskCategory = predictionValue >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
+    const avgPrediction = sum / validMessages.length;
+    setPredictionResult(avgPrediction);
+
+    const riskCategory = avgPrediction >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
+
+    // Simpan ke sessionStorage
+    sessionStorage.setItem("suicideMessage", JSON.stringify(suicideMessages));
+    sessionStorage.setItem("suicidePredictionResult", avgPrediction);
 
     try {
       await fetch("http://localhost:8080/api/suicideHistory", {
@@ -117,12 +125,13 @@ const SuicideQ1 = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify({
-          message: suicideMessage,
+          message: suicideMessages.join(" || "), // Gabungkan array jadi satu string
           predictionResult: riskCategory,
         }),
       });
+
       console.log("History tersimpan untuk user login.");
     } catch (error) {
       console.error("Gagal menyimpan history:", error);
@@ -146,17 +155,19 @@ const SuicideQ1 = () => {
 
           <div className="predict-content">
             <div className="question-container">
-              <h2 className="question">Please input your message below:</h2>
+              <h2 className="question">Please input your 5 messages below:</h2>
 
               <div className="input-container">
-                <input
-                  type="text"
-                  className="blood-pressure-input"
-                  id="suicideMessage"
-                  value={suicideMessage}
-                  onChange={handleSuicideMessage}
-                  placeholder="Enter your message"
-                />
+                {suicideMessages.map((msg, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    className="blood-pressure-input"
+                    value={msg}
+                    onChange={(e) => handleSuicideMessageChange(index, e.target.value)}
+                    placeholder={`Enter message ${index + 1}`}
+                  />
+                ))}
               </div>
             </div>
 
@@ -164,9 +175,7 @@ const SuicideQ1 = () => {
               {isLoaded ? "Calculate" : "Loading..."}
             </button>
 
-            {!isLoaded && (
-              <p className="loading-text">Loading model... Please wait.</p>)
-            }
+            {!isLoaded && <p className="loading-text">Loading model... Please wait.</p>}
 
             <div className="nav-buttons">
               <a href="/PrediksiBunuhDiri" className="prev-btn">
@@ -176,7 +185,7 @@ const SuicideQ1 = () => {
 
             {predictionResult !== null && (
               <p className="prediction-output">
-                Predicted Risk Score: {predictionResult.toFixed(4)}
+                Average Predicted Risk Score: {predictionResult.toFixed(4)}
               </p>
             )}
           </div>

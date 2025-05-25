@@ -375,49 +375,17 @@ const postImageProfile = async (req, res) => {
 
 const getCardioHistory = async (req, res) => {
     try {
-        const newsId = req.params.newsId; // mengambil newsId dari URL parameter
+        const userId = req.session.userId; // Mengambil userId dari session
 
-        const cardioPredict = await CardioPredict.aggregate([
-            {
-                $match: { newsId: newsId } // filter berdasarkan newsId
-            },
-            {
-                $lookup: {
-                    from: "user", // nama collection di MongoDB
-                    localField: "userId",
-                    foreignField: "userId",
-                    as: "userData"
-                }
-            },
-            {
-                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
-            },
-            {
-                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
-            },
-            {
-                $project: {
-                    // comment: 1,
-                    // createdAt: 1,
-                    // userId: 1,
-                    // username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
-                    userId: 1,
-                    age: 1,
-                    gender: 1,
-                    height: 1,
-                    weight: 1,
-                    ap_hi: 1,
-                    ap_lo: 1,
-                    cholesterol: 1,
-                    glucose: 1,
-                    smoke: 1,
-                    alcohol: 1,
-                    active: 1,
-                    score: 1,
-                    createdAt: 1
-                }
-            }
-        ]);
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        const cardioPredict = await CardioPredict.find({ userId })
+            .sort({ createdAt: -1 }) 
+            .select(
+                "userId age gender height weight ap_hi ap_lo cholesterol glucose smoke alcohol active score createdAt"
+            ); 
 
         if (cardioPredict.length === 0) {
             return res.status(404).json({ success: false, message: "History tidak ditemukan" });
@@ -430,5 +398,32 @@ const getCardioHistory = async (req, res) => {
 };
 
 
+const getSuicidePredictions = async (req, res) => {
+    const userId = req.session.userId;
+    try {
+        const predictions = await SuicidePrediction.find({ userId })
+            .sort({ createdAt: -1 })
+            .select('-__v');
 
-module.exports = { getReplies, editProfile, profile, saveSuicidePrediction, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply };
+        if (!predictions || predictions.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Tidak ada riwayat prediksi ditemukan."
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: predictions
+        });
+    } catch (err) {
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+};
+
+
+
+module.exports = { getReplies, editProfile, profile, saveSuicidePrediction, getSuicidePredictions, newsUpdate, getHealthArticles, articleById, getComments, postComments, postCardioPredict, postImageProfile, getCardioHistory, postReply };

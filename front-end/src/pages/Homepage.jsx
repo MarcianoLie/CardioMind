@@ -21,6 +21,7 @@ import Slide5 from "../assets/images/Slide5.png";
 
 function Homepage() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [newsImages, setNewsImages] = useState([]); 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isVerySmall, setIsVerySmall] = useState(window.innerWidth < 480);
   const slideInterval = useRef(null);
