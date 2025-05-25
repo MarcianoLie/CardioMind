@@ -9,6 +9,7 @@ import TopEllipse from "../assets/images/topEllipse.png";
 import BotEllipse from "../assets/images/botEllipse.png";
 import { auth, googleProvider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
+import profile from "../assets/images/Profile.png";
 import axios from "axios";
 
 function Login() {
@@ -101,7 +102,7 @@ function Login() {
 
         if (profileResponse.ok) {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+          localStorage.setItem("profileImage", (profileResult.user.profileImage)?"data:image/jpeg;base64," + profileResult.user.profileImage : profile);
 
         } else {
           console.log("Username : ",profileResult.user.displayName)
