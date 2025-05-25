@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate  } from "react-router-dom";
 import DOMPurify from 'dompurify';
 import "../css/style.css";
 import "../css/news.css";
@@ -10,6 +10,7 @@ import profile from "../assets/images/Profile.png";
 import logo from "../assets/images/Logo.png";
 
 const News = () => {
+  const navigate = useNavigate();
   const [newsData, setNewsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,7 +69,7 @@ const News = () => {
 
       if (response.ok) {
         setUserData({
-          name: result.user.displayName || 'Anonymous',
+          name: result.user.displayName || null,
           email: result.user.email || '',
           profileImage: (!result.user.profileImage)
                       ? profile
@@ -81,7 +82,7 @@ const News = () => {
         // Use localStorage as fallback
         const savedName = localStorage.getItem("profileName");
         setUserData({
-          name: savedName || 'Anonymous',
+          name: savedName || null,
           email: localStorage.getItem("profileEmail") || '',
           profileImage: localStorage.getItem("profileImage") || profile
         });
@@ -90,7 +91,7 @@ const News = () => {
       console.error("Error fetching user profile:", error);
       // Use localStorage as fallback
       setUserData({
-        name: localStorage.getItem("profileName") || 'Anonymous',
+        name: localStorage.getItem("profileName") || null,
         email: localStorage.getItem("profileEmail") || '',
         profileImage: localStorage.getItem("profileImage") || profile
       });
@@ -133,7 +134,7 @@ const News = () => {
     }
   };
   const formatProfileImage = (base64Data) => {
-      if (!base64Data) return profile;
+      if (!base64Data || base64Data=='') return profile;
       
       // Jika sudah memiliki prefix data:image
       if (base64Data.startsWith('data:image')) {
@@ -260,6 +261,9 @@ const News = () => {
       alert("Please enter your comment");
       return;
     }
+    if (!userData?.name) {
+      navigate('/login');
+    }
 
     const commentData = {
       comment: commentText,
@@ -283,7 +287,7 @@ const News = () => {
         fetchComments(); // Refresh comments from server
         setCommentText("");
       } else {
-        alert("Failed to add comment: " + result.message);
+        // alert("Failed to add comment: " + result.message);
 
         // Fallback: add comment locally if API fails
         const newComment = {
@@ -404,6 +408,9 @@ const News = () => {
 
   // Toggle reply input field visibility
   const toggleReplyInput = (commentId) => {
+    if (!userData?.name) {
+      navigate('/login');
+    }
     setShowReplyInput(prev => ({
       ...prev,
       [commentId]: !prev[commentId]
@@ -537,11 +544,16 @@ const News = () => {
             <div className="comment-form">
               <div className="user-info">
                 <div className="user-avatar">
-                  <img src={formatProfileImage(userData.profileImage) || profile} alt="Your profile" />
+                  <img src={(userData.name)?formatProfileImage(userData.profileImage) : profile} alt="Your profile" />
                 </div>
                 <div className="user-name">
-                  Commenting as <strong>{userData.name}</strong>
+                  {userData?.name ? (
+                    <>Commenting as <strong>{userData.name}</strong></>
+                  ) : (
+                    <a href="/login">Login to Comment</a>
+                  )}
                 </div>
+
               </div>
 
               <div className="form-group">
@@ -610,7 +622,7 @@ const News = () => {
                             <div className="reply-form">
                               <div className="user-info small">
                                 <div className="user-avatar small">
-                                  <img src={userData.profileImage || profile} alt="Your profile" />
+                                  <img src={(userData.name)?formatProfileImage(userData.profileImage) : profile} alt="Your profile" />
                                 </div>
                                 <div className="user-name">
                                   Replying as <strong>{userData.name}</strong>

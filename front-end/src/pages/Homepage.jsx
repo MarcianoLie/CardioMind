@@ -176,7 +176,7 @@ function Homepage() {
             <div className="center-image-container">
               <img src={MbaDokter} alt="Mba Dokter" className="center-image" />
             </div>
-            <a href="/prediction-history" className="service-box">
+            <a href="/riwayat" className="service-box">
               <img src={scrollSolid} alt="Prediksi Icon" />
               <h3>Riwayat Prediksi</h3>
             </a>

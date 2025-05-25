@@ -161,7 +161,7 @@ const Riwayat = () => {
                   <img src={stress} alt="Stress Icon" />
                 </div>
                 Level: {suicidePredictions.length > 0
-                  ? getRiskLevel(suicidePredictions[0].predictionResult)
+                  ? suicidePredictions[0].predictionResult
                   : "Tidak ada data"}
 
 
@@ -264,7 +264,7 @@ const Riwayat = () => {
                               : prediction.message}
                           </p>
                           <p className="prediction-level">
-                            Level: <span>{getRiskLevel(prediction.predictionResult)}</span>
+                            Level: <span>{prediction.predictionResult}</span>
                           </p>
                         </>
                       )}
