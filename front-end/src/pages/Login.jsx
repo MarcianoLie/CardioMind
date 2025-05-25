@@ -128,6 +128,24 @@ function Login() {
     }
   };
 
+  const formatProfileImage = (base64Data) => {
+        if (!base64Data) return profile;
+        
+        // Jika sudah memiliki prefix data:image
+        if (base64Data.startsWith('data:image')) {
+          return base64Data;
+        }
+        
+        // Jika sudah URL lengkap (http://)
+        if (base64Data.startsWith('http')) {
+          const encodedUrl = encodeURIComponent(base64Data);
+          return `http://localhost:8080/api/img/${encodedUrl}`;
+        }
+        
+        // Jika base64 tanpa prefix
+        return `data:image/jpeg;base64,${base64Data}`;
+      };
+
   const handleGoogleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -150,7 +168,12 @@ function Login() {
 
         if (profileResponse.ok) {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+          // localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
+          localStorage.setItem("profileImage", (!profileResult.user.profileImage)
+                                                                    ? ''
+                                                                    : (profileResult.user.profileImage.startsWith('http')
+                                                                        ? formatProfileImage(profileResult.user.profileImage)
+                                                                        : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
 
           console.log("Data profil berhasil disimpan ke localStorage");
         }

@@ -70,7 +70,11 @@ const News = () => {
         setUserData({
           name: result.user.displayName || 'Anonymous',
           email: result.user.email || '',
-          profileImage: "data:image/jpeg;base64," + result.user.profileImage || profile
+          profileImage: (!result.user.profileImage)
+                      ? profile
+                      : (result.user.profileImage.startsWith('http')
+                          ? result.user.profileImage
+                          : "data:image/jpeg;base64," + result.user.profileImage)
         });
       } else {
         console.error("Failed to fetch user profile:", result.message);
@@ -98,6 +102,7 @@ const News = () => {
     try {
       const response = await fetch(`http://localhost:8080/api/comments/${newsId}`);
       const result = await response.json();
+      console.log("comment :",result)
 
       if (response.ok) {
         const newComments = result.data || [];
@@ -127,6 +132,23 @@ const News = () => {
       }
     }
   };
+  const formatProfileImage = (base64Data) => {
+      if (!base64Data) return profile;
+      
+      // Jika sudah memiliki prefix data:image
+      if (base64Data.startsWith('data:image')) {
+        return base64Data;
+      }
+      
+      // Jika sudah URL lengkap (http://)
+      if (base64Data.startsWith('http')) {
+        const encodedUrl = encodeURIComponent(base64Data);
+        return `http://localhost:8080/api/img/${encodedUrl}`;
+      }
+      
+      // Jika base64 tanpa prefix
+      return `data:image/jpeg;base64,${base64Data}`;
+    };
   // Fetch replies from backend
   const fetchReplies = async (commentId) => {
     try {
@@ -515,7 +537,7 @@ const News = () => {
             <div className="comment-form">
               <div className="user-info">
                 <div className="user-avatar">
-                  <img src={userData.profileImage || profile} alt="Your profile" />
+                  <img src={formatProfileImage(userData.profileImage) || profile} alt="Your profile" />
                 </div>
                 <div className="user-name">
                   Commenting as <strong>{userData.name}</strong>
@@ -550,7 +572,7 @@ const News = () => {
                     <div className="comment-thread" key={comment._id}>
                       <div className="comment">
                         <div className="comment-avatar">
-                          <img src={profile} alt={comment.username} />
+                          <img src={formatProfileImage(comment.profileImage)||profile} alt={comment.username} />
                         </div>
                         <div className="comment-content">
                           <div className="comment-header">
@@ -615,7 +637,7 @@ const News = () => {
                               {replies[comment._id].map(reply => (
                                 <div className="reply" key={reply._id}>
                                   <div className="comment-avatar">
-                                    <img src={profile} alt={reply.username} />
+                                    <img src={formatProfileImage(reply.profileImage)||profile} alt={reply.username} />
                                   </div>
                                   <div className="comment-content">
                                     <div className="comment-header">

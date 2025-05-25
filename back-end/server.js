@@ -25,7 +25,7 @@ mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0u
 .then(() => console.log('MongoDB connected globally!'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(express.json());
+// app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));

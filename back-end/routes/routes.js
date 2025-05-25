@@ -33,6 +33,34 @@ router.post("/reply", postReply);
 router.get("/reply/:commentId", getReplies);
 router.get("/check-session", checkSession);
 router.post("/postcardiohistory", postCardioPredict);
+router.get('/img/:url', async (req, res) => {
+  const encodedUrl = req.params.url;
+
+  try {
+    const imageUrl = decodeURIComponent(encodedUrl);
+
+    if (!imageUrl.startsWith('http')) {
+      return res.status(400).send('Invalid image URL');
+    }
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      return res.status(500).send('Failed to fetch image');
+    }
+
+    const contentType = response.headers.get('content-type');
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+
+    res.set('Content-Type', contentType);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Image fetch error:', error);
+    res.status(500).send('Error fetching image');
+  }
+});
+
 
 
 module.exports = router;

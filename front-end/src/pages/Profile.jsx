@@ -31,21 +31,22 @@ function ProfilePage() {
 
   // Convert base64 without prefix to data URL
   const formatProfileImage = (base64Data) => {
-    if (!base64Data) return IconProfile;
-    
-    // Jika sudah memiliki prefix data:image
-    if (base64Data.startsWith('data:image')) {
-      return base64Data;
-    }
-    
-    // Jika sudah URL lengkap (http://)
-    if (base64Data.startsWith('http')) {
-      return base64Data;
-    }
-    
-    // Jika base64 tanpa prefix
-    return `data:image/jpeg;base64,${base64Data}`;
-  };
+        if (!base64Data) return profile;
+        
+        // Jika sudah memiliki prefix data:image
+        if (base64Data.startsWith('data:image')) {
+          return base64Data;
+        }
+        
+        // Jika sudah URL lengkap (http://)
+        if (base64Data.startsWith('http')) {
+          const encodedUrl = encodeURIComponent(base64Data);
+          return `http://localhost:8080/api/img/${encodedUrl}`;
+        }
+        
+        // Jika base64 tanpa prefix
+        return `data:image/jpeg;base64,${base64Data}`;
+      };
 
   // Handle image upload with base64 conversion
   const handleImageUpload = (e) => {

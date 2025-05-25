@@ -180,7 +180,8 @@ const getComments = async (req, res) => {
                     comment: 1,
                     createdAt: 1,
                     userId: 1,
-                    username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
+                    username: "$userData.displayName", // ambil nama pengguna dari hasil lookup
+                    profileImage: "$userData.profileImage" // ambil nama pengguna dari hasil lookup
                 }
             }
         ]);
@@ -221,7 +222,8 @@ const getReplies = async (req, res) => {
                     reply: 1,
                     createdAt: 1,
                     userId: 1,
-                    username: "$userData.displayName" // ambil nama pengguna dari hasil lookup
+                    username: "$userData.displayName", // ambil nama pengguna dari hasil lookup
+                    profileImage: "$userData.profileImage" // ambil nama pengguna dari hasil lookup
                 }
             }
         ]);
