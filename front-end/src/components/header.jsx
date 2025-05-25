@@ -220,7 +220,8 @@ const Header = () => {
         {isLoggedIn ? (
           <div className="user-info" ref={profileDropdownRef}>
             <div className="profile-img-container" onClick={toggleProfileDropdown}>
-              <img src={profileImage} alt="Profile" className="profile-image" />
+              {/* <img src={profileImage} alt="Profile" className="profile-image" /> */}
+              <img src={profileImage} alt="Profile" className="dropdown-profile-image" />
             </div>
             {isProfileDropdownOpen && (
               <div className="profile-dropdown">

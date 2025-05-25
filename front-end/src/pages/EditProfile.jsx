@@ -95,12 +95,20 @@ function EditProfile() {
       profileImage: prev.profileImage || savedProfileImage || 'assets/images/Profile.png'
     }));
   };
+  const renameJpgToJpeg = (file) => {
+    if (file.name.toLowerCase().endsWith('.jpg')) {
+      // Buat file baru dengan ekstensi .jpeg dan tipe image/jpeg
+      return new File([file], file.name.replace(/\.jpg$/i, '.jpeg'), { type: 'image/jpeg' });
+    }
+    return file;
+  };
 
   // Handle image upload with compression
   const compressImage = (file, { quality = 0.7, maxWidth = 800 } = {}) => {
     return new Promise((resolve) => {
+      const inputFile = renameJpgToJpeg(file);
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(inputFile);
 
       reader.onload = (event) => {
         const img = new Image();
@@ -127,7 +135,16 @@ function EditProfile() {
               const compressedReader = new FileReader();
               compressedReader.readAsDataURL(blob);
               compressedReader.onloadend = () => {
-                resolve(compressedReader.result);
+                const base64Result = compressedReader.result;
+
+                // 🟡 Log hasil MIME type untuk debugging
+                console.log("Compressed Image MIME:", base64Result.slice(0, 50));
+                console.log("Estimated size KB:", Math.round(base64Result.length * 3 / 4 / 1024));
+
+                // 🔧 (Opsional) Perbaiki jika MIME `image/jpg`
+                const fixedBase64 = base64Result.replace(/^data:image\/jpg/, 'data:image/jpeg');
+
+                resolve(fixedBase64);
               };
             },
             'image/jpeg',
@@ -231,6 +248,23 @@ function EditProfile() {
       console.error('Error saving profile:', error);
       alert('Terjadi kesalahan saat menyimpan: ' + error.message);
     }
+  };
+  // Convert base64 without prefix to data URL
+  const formatProfileImage = (base64Data) => {
+      if (!base64Data) return IconProfile;
+      
+      // Jika sudah memiliki prefix data:image
+      if (base64Data.startsWith('data:image')) {
+        return base64Data;
+      }
+      
+      // Jika sudah URL lengkap (http://)
+      if (base64Data.startsWith('http')) {
+        return base64Data;
+      }
+      
+      // Jika base64 tanpa prefix
+      return `data:image/jpeg;base64,${base64Data}`;
   };
 
   // Fungsi khusus untuk upload gambar
@@ -347,7 +381,7 @@ function EditProfile() {
             <div className="profile-picture-container">
               <div className="profile-picture">
                 <img
-                  src={profileData.profileImage}
+                  src={formatProfileImage(profileData.profileImage)}
                   alt="User profile picture"
                   id="profile-image"
                   ref={profileImageRef}
