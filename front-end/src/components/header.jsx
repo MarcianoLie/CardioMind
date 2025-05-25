@@ -29,6 +29,9 @@ const Header = () => {
           if (base64Data.startsWith('data:image')) {
             return base64Data;
           }
+          if (base64Data.startsWith('http://localhost:8080/api/img')) {
+            return base64Data;
+          }
           
           // Jika sudah URL lengkap (http://)
           if (base64Data.startsWith('http')) {
