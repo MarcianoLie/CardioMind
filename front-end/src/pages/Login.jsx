@@ -93,16 +93,22 @@ function Login() {
       console.log("UID:", uid);
       console.log("Token:", userToken);
       try {
+        console.log("profileResult :")
         const profileResponse = await fetch("http://localhost:8080/api/profile", {
           credentials: "include",
         });
         const profileResult = await profileResponse.json();
+        console.log(profileResponse.ok)
+        console.log(profileResult)
 
         if (profileResponse.ok) {
+          console.log("ok:");
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", "data:image/jpeg;base64," + user.profileImage || '');
+          console.log("Data profil berhasil disimpan ke localStorage\nUsername :",localStorage.getItem("profileName"));
+          localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
 
-          console.log("Data profil berhasil disimpan ke localStorage");
+        } else {
+          console.log("Username : ",profileResult.user.displayName)
         }
       } catch (profileError) {
         console.error("Error mengambil profil:", profileError);

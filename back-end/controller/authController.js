@@ -151,6 +151,7 @@ const signOutUser = async (req, res) => {
 };
 
 const checkSession = (req, res) => {
+  // console.log("Check : ",req.session.userId)
   if (req.session && req.session.userId) {
     return res.status(200).json({ isLoggedIn: true, user: req.session.username || "User" });
   } else {
