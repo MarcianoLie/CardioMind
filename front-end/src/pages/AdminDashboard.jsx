@@ -12,10 +12,13 @@ import LogoMobile from "../assets/images/logo-mobile.svg";
 const AdminDashboard = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate(); 
+  const [newsTotal, setNewsTotal] = useState("");
+  const [usersTotal, setUsersTotal] = useState("");
+  const [MedicsTotal, setMedicsTotal] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
+    const checkSessionAndFetchCounts = async () => {
       try {
         const response = await fetch("http://localhost:8080/api/check-session", {
           method: "GET",
@@ -25,26 +28,49 @@ const AdminDashboard = () => {
         const data = await response.json();
         if (data.status === "admin") {
           setIsAuthorized(true);
+
+          // Fetch total users
+          const usersRes = await fetch("http://localhost:8080/api/admin/users", {
+            credentials: "include",
+          });
+          const usersData = await usersRes.json();
+          if (!usersData.error) setUsersTotal(usersData.total);
+
+          // Fetch total medics
+          const medicsRes = await fetch("http://localhost:8080/api/admin/medics", {
+            credentials: "include",
+          });
+          const medicsData = await medicsRes.json();
+          if (!medicsData.error) setMedicsTotal(medicsData.total);
+
+          // Fetch total news
+          const newsRes = await fetch("http://localhost:8080/api/admin/news", {
+            credentials: "include",
+          });
+          const newsData = await newsRes.json();
+          if (!newsData.error) setNewsTotal(newsData.total);
+
         } else {
-          navigate("/"); 
+          navigate("/");
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        console.error("Error:", error);
         navigate("/");
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkSession();
+    checkSessionAndFetchCounts();
   }, [navigate]);
+
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   if (!isAuthorized) {
-    return null; 
+    return null;
   }
 
   return (
@@ -85,7 +111,7 @@ const AdminDashboard = () => {
           <div className={styles.card}>
             <div className={styles.cardContent}>
               <div className={styles.cardTitle}>Total Users</div>
-              <div className={styles.cardValue}>156</div>
+              <div className={styles.cardValue}>{usersTotal}</div>
             </div>
             <img src={UserIcon} alt="User Icon" className={styles.cardIcon} />
           </div>
@@ -93,7 +119,7 @@ const AdminDashboard = () => {
           <div className={styles.card}>
             <div className={styles.cardContent}>
               <div className={styles.cardTitle}>Total Doctors</div>
-              <div className={styles.cardValue}>24</div>
+              <div className={styles.cardValue}>{MedicsTotal}</div>
             </div>
             <img src={DokterIcon} alt="Doctor Icon" className={styles.cardIcon} />
           </div>
@@ -101,7 +127,7 @@ const AdminDashboard = () => {
           <div className={styles.card}>
             <div className={styles.cardContent}>
               <div className={styles.cardTitle}>Total News</div>
-              <div className={styles.cardValue}>32</div>
+              <div className={styles.cardValue}>{newsTotal}</div>
             </div>
             <img src={NewsIcon} alt="News Icon" className={styles.cardIcon} />
           </div>

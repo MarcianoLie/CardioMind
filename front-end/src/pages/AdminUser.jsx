@@ -10,45 +10,147 @@ import deleteIcon from '../assets/images/menghapus.png';
 import editIcon from '../assets/images/mengedit.png';
 import { Link, useNavigate } from "react-router-dom";
 
-const initialUsers = [
-    { name: 'Budi Santoso', email: 'budi@mail.com', number: '08123456789', place: 'Jakarta', dob: '1990-01-01' },
-    { name: 'Siti Aminah', email: 'siti@mail.com', number: '08129876543', place: 'Bandung', dob: '1992-05-12' }
-];
 
 export default function AdminUser() {
-    const [users, setUsers] = useState(initialUsers);
+    const [users, setUsers] = useState([]);
     const [deleteMode, setDeleteMode] = useState(false);
     const [popupOpen, setPopupOpen] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
-    const [form, setForm] = useState({ name: '', place: '', dob: '', number: '', email: '' });
+    const [form, setForm] = useState({
+        name: '',
+        place: '',
+        dob: '',
+        number: '',
+        email: ''
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const navigate = useNavigate();
+    const [searchEmail, setSearchEmail] = useState('');
+    const [searchResult, setSearchResult] = useState(null);
+    const [searchMessage, setSearchMessage] = useState('');
+    const [medicList, setMedicList] = useState([]);
+
+    // Tambahkan fungsi fetchUsers yang hilang
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/usersDetail", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const result = await response.json();
+            if (!result.error) {
+                const mappedUsers = result.data.map(user => ({
+                    name: user.displayName || 'N/A',
+                    email: user.email || 'N/A',
+                    number: user.phone || 'N/A',
+                    place: user.birthPlace || 'N/A',
+                    dob: user.birthDate ? new Date(user.birthDate).toLocaleDateString('id-ID') : 'N/A'
+                }));
+                setUsers(mappedUsers);
+            } else {
+                console.error("Error:", result.message);
+                setUsers([]);
+            }
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            setUsers([]);
+        }
+    };
+
+    const handleDeleteUser = async (email) => {
+        if (!window.confirm("Apakah Anda yakin ingin menghapus user ini?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/delete-user", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+            if (!data.error) {
+                alert("User berhasil dihapus");
+                // Refresh data users
+                await fetchUsers();
+            } else {
+                alert("Gagal menghapus user: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            alert("Terjadi kesalahan saat menghapus user");
+        }
+    };
+
+    const fetchMedicUsers = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/list-medic", {
+                method: "GET",
+                credentials: "include",
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const data = await response.json();
+            if (!data.error) {
+                setMedicList(data.data || []);
+            } else {
+                console.error("Error fetching medics:", data.message);
+                setMedicList([]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch medic list:", error);
+            setMedicList([]);
+        }
+    };
 
     useEffect(() => {
-        const checkSession = async () => {
+        let isMounted = true;
+
+        const checkSessionAndFetchData = async () => {
             try {
-                const response = await fetch("http://localhost:8080/api/check-session", {
+                // 1. Check session dulu
+                const sessionResponse = await fetch("http://localhost:8080/api/check-session", {
                     method: "GET",
                     credentials: "include",
                 });
 
-                const data = await response.json();
-                if (data.status === "admin") {
+                const sessionData = await sessionResponse.json();
+
+                if (!isMounted) return;
+
+                if (sessionData.status === "admin") {
                     setIsAuthorized(true);
+
+                    // 2. Fetch data secara paralel setelah session valid
+                    await Promise.all([
+                        fetchUsers(),
+                        fetchMedicUsers()
+                    ]);
                 } else {
                     navigate("/");
                 }
             } catch (error) {
-                console.error("Error checking session:", error);
-                navigate("/");
+                console.error("Error in initialization:", error);
+                if (isMounted) navigate("/");
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
 
-        checkSession();
+        checkSessionAndFetchData();
+
+        return () => { isMounted = false };
     }, [navigate]);
+
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -61,6 +163,59 @@ export default function AdminUser() {
     const handleEditClick = (idx) => {
         setEditingUser(editingUser === idx ? null : idx);
     };
+
+    const handleEmailSearch = async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/admin/search-user?email=${searchEmail}`, {
+                method: "GET",
+                credentials: "include",
+            });
+
+            const data = await response.json();
+            if (!data.error && data.data && data.data.status === "user") {
+                setSearchResult(data.data);
+                setSearchMessage("Email ditemukan dengan status user.");
+            } else {
+                setSearchResult(null);
+                setSearchMessage("Email tidak ditemukan atau bukan status user.");
+            }
+        } catch (error) {
+            console.error("Error searching email:", error);
+            setSearchResult(null);
+            setSearchMessage("Terjadi kesalahan saat mencari email.");
+        }
+    };
+
+
+
+    const handlePromoteToMedic = async () => {
+        if (!searchResult) return;
+
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/promote-to-medic", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ email: searchResult.email })
+            });
+
+            const data = await response.json();
+            if (!data.error) {
+                alert("User berhasil diubah menjadi medic.");
+                fetchMedicUsers();
+                setPopupOpen(false);
+            } else {
+                alert("Gagal mengubah status user.");
+            }
+        } catch (error) {
+            console.error("Error promoting user:", error);
+            alert("Terjadi kesalahan saat mengubah status.");
+        }
+    };
+
+
 
     const handleRoleChange = (idx, newRole) => {
         if (newRole === 'doctor') {
@@ -82,9 +237,12 @@ export default function AdminUser() {
     };
 
     const openAddPopup = () => {
-        setForm({ name: '', place: '', dob: '', number: '', email: '' });
+        setSearchEmail('');
+        setSearchResult(null);
+        setSearchMessage('');
         setPopupOpen(true);
     };
+
 
     const handleFormChange = e => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -99,6 +257,31 @@ export default function AdminUser() {
     const handlePopupOverlayClick = e => {
         if (e.target.classList.contains(styles.popupOverlay)) setPopupOpen(false);
     };
+
+    if (users.length === 0 && !isLoading) {
+        return (
+            <div className={styles.container}>
+                {/* Sidebar */}
+                <aside className={styles.sidebar}>
+                    {/* ... isi sidebar ... */}
+                </aside>
+
+                {/* Main Content */}
+                <main className={styles.mainContent}>
+                    <h1 className={styles.pageTitle}>User</h1>
+                    <div className={styles.userActions}>
+                        <button className={`${styles.actionBtn} ${styles.actionBtnAdd}`} onClick={openAddPopup}>
+                            <img src={addIcon} alt="Tambah" className={styles.actionBtnImg} />
+                        </button>
+                    </div>
+                    <div className={styles.noDataMessage}>
+                        Tidak ada data user yang tersedia
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
 
     return (
         <div className={styles.container}>
@@ -155,10 +338,11 @@ export default function AdminUser() {
                                             <button
                                                 className={styles.rowDeleteBtn}
                                                 title="Hapus User"
-                                                onClick={() => handleRowDelete(idx)}
+                                                onClick={() => handleDeleteUser(user.email)} // Ubah ini
                                             >
                                                 <img src={deleteIcon} alt="Hapus" style={{ width: 24 }} />
                                             </button>
+                                            {/*
                                             <button
                                                 className={styles.rowEditBtn}
                                                 title="Edit User"
@@ -166,6 +350,7 @@ export default function AdminUser() {
                                             >
                                                 <img src={editIcon} alt="Edit" style={{ width: 24 }} />
                                             </button>
+                                            */}
                                             {editingUser === idx && (
                                                 <div style={{
                                                     position: 'absolute',
@@ -223,62 +408,38 @@ export default function AdminUser() {
             {popupOpen && (
                 <div className={styles.popupOverlay} onClick={handlePopupOverlayClick}>
                     <div className={styles.popupForm}>
-                        <h2 className={styles.popupFormTitle}>Add User</h2>
-                        <form onSubmit={handleFormSubmit}>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                placeholder="Full Name"
-                                className={styles.popupFormInput}
-                                value={form.name}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="text"
-                                name="place"
-                                required
-                                placeholder="Place"
-                                className={styles.popupFormInput}
-                                value={form.place}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="date"
-                                name="dob"
-                                required
-                                placeholder="Date of Birth"
-                                className={styles.popupFormInput}
-                                value={form.dob}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="text"
-                                name="number"
-                                required
-                                placeholder="Number"
-                                className={styles.popupFormInput}
-                                value={form.number}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                placeholder="Email"
-                                className={styles.popupFormInput}
-                                value={form.email}
-                                onChange={handleFormChange}
-                            />
-                            <div className={styles.popupActions}>
-                                <button type="submit" className={styles.popupActionsBtn}>
-                                    Add
-                                </button>
-                            </div>
-                        </form>
+                        <h2 className={styles.popupFormTitle}>Promote User</h2>
+                        <input
+                            type="email"
+                            required
+                            placeholder="Email"
+                            className={styles.popupFormInput}
+                            value={searchEmail}
+                            onChange={(e) => setSearchEmail(e.target.value)}
+                        />
+                        <button
+                            className={`${styles.popupActionsBtn} ${styles.searchBtn}`}
+                            type="button"
+                            onClick={handleEmailSearch}
+                            style={{ marginTop: '8px' }}
+                        >
+                            Search
+                        </button>
+                        {searchMessage && <p style={{ marginTop: '10px', color: searchResult ? "green" : "red" }}>{searchMessage}</p>}
+                        <div className={styles.popupActions}>
+                            <button
+                                type="button"
+                                className={styles.popupActionsBtn}
+                                onClick={handlePromoteToMedic}
+                                disabled={!searchResult}
+                            >
+                                Add
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 } 

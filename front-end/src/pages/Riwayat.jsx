@@ -56,7 +56,7 @@ const Riwayat = () => {
         credentials: 'include'
       });
       const data = await response.json();
-      if (data.success) {
+      if (!data.error) {
         const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSuicidePredictions(sortedData);
       }
@@ -72,7 +72,7 @@ const Riwayat = () => {
         credentials: 'include'
       });
       const data = await response.json();
-      if (data.success) {
+      if (!data.error) {
         const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setCardioPredictions(sortedData);
       }

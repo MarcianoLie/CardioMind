@@ -1,53 +1,108 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../css/admin-user-doctor.module.css';
 import logo from '../assets/images/Logo.png';
 import logoIcon from '../assets/images/logo-mobile.svg';
 import dashboardIcon from '../assets/images/dashboard.png';
 import userIcon from '../assets/images/adminuser.png';
 import dokterIcon from '../assets/images/admindokter.png';
-import addIcon from '../assets/images/menambahkan.png';
 import deleteIcon from '../assets/images/menghapus.png';
-import editIcon from '../assets/images/mengedit.png';
 import { Link, useNavigate } from "react-router-dom";
 
-const initialDoctors = [
-    { name: 'dr. Andi Wijaya', email: 'andi@rs.com', number: '08123456789', place: 'Jakarta', dob: '1980-02-14' },
-    { name: 'dr. Sari Dewi', email: 'sari@klinik.com', number: '08129876543', place: 'Bandung', dob: '1985-07-22' }
-];
-
 export default function AdminDokter() {
-    const [doctors, setDoctors] = useState(initialDoctors);
+    const [medics, setMedics] = useState([]);
     const [deleteMode, setDeleteMode] = useState(false);
-    const [popupOpen, setPopupOpen] = useState(false);
-    const [popupMode, setPopupMode] = useState('add');
-    const [form, setForm] = useState({ name: '', email: '', number: '', place: '', dob: '' });
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const navigate = useNavigate();
 
+    const fetchMedics = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/medicsDetail", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            const result = await response.json();
+            if (!result.error) {
+                const formattedMedics = result.data.map(medic => ({
+                    name: medic.displayName || 'N/A',
+                    email: medic.email || 'N/A',
+                    number: medic.phone || 'N/A',
+                    place: medic.birthPlace || 'N/A',
+                    dob: medic.birthDate ? new Date(medic.birthDate).toLocaleDateString('id-ID') : 'N/A'
+                }));
+                setMedics(formattedMedics);
+            } else {
+                console.error("Error:", result.message);
+                setMedics([]);
+            }
+        } catch (error) {
+            console.error("Error fetching medics:", error);
+            setMedics([]);
+        }
+    };
+
+    const handleDeleteMedic = async (email) => {
+        if (!window.confirm("Apakah Anda yakin ingin menghapus dokter ini?")) {
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/admin/changeToUser", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+            if (!data.error) {
+                alert("Dokter berhasil diubah menjadi user biasa");
+                await fetchMedics();
+            } else {
+                alert("Gagal mengubah status dokter: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error deleting medic:", error);
+            alert("Terjadi kesalahan saat mengubah status dokter");
+        }
+    };
+
     useEffect(() => {
-        const checkSession = async () => {
+        let isMounted = true;
+
+        const checkSessionAndFetchData = async () => {
             try {
-                const response = await fetch("http://localhost:8080/api/check-session", {
+                const sessionResponse = await fetch("http://localhost:8080/api/check-session", {
                     method: "GET",
                     credentials: "include",
                 });
 
-                const data = await response.json();
-                if (data.status === "admin") {
+                const sessionData = await sessionResponse.json();
+
+                if (!isMounted) return;
+
+                if (sessionData.status === "admin") {
                     setIsAuthorized(true);
+                    await fetchMedics();
                 } else {
                     navigate("/");
                 }
             } catch (error) {
-                console.error("Error checking session:", error);
-                navigate("/");
+                console.error("Error in initialization:", error);
+                if (isMounted) navigate("/");
             } finally {
-                setIsLoading(false);
+                if (isMounted) setIsLoading(false);
             }
         };
 
-        checkSession();
+        checkSessionAndFetchData();
+
+        return () => { isMounted = false };
     }, [navigate]);
 
     if (isLoading) {
@@ -57,35 +112,6 @@ export default function AdminDokter() {
     if (!isAuthorized) {
         return null;
     }
-    // Handlers
-    const openAddPopup = () => {
-        setPopupMode('add');
-        setForm({ name: '', email: '', number: '', place: '', dob: '' });
-        setPopupOpen(true);
-    };
-
-    const handleFormChange = e => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleFormSubmit = e => {
-        e.preventDefault();
-        if (popupMode === 'add') {
-            setDoctors([...doctors, form]);
-        }
-        setPopupOpen(false);
-    };
-
-    const handleDeleteMode = () => setDeleteMode(dm => !dm);
-
-    const handleRowDelete = idx => {
-        setDoctors(doctors => doctors.filter((_, i) => i !== idx));
-    };
-
-    // Popup close on overlay click
-    const handlePopupOverlayClick = e => {
-        if (e.target.classList.contains(styles.popupOverlay)) setPopupOpen(false);
-    };
 
     return (
         <div className={styles.container}>
@@ -111,12 +137,13 @@ export default function AdminDokter() {
 
             {/* Main Content */}
             <main className={styles.mainContent}>
-                <h1 className={styles.pageTitle}>Doctor</h1>
+                <h1 className={styles.pageTitle}>Doctors</h1>
                 <div className={styles.userActions}>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnAdd}`} title="Tambah Dokter" onClick={openAddPopup}>
-                        <img src={addIcon} alt="Tambah" className={styles.actionBtnImg} />
-                    </button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnDelete}`} title="Hapus Dokter" onClick={handleDeleteMode}>
+                    <button 
+                        className={`${styles.actionBtn} ${styles.actionBtnDelete}`} 
+                        title="Hapus Dokter" 
+                        onClick={() => setDeleteMode(!deleteMode)}
+                    >
                         <img src={deleteIcon} alt="Hapus" className={styles.actionBtnImg} />
                     </button>
                 </div>
@@ -128,92 +155,43 @@ export default function AdminDokter() {
                                 <th className={styles.userTableTh}>Email</th>
                                 <th className={styles.userTableTh}>No Telp</th>
                                 <th className={styles.userTableTh}>Tempat Lahir</th>
-                                <th className={styles.userTableTh}>Date Of Birth</th>
+                                <th className={styles.userTableTh}>Tanggal Lahir</th>
                                 {deleteMode && <th className={styles.userTableTh}>Aksi</th>}
                             </tr>
                         </thead>
                         <tbody>
-                            {doctors.map((doctor, idx) => (
-                                <tr key={idx} className={idx % 2 === 1 ? styles.userTableTrEven : undefined}>
-                                    <td className={styles.userTableTd}>{doctor.name}</td>
-                                    <td className={styles.userTableTd}>{doctor.email}</td>
-                                    <td className={styles.userTableTd}>{doctor.number}</td>
-                                    <td className={styles.userTableTd}>{doctor.place}</td>
-                                    <td className={styles.userTableTd}>{doctor.dob}</td>
-                                    {deleteMode && (
-                                        <td className={styles.aksiCell}>
-                                            <button className={styles.rowDeleteBtn} title="Hapus Dokter" onClick={() => handleRowDelete(idx)}>
-                                                <img src={deleteIcon} alt="Hapus" style={{ width: 24 }} />
-                                            </button>
-                                        </td>
-                                    )}
+                            {medics.length > 0 ? (
+                                medics.map((medic, idx) => (
+                                    <tr key={idx} className={idx % 2 === 1 ? styles.userTableTrEven : undefined}>
+                                        <td className={styles.userTableTd}>{medic.name}</td>
+                                        <td className={styles.userTableTd}>{medic.email}</td>
+                                        <td className={styles.userTableTd}>{medic.number}</td>
+                                        <td className={styles.userTableTd}>{medic.place}</td>
+                                        <td className={styles.userTableTd}>{medic.dob}</td>
+                                        {deleteMode && (
+                                            <td className={styles.aksiCell}>
+                                                <button
+                                                    className={styles.rowDeleteBtn}
+                                                    title="Hapus Dokter"
+                                                    onClick={() => handleDeleteMedic(medic.email)}
+                                                >
+                                                    <img src={deleteIcon} alt="Hapus" style={{ width: 24 }} />
+                                                </button>
+                                            </td>
+                                        )}
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={deleteMode ? 6 : 5} className={styles.noDataMessage}>
+                                        Tidak ada data dokter yang tersedia
+                                    </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
             </main>
-
-            {/* Popup Add Doctor */}
-            {popupOpen && (
-                <div className={styles.popupOverlay} onClick={handlePopupOverlayClick}>
-                    <div className={styles.popupForm}>
-                        <h2 className={styles.popupFormTitle}>Add Doctor</h2>
-                        <form onSubmit={handleFormSubmit}>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                placeholder="Full Name"
-                                className={styles.popupFormInput}
-                                value={form.name}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="email"
-                                name="email"
-                                required
-                                placeholder="Email"
-                                className={styles.popupFormInput}
-                                value={form.email}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="text"
-                                name="number"
-                                required
-                                placeholder="No Telp"
-                                className={styles.popupFormInput}
-                                value={form.number}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="text"
-                                name="place"
-                                required
-                                placeholder="Tempat Lahir"
-                                className={styles.popupFormInput}
-                                value={form.place}
-                                onChange={handleFormChange}
-                            />
-                            <input
-                                type="date"
-                                name="dob"
-                                required
-                                placeholder="Date of Birth"
-                                className={styles.popupFormInput}
-                                value={form.dob}
-                                onChange={handleFormChange}
-                            />
-                            <div className={styles.popupActions}>
-                                <button type="submit" className={styles.popupActionsBtn}>
-                                    Add
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
-} 
+}

@@ -2,6 +2,7 @@ const express = require("express");
 const { register, login, handleGoogleAuth, resetPassword, signOutUser, checkSession } = require("../controller/authController.js");
 const { postReply, getReplies ,editProfile, profile, saveSuicidePrediction, newsUpdate, getSuicidePredictions, getHealthArticles, articleById, postComments, getComments, postCardioPredict, postImageProfile, getCardioHistory } = require("../controller/appController.js");
 const { authUser } = require("../auth/middleware.js")
+const { getTotalMedics, getTotalNews, getTotalUsers, getAllMedics, getAllUsers, searchUser, promoteToMedic, deleteUser, changeToUser } = require("../controller/adminController.js")
 
 
 const router = express.Router();
@@ -11,12 +12,22 @@ router.post('/googleAuth', handleGoogleAuth);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout', signOutUser);
-// router.post('/logout', authUser, signOutUser);
 router.post('/resetPassword', resetPassword);
 
-// router.get('/users', (req, res) => {
-//     res.send('Ini daftar users');
-// });
+// admin
+
+router.get('/admin/users', getTotalUsers);
+router.get('/admin/medics', getTotalMedics);
+router.get('/admin/news', getTotalNews);
+router.get('/admin/usersDetail', getAllUsers);
+router.get('/admin/medicsDetail', getAllMedics);
+router.get('/admin/search-user/', searchUser);
+router.put('/admin/promote-to-medic', promoteToMedic);
+router.put('/admin/changeToUser', changeToUser);
+router.delete('/admin/delete-user', deleteUser);
+
+
+
 
 // app
 router.put('/profile', editProfile);
