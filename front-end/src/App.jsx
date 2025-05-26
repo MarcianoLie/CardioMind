@@ -64,8 +64,18 @@ function App() {
         <AdminRoute>
           <AdminDashboard />
         </AdminRoute>}/>
-        <Route path="/AdminDokter" element = {<AdminDokter/>}/>
-        <Route path="/AdminUser" element = {<AdminUser/>}/>
+        {/* <Route path="/AdminDokter" element = {<AdminDokter/>}/> */}
+        <Route path="/AdminDokter" element = {
+          <AdminRoute>
+          <AdminDokter />
+        </AdminRoute>
+        }/>
+        {/* <Route path="/AdminUser" element = {<AdminUser/>}/> */}
+        <Route path="/AdminUser" element = {
+          <AdminRoute>
+          <AdminUser />
+        </AdminRoute>
+        }/>
       </Routes>
       <Footer />
     </div>
