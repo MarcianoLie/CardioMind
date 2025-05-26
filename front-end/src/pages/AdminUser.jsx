@@ -17,10 +17,9 @@ const initialUsers = [
 
 export default function AdminUser() {
     const [users, setUsers] = useState(initialUsers);
-    const [editIndex, setEditIndex] = useState(null);
     const [deleteMode, setDeleteMode] = useState(false);
     const [popupOpen, setPopupOpen] = useState(false);
-    const [popupMode, setPopupMode] = useState('add');
+    const [editingUser, setEditingUser] = useState(null);
     const [form, setForm] = useState({ name: '', place: '', dob: '', number: '', email: '' });
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
@@ -38,7 +37,7 @@ export default function AdminUser() {
                 if (data.status === "admin") {
                     setIsAuthorized(true);
                 } else {
-                    navigate("/"); 
+                    navigate("/");
                 }
             } catch (error) {
                 console.error("Error checking session:", error);
@@ -56,21 +55,34 @@ export default function AdminUser() {
     }
 
     if (!isAuthorized) {
-        return null; 
+        return null;
     }
-    // Handlers
-    const openAddPopup = () => {
-        setEditIndex(null);
-        setPopupMode('add');
-        setForm({ name: '', place: '', dob: '', number: '', email: '' });
-        setPopupOpen(true);
+
+    const handleEditClick = (idx) => {
+        setEditingUser(editingUser === idx ? null : idx);
     };
 
-    const openEditPopup = () => {
-        if (users.length === 0) return alert('No user to edit!');
-        setEditIndex(0); // Demo: edit first user
-        setPopupMode('edit');
-        setForm(users[0]);
+    const handleRoleChange = (idx, newRole) => {
+        if (newRole === 'doctor') {
+            const userToDoctor = users[idx];
+            // Get existing doctors from localStorage
+            const existingDoctors = JSON.parse(localStorage.getItem('doctors') || '[]');
+            // Add the user to doctors
+            localStorage.setItem('doctors', JSON.stringify([...existingDoctors, userToDoctor]));
+            // Remove from users
+            setUsers(users.filter((_, i) => i !== idx));
+        }
+        setEditingUser(null);
+    };
+
+    const handleDeleteMode = () => setDeleteMode(prev => !prev);
+
+    const handleRowDelete = idx => {
+        setUsers(users => users.filter((_, i) => i !== idx));
+    };
+
+    const openAddPopup = () => {
+        setForm({ name: '', place: '', dob: '', number: '', email: '' });
         setPopupOpen(true);
     };
 
@@ -80,23 +92,10 @@ export default function AdminUser() {
 
     const handleFormSubmit = e => {
         e.preventDefault();
-        if (popupMode === 'add') {
-            setUsers([...users, form]);
-        } else if (popupMode === 'edit' && editIndex !== null) {
-            const updated = [...users];
-            updated[editIndex] = form;
-            setUsers(updated);
-        }
+        setUsers([...users, form]);
         setPopupOpen(false);
     };
 
-    const handleDeleteMode = () => setDeleteMode(dm => !dm);
-
-    const handleRowDelete = idx => {
-        setUsers(users => users.filter((_, i) => i !== idx));
-    };
-
-    // Popup close on overlay click
     const handlePopupOverlayClick = e => {
         if (e.target.classList.contains(styles.popupOverlay)) setPopupOpen(false);
     };
@@ -130,12 +129,6 @@ export default function AdminUser() {
                     <button className={`${styles.actionBtn} ${styles.actionBtnAdd}`} title="Tambah User" onClick={openAddPopup}>
                         <img src={addIcon} alt="Tambah" className={styles.actionBtnImg} />
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnDelete}`} title="Hapus User" onClick={handleDeleteMode}>
-                        <img src={deleteIcon} alt="Hapus" className={styles.actionBtnImg} />
-                    </button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnEdit}`} title="Edit User" onClick={openEditPopup}>
-                        <img src={editIcon} alt="Edit" className={styles.actionBtnImg} />
-                    </button>
                 </div>
                 <div className={styles.userTableContainer}>
                     <table className={styles.userTable}>
@@ -146,7 +139,7 @@ export default function AdminUser() {
                                 <th className={styles.userTableTh}>No Telp</th>
                                 <th className={styles.userTableTh}>Tempat Lahir</th>
                                 <th className={styles.userTableTh}>Date Of Birth</th>
-                                {deleteMode && <th className={styles.userTableTh}>Aksi</th>}
+                                <th className={styles.userTableTh}>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -157,13 +150,68 @@ export default function AdminUser() {
                                     <td className={styles.userTableTd}>{user.number}</td>
                                     <td className={styles.userTableTd}>{user.place}</td>
                                     <td className={styles.userTableTd}>{user.dob}</td>
-                                    {deleteMode && (
-                                        <td className={styles.aksiCell}>
-                                            <button className={styles.rowDeleteBtn} title="Hapus User" onClick={() => handleRowDelete(idx)}>
+                                    <td className={styles.aksiCell} style={{ position: 'relative', overflow: 'visible' }}>
+                                        <div style={{ display: 'flex', gap: '8px', position: 'relative' }}>
+                                            <button
+                                                className={styles.rowDeleteBtn}
+                                                title="Hapus User"
+                                                onClick={() => handleRowDelete(idx)}
+                                            >
                                                 <img src={deleteIcon} alt="Hapus" style={{ width: 24 }} />
                                             </button>
-                                        </td>
-                                    )}
+                                            <button
+                                                className={styles.rowEditBtn}
+                                                title="Edit User"
+                                                onClick={() => handleEditClick(idx)}
+                                            >
+                                                <img src={editIcon} alt="Edit" style={{ width: 24 }} />
+                                            </button>
+                                            {editingUser === idx && (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    top: '100%',
+                                                    minWidth: '100%',
+                                                    backgroundColor: 'gray',
+                                                    border: '1px solid #ddd',
+                                                    borderRadius: '4px',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                    zIndex: 10000,
+                                                    color: "black"
+                                                }}>
+                                                    <button
+                                                        style={{
+                                                            display: 'block',
+                                                            width: '100%',
+                                                            padding: '8px 16px',
+                                                            textAlign: 'left',
+                                                            border: 'none',
+                                                            background: 'none',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                        onClick={() => handleRoleChange(idx, 'user')}
+                                                    >
+                                                        User
+                                                    </button>
+                                                    <button
+                                                        style={{
+                                                            display: 'block',
+                                                            width: '100%',
+                                                            padding: '8px 16px',
+                                                            textAlign: 'left',
+                                                            border: 'none',
+                                                            background: 'none',
+                                                            cursor: 'pointer',
+                                                            color: '#007bff'
+                                                        }}
+                                                        onClick={() => handleRoleChange(idx, 'doctor')}
+                                                    >
+                                                        Doctor
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -171,11 +219,11 @@ export default function AdminUser() {
                 </div>
             </main>
 
-            {/* Popup Add/Edit User */}
+            {/* Popup Add User */}
             {popupOpen && (
                 <div className={styles.popupOverlay} onClick={handlePopupOverlayClick}>
                     <div className={styles.popupForm}>
-                        <h2 className={styles.popupFormTitle}>{popupMode === 'add' ? 'Add User' : 'Edit User'}</h2>
+                        <h2 className={styles.popupFormTitle}>Add User</h2>
                         <form onSubmit={handleFormSubmit}>
                             <input
                                 type="text"
@@ -224,7 +272,7 @@ export default function AdminUser() {
                             />
                             <div className={styles.popupActions}>
                                 <button type="submit" className={styles.popupActionsBtn}>
-                                    {popupMode === 'add' ? 'Add' : 'Edit'}
+                                    Add
                                 </button>
                             </div>
                         </form>
