@@ -18,6 +18,7 @@ import Slide2 from "../assets/images/Slide2.png";
 import Slide3 from "../assets/images/Slide3.png";
 import Slide4 from "../assets/images/Slide4.png";
 import Slide5 from "../assets/images/Slide5.png";
+import anjing from "../assets/images/Slide5.png";
 
 function Homepage() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -27,15 +28,16 @@ function Homepage() {
   const slideInterval = useRef(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const [articles, setArticles] = useState([]);
 
   // Slide links - add your desired URLs here
-  const slideLinks = [
-    "/infokesehatan", // Slide 1 link
-    "/PrediksiJantung", // Slide 2 link
-    "/PrediksiBunuhDiri", // Slide 3 link
-    "/riwayat", // Slide 4 link
-    "#", // Slide 5 link - replace with actual link
-  ];
+  // const slideLinks = [
+  //   "/infokesehatan", // Slide 1 link
+  //   "/PrediksiJantung", // Slide 2 link
+  //   "/PrediksiBunuhDiri", // Slide 3 link
+  //   "/riwayat", // Slide 4 link
+  //   "#", // Slide 5 link - replace with actual link
+  // ];
 
   const totalSlides = 5;
 
@@ -114,6 +116,34 @@ function Homepage() {
       window.removeEventListener("orientationchange", checkScreenSize);
     };
   }, []);
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/api/news");
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message || "Failed to fetch articles");
+        }
+
+        console.log("latestArticles")
+        if (result.data && result.data.length > 0) {
+          const latestArticles = result.data
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5);
+          setArticles(latestArticles);
+          console.log(latestArticles)
+        }
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -133,12 +163,12 @@ function Homepage() {
   }, []);
 
   // Function to render slide content with link if active
-  const renderSlideContent = (slideIndex, imgSrc, altText) => {
+  const renderSlideContent = (slideIndex, imgSrc, altText, link) => {
     const isActive = slideIndex === currentIndex;
 
     if (isActive) {
       return (
-        <Link to={slideLinks[slideIndex]} className="slide-link">
+        <Link to={link} className="slide-link">
           <img src={imgSrc} alt={altText} />
         </Link>
       );
@@ -159,8 +189,7 @@ function Homepage() {
           <div className="solution-text">
             <h1>Solusi Pertolongan Pertama</h1>
             <p>
-              Tanya dokter, prediksi penyakit, dan info kesehatan jantung dan
-              stress
+              Tanya dokter, prediksi penyakit, dan info kesehatan jantung dan stress
             </p>
           </div>
 
@@ -192,51 +221,30 @@ function Homepage() {
       <div className="slider-section">
         <h2 className="slider-heading">Cardio Insight</h2>
         <div className="slider-container">
-          <div className="slider-mask"></div>
           <div className="slider-content">
             <div
               className="slides-wrapper"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
             >
-              {/* Static slides matching original structure */}
-              <div
-                className={`slide ${getSlideClass(3)}`}
-                data-index="3"
-                style={{ zIndex: getSlideZIndex(3) }}
-              >
-                {renderSlideContent(3, Slide4, "Slide 4")}
-              </div>
-              <div
-                className={`slide ${getSlideClass(4)}`}
-                data-index="4"
-                style={{ zIndex: getSlideZIndex(4) }}
-              >
-                {renderSlideContent(4, Slide5, "Slide 5")}
-              </div>
-              <div
-                className={`slide ${getSlideClass(0)}`}
-                data-index="0"
-                style={{ zIndex: getSlideZIndex(0) }}
-              >
-                {renderSlideContent(0, Slide1, "Slide 1")}
-              </div>
-              <div
-                className={`slide ${getSlideClass(1)}`}
-                data-index="1"
-                style={{ zIndex: getSlideZIndex(1) }}
-              >
-                {renderSlideContent(1, Slide2, "Slide 2")}
-              </div>
-              <div
-                className={`slide ${getSlideClass(2)}`}
-                data-index="2"
-                style={{ zIndex: getSlideZIndex(2) }}
-              >
-                {renderSlideContent(2, Slide3, "Slide 3")}
-              </div>
+              {articles.map((article, index) => (
+                <div
+                  key={article._id}
+                  className={`slide ${getSlideClass(index)}`}
+                  data-index={index}
+                  style={{ zIndex: getSlideZIndex(index) }}
+                >
+                  {renderSlideContent(
+                    index,
+                    article.imageUrl,
+                    `Slide ${index + 1}`,
+                    `/news/${article._id}`
+                  )}
+                </div>
+              ))}
             </div>
           </div>
+
           <div className="slider-navigation">
             <button
               className="slider-button prev-button"
@@ -248,6 +256,7 @@ function Homepage() {
             >
               <img src={left} alt="Previous" />
             </button>
+
             <div className="slider-dots">
               {[0, 1, 2, 3, 4].map((index) => (
                 <div
@@ -261,36 +270,36 @@ function Homepage() {
                     startSlideShow();
                   }}
                   style={{
-                    backgroundColor:
-                      currentIndex === index ? "#fff" : "#0c240c",
+                    backgroundColor: currentIndex === index ? "#fff" : "#0c240c",
                     width:
                       currentIndex === index
                         ? isVerySmall
                           ? "12px"
                           : isMobile
-                            ? "14px"
-                            : "16px"
+                          ? "14px"
+                          : "16px"
                         : isVerySmall
-                          ? "8px"
-                          : isMobile
-                            ? "10px"
-                            : "12px",
+                        ? "8px"
+                        : isMobile
+                        ? "10px"
+                        : "12px",
                     height:
                       currentIndex === index
                         ? isVerySmall
                           ? "12px"
                           : isMobile
-                            ? "14px"
-                            : "16px"
+                          ? "14px"
+                          : "16px"
                         : isVerySmall
-                          ? "8px"
-                          : isMobile
-                            ? "10px"
-                            : "12px",
+                        ? "8px"
+                        : isMobile
+                        ? "10px"
+                        : "12px",
                   }}
                 ></div>
               ))}
             </div>
+
             <button
               className="slider-button next-button"
               aria-label="Next slide"
