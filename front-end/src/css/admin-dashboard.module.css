@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+:global(*) {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Plus Jakarta Sans", Arial, sans-serif;
+}
+
+.containerAdminDashboard {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebarAdminDashboard {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #8F98A8;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.logo {
+    display: block;
+    width: 180px;
+    max-width: 100%;
+    margin: 0 auto 40px auto;
+}
+
+.logoFull { 
+    display: block; 
+}
+
+.logoIcon { 
+    display: none; 
+}
+
+.navLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.navItem:hover {
+    background-color: #f0f0f0;
+}
+
+.navItem.active {
+    background-color: #e0e0e0;
+}
+
+.navItem img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Main Content Styles */
+.mainContentAdmin {
+    margin-left: 280px;
+    padding: 30px;
+    flex-grow: 1;
+}
+
+.pageTitle {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #000;
+}
+
+.cardsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.card {
+    position: relative;
+    width: 100%;
+    height: 234px;
+    background: white;
+    border-radius: 25px;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+.cardContent {
+    position: absolute;
+    left: 55px;
+    display: flex;
+    flex-direction: column;
+    gap: 73px;
+}
+
+.cardTitle {
+    margin-top: 33px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #000;
+}
+
+.cardValue {
+    font-size: 28px;
+    color: #000;
+}
+
+.cardIcon {
+    position: absolute;
+    right: -50px;
+    width: 371px;
+    height: 423px;
+    top: -81px;
+    object-fit: contain;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .card {
+        height: 200px;
+    }
+
+    .cardIcon {
+        width: 300px;
+        height: 342px;
+        top: -60px;
+    }
+
+    .sidebarAdminDashboard {
+        width: 200px;
+    }
+    
+    .logo {
+        width: 120px;
+        max-width: 100%;
+        margin: 0 auto 32px auto;
+    }
+
+    .mainContentAdmin {
+        margin-left: 200px;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebarAdminDashboard {
+        width: 70px;
+        padding: 20px 10px;
+    }
+    
+    .logoFull { 
+        display: none !important; 
+    }
+    
+    .logoIcon { 
+        display: block !important; 
+        width: 40px; 
+        max-width: 100%; 
+        margin: 0 auto 24px auto; 
+    }
+
+    .navItem span {
+        display: none;
+    }
+
+    .mainContentAdmin {
+        margin-left: 70px;
+        padding: 20px;
+    }
+
+    .card {
+        height: 180px;
+    }
+
+    .cardContent {
+        left: 20px;
+        gap: 40px;
+    }
+
+    .cardTitle {
+        margin-top: 20px;
+        font-size: 32px;
+    }
+
+    .cardValue {
+        font-size: 24px;
+    }
+
+    .cardIcon {
+        width: 200px;
+        height: 228px;
+        top: -40px;
+    }
+}
