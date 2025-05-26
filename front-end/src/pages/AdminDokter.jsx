@@ -11,66 +11,56 @@ import editIcon from '../assets/images/mengedit.png';
 import { Link, useNavigate } from "react-router-dom";
 
 const initialDoctors = [
-    { name: 'dr. Andi Wijaya', instansi: 'RS Harapan Sehat' },
-    { name: 'dr. Sari Dewi', instansi: 'Klinik Medika' }
+    { name: 'dr. Andi Wijaya', email: 'andi@rs.com', number: '08123456789', place: 'Jakarta', dob: '1980-02-14' },
+    { name: 'dr. Sari Dewi', email: 'sari@klinik.com', number: '08129876543', place: 'Bandung', dob: '1985-07-22' }
 ];
 
 export default function AdminDokter() {
     const [doctors, setDoctors] = useState(initialDoctors);
-    const [editIndex, setEditIndex] = useState(null);
     const [deleteMode, setDeleteMode] = useState(false);
     const [popupOpen, setPopupOpen] = useState(false);
     const [popupMode, setPopupMode] = useState('add');
-    const [form, setForm] = useState({ name: '', instansi: '' });
+    const [form, setForm] = useState({ name: '', email: '', number: '', place: '', dob: '' });
     const [isLoading, setIsLoading] = useState(true);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const navigate = useNavigate();
 
-      useEffect(() => {
+    useEffect(() => {
         const checkSession = async () => {
-          try {
-            const response = await fetch("http://localhost:8080/api/check-session", {
-              method: "GET",
-              credentials: "include",
-            });
-    
-            const data = await response.json();
-            if (data.status === "admin") {
-              setIsAuthorized(true);
-            } else {
-              navigate("/"); 
+            try {
+                const response = await fetch("http://localhost:8080/api/check-session", {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                const data = await response.json();
+                if (data.status === "admin") {
+                    setIsAuthorized(true);
+                } else {
+                    navigate("/");
+                }
+            } catch (error) {
+                console.error("Error checking session:", error);
+                navigate("/");
+            } finally {
+                setIsLoading(false);
             }
-          } catch (error) {
-            console.error("Error checking session:", error);
-            navigate("/");
-          } finally {
-            setIsLoading(false);
-          }
         };
-    
+
         checkSession();
-      }, [navigate]);
-    
-      if (isLoading) {
+    }, [navigate]);
+
+    if (isLoading) {
         return <div>Loading...</div>;
-      }
-    
-      if (!isAuthorized) {
-        return null; 
-      }
+    }
+
+    if (!isAuthorized) {
+        return null;
+    }
     // Handlers
     const openAddPopup = () => {
-        setEditIndex(null);
         setPopupMode('add');
-        setForm({ name: '', instansi: '' });
-        setPopupOpen(true);
-    };
-
-    const openEditPopup = () => {
-        if (doctors.length === 0) return alert('No doctor to edit!');
-        setEditIndex(0); // Demo: edit first doctor
-        setPopupMode('edit');
-        setForm(doctors[0]);
+        setForm({ name: '', email: '', number: '', place: '', dob: '' });
         setPopupOpen(true);
     };
 
@@ -82,10 +72,6 @@ export default function AdminDokter() {
         e.preventDefault();
         if (popupMode === 'add') {
             setDoctors([...doctors, form]);
-        } else if (popupMode === 'edit' && editIndex !== null) {
-            const updated = [...doctors];
-            updated[editIndex] = form;
-            setDoctors(updated);
         }
         setPopupOpen(false);
     };
@@ -133,16 +119,16 @@ export default function AdminDokter() {
                     <button className={`${styles.actionBtn} ${styles.actionBtnDelete}`} title="Hapus Dokter" onClick={handleDeleteMode}>
                         <img src={deleteIcon} alt="Hapus" className={styles.actionBtnImg} />
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnEdit}`} title="Edit Dokter" onClick={openEditPopup}>
-                        <img src={editIcon} alt="Edit" className={styles.actionBtnImg} />
-                    </button>
                 </div>
                 <div className={styles.userTableContainer}>
                     <table className={styles.userTable}>
                         <thead>
                             <tr>
                                 <th className={styles.userTableTh}>Nama</th>
-                                <th className={styles.userTableTh}>Instansi</th>
+                                <th className={styles.userTableTh}>Email</th>
+                                <th className={styles.userTableTh}>No Telp</th>
+                                <th className={styles.userTableTh}>Tempat Lahir</th>
+                                <th className={styles.userTableTh}>Date Of Birth</th>
                                 {deleteMode && <th className={styles.userTableTh}>Aksi</th>}
                             </tr>
                         </thead>
@@ -150,7 +136,10 @@ export default function AdminDokter() {
                             {doctors.map((doctor, idx) => (
                                 <tr key={idx} className={idx % 2 === 1 ? styles.userTableTrEven : undefined}>
                                     <td className={styles.userTableTd}>{doctor.name}</td>
-                                    <td className={styles.userTableTd}>{doctor.instansi}</td>
+                                    <td className={styles.userTableTd}>{doctor.email}</td>
+                                    <td className={styles.userTableTd}>{doctor.number}</td>
+                                    <td className={styles.userTableTd}>{doctor.place}</td>
+                                    <td className={styles.userTableTd}>{doctor.dob}</td>
                                     {deleteMode && (
                                         <td className={styles.aksiCell}>
                                             <button className={styles.rowDeleteBtn} title="Hapus Dokter" onClick={() => handleRowDelete(idx)}>
@@ -165,11 +154,11 @@ export default function AdminDokter() {
                 </div>
             </main>
 
-            {/* Popup Add/Edit Doctor */}
+            {/* Popup Add Doctor */}
             {popupOpen && (
                 <div className={styles.popupOverlay} onClick={handlePopupOverlayClick}>
                     <div className={styles.popupForm}>
-                        <h2 className={styles.popupFormTitle}>{popupMode === 'add' ? 'Add Doctor' : 'Edit Doctor'}</h2>
+                        <h2 className={styles.popupFormTitle}>Add Doctor</h2>
                         <form onSubmit={handleFormSubmit}>
                             <input
                                 type="text"
@@ -181,17 +170,44 @@ export default function AdminDokter() {
                                 onChange={handleFormChange}
                             />
                             <input
-                                type="text"
-                                name="instansi"
+                                type="email"
+                                name="email"
                                 required
-                                placeholder="Instansi"
+                                placeholder="Email"
                                 className={styles.popupFormInput}
-                                value={form.instansi}
+                                value={form.email}
+                                onChange={handleFormChange}
+                            />
+                            <input
+                                type="text"
+                                name="number"
+                                required
+                                placeholder="No Telp"
+                                className={styles.popupFormInput}
+                                value={form.number}
+                                onChange={handleFormChange}
+                            />
+                            <input
+                                type="text"
+                                name="place"
+                                required
+                                placeholder="Tempat Lahir"
+                                className={styles.popupFormInput}
+                                value={form.place}
+                                onChange={handleFormChange}
+                            />
+                            <input
+                                type="date"
+                                name="dob"
+                                required
+                                placeholder="Date of Birth"
+                                className={styles.popupFormInput}
+                                value={form.dob}
                                 onChange={handleFormChange}
                             />
                             <div className={styles.popupActions}>
                                 <button type="submit" className={styles.popupActionsBtn}>
-                                    {popupMode === 'add' ? 'Add' : 'Edit'}
+                                    Add
                                 </button>
                             </div>
                         </form>
