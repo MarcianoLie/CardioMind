@@ -15,6 +15,72 @@ const Riwayat = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [selectedPrediction, setSelectedPrediction] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+  // CSS styles for popup
+  const popupStyles = {
+    overlay: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      zIndex: 1000,
+      display: showPopup ? 'flex' : 'none',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    content: {
+      position: 'relative',
+      backgroundColor: 'white',
+      padding: '30px',
+      borderRadius: '16px',
+      maxWidth: '600px',
+      width: '90%',
+      maxHeight: '80vh',
+      overflowY: 'auto',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+    },
+    closeButton: {
+      position: 'absolute',
+      top: '15px',
+      right: '15px',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      color: '#666',
+    },
+    title: {
+      fontSize: '24px',
+      fontWeight: '600',
+      marginBottom: '20px',
+      color: '#2d2e2e',
+    },
+    detailRow: {
+      marginBottom: '15px',
+      padding: '10px',
+      borderBottom: '1px solid #eee',
+    },
+    label: {
+      fontWeight: '500',
+      color: '#666',
+      marginBottom: '5px',
+    },
+    value: {
+      color: '#2d2e2e',
+      fontSize: '16px',
+    },
+    riskLevel: {
+      display: 'inline-block',
+      padding: '5px 10px',
+      borderRadius: '5px',
+      fontWeight: '500',
+      marginTop: '5px',
+    }
+  };
 
   useEffect(() => {
     const checkSession = async () => {
@@ -56,7 +122,7 @@ const Riwayat = () => {
         credentials: 'include'
       });
       const data = await response.json();
-      if (data.success) {
+      if (!data.error) {
         const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setSuicidePredictions(sortedData);
       }
@@ -72,7 +138,7 @@ const Riwayat = () => {
         credentials: 'include'
       });
       const data = await response.json();
-      if (data.success) {
+      if (!data.error) {
         const sortedData = data.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setCardioPredictions(sortedData);
       }
@@ -103,6 +169,11 @@ const Riwayat = () => {
     return result >= 0.5 ? "Tinggi" : "Rendah";
   };
 
+  const getRiskLevelColor = (level) => {
+    if (level.toLowerCase().includes("tinggi")) return "#ff4d4d";
+    if (level.toLowerCase().includes("sedang")) return "#ffa500";
+    return "#2b7a0b";
+  };
 
   const filteredPredictions = (() => {
     if (activeTab === "semua") {
@@ -130,6 +201,90 @@ const Riwayat = () => {
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  };
+
+  const handleShowDetails = (prediction) => {
+    setSelectedPrediction(prediction);
+    setShowPopup(true);
+  };
+
+  const renderPredictionDetails = () => {
+    if (!selectedPrediction) return null;
+
+    if (selectedPrediction.type === "jantung") {
+      const riskLevel = selectedPrediction.score >= 0.5 ? "Tinggi" : "Rendah";
+      return (
+        <div>
+          <h2 style={popupStyles.title}>Detail Prediksi Risiko Jantung</h2>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Tanggal Prediksi</div>
+            <div style={popupStyles.value}>{formatDate(selectedPrediction.createdAt)}</div>
+          </div>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Skor Risiko</div>
+            <div style={popupStyles.value}>{(selectedPrediction.score * 100).toFixed(2)}%</div>
+          </div>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Tingkat Risiko</div>
+            <div style={{
+              ...popupStyles.riskLevel,
+              backgroundColor: getRiskLevelColor(riskLevel),
+              color: 'white'
+            }}>
+              {selectedPrediction.score >= 0.5 ? "Berpotensi Sakit Jantung" : "Tidak Berpotensi Sakit Jantung"}
+            </div>
+          </div>
+          {selectedPrediction.inputData && (
+            <div style={popupStyles.detailRow}>
+              <div style={popupStyles.label}>Data Input</div>
+              <div style={popupStyles.value}>
+                {Object.entries(selectedPrediction.inputData).map(([key, value]) => (
+                  <div key={key} style={{ marginBottom: '5px' }}>
+                    <strong>{key}:</strong> {value}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <h2 style={popupStyles.title}>Detail Prediksi Tingkat Stress</h2>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Tanggal Prediksi</div>
+            <div style={popupStyles.value}>{formatDate(selectedPrediction.createdAt)}</div>
+          </div>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Pesan</div>
+            <div style={popupStyles.value}>{selectedPrediction.message}</div>
+          </div>
+          <div style={popupStyles.detailRow}>
+            <div style={popupStyles.label}>Tingkat Risiko</div>
+            <div style={{
+              ...popupStyles.riskLevel,
+              backgroundColor: getRiskLevelColor(selectedPrediction.predictionResult),
+              color: 'white'
+            }}>
+              {selectedPrediction.predictionResult}
+            </div>
+          </div>
+          {selectedPrediction.inputData && (
+            <div style={popupStyles.detailRow}>
+              <div style={popupStyles.label}>Data Input</div>
+              <div style={popupStyles.value}>
+                {Object.entries(selectedPrediction.inputData).map(([key, value]) => (
+                  <div key={key} style={{ marginBottom: '5px' }}>
+                    <strong>{key}:</strong> {value}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
     }
   };
 
@@ -270,12 +425,13 @@ const Riwayat = () => {
                       )}
                       <p className="prediction-date">{formatDate(prediction.createdAt)}</p>
                     </div>
-                    <Link
-                      to={`/detail-prediksi/${prediction._id}`}
+                    <button
+                      onClick={() => handleShowDetails(prediction)}
                       className="prediction-details"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                     >
                       Lihat Detail Prediksi
-                    </Link>
+                    </button>
                   </div>
                 ))
               )}
@@ -283,6 +439,21 @@ const Riwayat = () => {
           </div>
         </div>
       </main>
+
+      {/* Popup */}
+      {showPopup && (
+        <div style={popupStyles.overlay} onClick={() => setShowPopup(false)}>
+          <div style={popupStyles.content} onClick={e => e.stopPropagation()}>
+            <button
+              style={popupStyles.closeButton}
+              onClick={() => setShowPopup(false)}
+            >
+              ×
+            </button>
+            {renderPredictionDetails()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -35,9 +35,10 @@ const PrediksiJantung = () => {
             <h1 className="predict-title">Tingkat Resiko Penyakit Jantung</h1>
 
             <p className="predict-description">
-              Lorem ipsum dolor amet, consectetuer adipiscing elit. Metus
-              pellentesque amet facilisis cubilia quisque ipsum suspendisse.
-              Eleifend class pharetra fames venenatis dolor auctor vulputate.
+              Penyakit jantung disebut sebagai penyumbang kematian terbesar di
+              dunia. Penyakit ini didukung oleh faktor risiko seperti
+              kolesterol, tekanan darah tinggi, merokok, obesitas, dan Diabetes.
+              Hitung risiko untuk pencegahan dini.
             </p>
 
             <button onClick={handleStartSurvey} className="start-btn">
@@ -47,9 +48,7 @@ const PrediksiJantung = () => {
             <div className="reference">
               <h3>Referensi</h3>
               <p>
-                Lorem ipsum dolor amet, consectetuer adipiscing elit. Metus
-                pellentesque amet facilisis cubilia quisque ipsum suspendisse.
-                Eleifend class pharetra fames venenatis dolor auctor vulputate.
+                https://www.kaggle.com/datasets/sulianova/cardiovascular-disease-dataset
               </p>
             </div>
           </div>
@@ -59,4 +58,4 @@ const PrediksiJantung = () => {
   );
 };
 
-export default PrediksiJantung
+export default PrediksiJantung;

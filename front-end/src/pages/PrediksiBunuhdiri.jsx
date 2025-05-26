@@ -35,9 +35,11 @@ const PrediksiBunuhDiri = () => {
             <h1 className="predict-title">Tingkat Resiko Bunuh Diri</h1>
 
             <p className="predict-description">
-              Lorem ipsum dolor amet, consectetuer adipiscing elit. Metus
-              pellentesque amet facilisis cubilia quisque ipsum suspendisse.
-              Eleifend class pharetra fames venenatis dolor auctor vulputate.
+              Risiko bunuh diri dapat dipengaruhi oleh berbagai faktor
+              psikologis dan sosial. Dengan menganalisis teks dari tweet, sistem
+              ini memberikan gambaran awal mengenai tingkat risiko Anda.
+              Prediksi ini bertujuan sebagai langkah awal untuk mengenali pola
+              emosi dalam tulisan, bukan untuk diagnosis medis.
             </p>
 
             <button onClick={handleStartSurvey} className="start-btn">
@@ -47,9 +49,7 @@ const PrediksiBunuhDiri = () => {
             <div className="reference">
               <h3>Referensi</h3>
               <p>
-                Lorem ipsum dolor amet, consectetuer adipiscing elit. Metus
-                pellentesque amet facilisis cubilia quisque ipsum suspendisse.
-                Eleifend class pharetra fames venenatis dolor auctor vulputate.
+                https://www.kaggle.com/datasets/aunanya875/suicidal-tweet-detection-dataset
               </p>
             </div>
           </div>

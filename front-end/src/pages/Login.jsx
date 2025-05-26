@@ -23,7 +23,6 @@ function Login() {
     password: "",
   });
 
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -79,15 +78,16 @@ function Login() {
 
     setIsLoading(true);
     try {
-      console.log("Login form submitted", formData, rememberMe);
+      console.log("Login form submitted", formData);
+      // Simulate API call
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await axios.post("http://localhost:8080/api/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      const { uid, userToken, message, status } = response.data;
-
+      const { uid, userToken, message } = response.data;
 
       console.log("Login berhasil:", message);
       console.log("UID:", uid);
@@ -101,11 +101,7 @@ function Login() {
 
         if (profileResponse.ok) {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", (!profileResult.user.profileImage)
-                                                                    ? ''
-                                                                    : (profileResult.user.profileImage.startsWith('http')
-                                                                        ? profileResult.user.profileImage
-                                                                        : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
+          localStorage.setItem("profileImage", (profileResult.user.profileImage)?"data:image/jpeg;base64," + profileResult.user.profileImage : profile);
 
         } else {
           console.log("Username : ",profileResult.user.displayName)
@@ -116,13 +112,11 @@ function Login() {
         localStorage.setItem("profileImage", user.photoURL || '');
       }
 
+      // Simpan token ke localStorage/sessionStorage kalau perlu
       localStorage.setItem("token", userToken);
 
-      if(status === "user"){
-        navigate("/")
-      } else if(status === "admin"){
-        navigate("/AdminDashboard")
-      }
+      // On successful login
+      navigate("/");
     } catch (error) {
       console.error("Login error:", error);
       setErrors({
@@ -159,14 +153,12 @@ function Login() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      const response = await axios.post("http://localhost:8080/api/googleAuth", {}, {
+      await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
         withCredentials: true
       });
-
-      const { status } = response.data;
 
       try {
         const profileResponse = await fetch("http://localhost:8080/api/profile", {
@@ -194,11 +186,7 @@ function Login() {
       alert("Sign in sukses dengan Google!");
       localStorage.setItem("user", "true");
 
-      if(status === "user"){
-        navigate("/")
-      } else if(status === "admin"){
-        navigate("/AdminDashboard")
-      }
+      navigate("/")
     } catch (error) {
       console.error("Error login Google:", error);
       alert("Gagal login dengan Google");
@@ -259,14 +247,10 @@ function Login() {
               )}
             </div>
 
-            <div className="remember-me">
-              <input
-                type="checkbox"
-                id="remember"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-              />
-              <label htmlFor="remember">Remember me?</label>
+            <div className="forgot-password" style={{ textAlign: "right", marginBottom: "15px" }}>
+              <Link to="/forgot" style={{ color: "#2b7a0b", textDecoration: "none", fontSize: "14px" }}>
+                Forgot Password?
+              </Link>
             </div>
 
             <button type="submit" className="signin-btn" disabled={isLoading}>
