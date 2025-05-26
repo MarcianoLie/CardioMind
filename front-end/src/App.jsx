@@ -27,6 +27,7 @@ import Riwayat from "./pages/Riwayat.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminDokter from "./pages/AdminDokter.jsx";
 import AdminUser from "./pages/AdminUser.jsx";
+import AdminRoute from "./routes/admin.jsx";
 
 
 
@@ -58,7 +59,11 @@ function App() {
         <Route path="/HasilJantung" element={<HasilJantung />} />
         <Route path="/editprofile" element={<EditProfile />} />
         <Route path="/riwayat" element={<Riwayat />} />
-        <Route path="/AdminDashboard" element = {<AdminDashboard/>}/>
+        {/* <Route path="/AdminDashboard" element = {<AdminDashboard/>}/> */}
+        <Route path="/AdminDashboard" element = {
+        <AdminRoute>
+          <AdminDashboard />
+        </AdminRoute>}/>
         <Route path="/AdminDokter" element = {<AdminDokter/>}/>
         <Route path="/AdminUser" element = {<AdminUser/>}/>
       </Routes>
