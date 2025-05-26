@@ -10,7 +10,7 @@ import ProfilePage from "./pages/Profile";
 import EditProfilePage from "./pages/EditProfile";
 import PrediksiBunuhDiri from "./pages/PrediksiBunuhdiri";
 import SuicideQ1 from "./pages/SuicideQ1.jsx";
-import HasilBunuhDiri from "./pages/hasilBunuhdiri.jsx";
+import HasilBunuhDiri from "./pages/HasilBunuhDiri.jsx";
 import PrediksiJantung from "./pages/PrediksiJantung.jsx";
 import JantungQ1 from "./pages/JantungQ1.jsx";
 import JantungQ2 from "./pages/JantungQ2.jsx";
@@ -24,7 +24,9 @@ import JantungQ9 from "./pages/JantungQ9.jsx";
 import HasilJantung from "./pages/HasilJantung.jsx";
 import EditProfile from "./pages/EditProfile";
 import Riwayat from "./pages/Riwayat.jsx";
-
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminDokter from "./pages/AdminDokter.jsx";
+import AdminUser from "./pages/AdminUser.jsx";
 
 
 
@@ -56,6 +58,9 @@ function App() {
         <Route path="/HasilJantung" element={<HasilJantung />} />
         <Route path="/editprofile" element={<EditProfile />} />
         <Route path="/riwayat" element={<Riwayat />} />
+        <Route path="/AdminDashboard" element = {<AdminDashboard/>}/>
+        <Route path="/AdminDokter" element = {<AdminDokter/>}/>
+        <Route path="/AdminUser" element = {<AdminUser/>}/>
       </Routes>
       <Footer />
     </div>

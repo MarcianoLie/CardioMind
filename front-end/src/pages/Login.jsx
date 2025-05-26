@@ -80,15 +80,14 @@ function Login() {
     setIsLoading(true);
     try {
       console.log("Login form submitted", formData, rememberMe);
-      // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const response = await axios.post("http://localhost:8080/api/login", {
         email: formData.email,
         password: formData.password,
       });
 
-      const { uid, userToken, message } = response.data;
+      const { uid, userToken, message, status } = response.data;
+
 
       console.log("Login berhasil:", message);
       console.log("UID:", uid);
@@ -113,11 +112,13 @@ function Login() {
         localStorage.setItem("profileImage", user.photoURL || '');
       }
 
-      // Simpan token ke localStorage/sessionStorage kalau perlu
       localStorage.setItem("token", userToken);
 
-      // On successful login
-      navigate("/");
+      if(status === "user"){
+        navigate("/")
+      } else if(status === "admin"){
+        navigate("/AdminDashboard")
+      }
     } catch (error) {
       console.error("Login error:", error);
       setErrors({
@@ -154,12 +155,14 @@ function Login() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      await axios.post("http://localhost:8080/api/googleAuth", {}, {
+      const response = await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
         withCredentials: true
       });
+
+      const { status } = response.data;
 
       try {
         const profileResponse = await fetch("http://localhost:8080/api/profile", {
@@ -187,7 +190,11 @@ function Login() {
       alert("Sign in sukses dengan Google!");
       localStorage.setItem("user", "true");
 
-      navigate("/")
+      if(status === "user"){
+        navigate("/")
+      } else if(status === "admin"){
+        navigate("/AdminDashboard")
+      }
     } catch (error) {
       console.error("Error login Google:", error);
       alert("Gagal login dengan Google");

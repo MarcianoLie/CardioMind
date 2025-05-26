@@ -62,6 +62,7 @@ const login = async (req, res) => {
     }
     req.session.userId = user.userId;
     req.session.status = user.status;
+    req.session.username = user.displayName;
     console.log("Session userId set:", req.session.userId);
     console.log("Session status set:", req.session.status);
 
@@ -71,6 +72,7 @@ const login = async (req, res) => {
       uid: firebaseUser.uid,
       userId: user.userId,
       userToken: idToken,
+      status: user.status
     });
   } catch (error) {
     console.error(error)
@@ -110,6 +112,7 @@ const handleGoogleAuth = async (req, res) => {
 
     req.session.userId = user.userId;
     req.session.status = user.status;
+    req.session.username = user.displayName;
     console.log("Session status set:", req.session.status);
     console.log("Session userId set via Google login/signup:", req.session.userId);
 
@@ -120,6 +123,7 @@ const handleGoogleAuth = async (req, res) => {
       email,
       displayName: name,
       profileImage: picture,
+      status: user.status
     });
 
   } catch (error) {
@@ -157,7 +161,7 @@ const signOutUser = async (req, res) => {
 const checkSession = (req, res) => {
   // console.log("Check : ",req.session.userId)
   if (req.session && req.session.userId) {
-    return res.status(200).json({ isLoggedIn: true, user: req.session.username || "User" });
+    return res.status(200).json({ isLoggedIn: true, user: req.session.username || "User", status: req.session.status });
   } else {
     return res.status(401).json({ isLoggedIn: false });
   }

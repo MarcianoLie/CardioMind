@@ -68,9 +68,9 @@ const saveSuicidePrediction = async (req, res) => {
         });
 
         await prediction.save();
-        res.status(201).json({ success: true, data: prediction });
+        res.status(201).json({ error: false, data: prediction });
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        res.status(500).json({ error: true, error: err.message });
     }
 };
 
@@ -117,9 +117,9 @@ const newsUpdate = async (req, res) => {
                 insertedCount++;
             }
         }
-        res.status(200).json({ success: true, message: `${insertedCount} artikel baru telah disimpan.` });
+        res.status(200).json({ error: false, message: `${insertedCount} artikel baru telah disimpan.` });
     } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
+        res.status(500).json({ error: true, error: err.message });
     }
 }
 
@@ -133,9 +133,9 @@ const getHealthArticles = async (req, res) => {
             imageUrl: article.imageUrl
         })
         )
-        res.status(200).json({ success: true, data: shownArticle });
+        res.status(200).json({ error: false, data: shownArticle });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ error: true, message: error.message });
     }
 };
 
@@ -144,103 +144,103 @@ const articleById = async (req, res) => {
     try {
         const article = await News.findById(id)
         if (!article) {
-            res.status(404).json({ succes: true, message: "Artikel tidak ditemukan" });
+            res.status(404).json({ error: true, message: "Artikel tidak ditemukan" });
         }
-        res.status(200).json({ success: true, data: article });
+        res.status(200).json({ error: false, data: article });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(500).json({ error: true, message: error.message })
     }
 }
 
 
 const getComments = async (req, res) => {
     try {
-        const newsId = req.params.newsId; // mengambil newsId dari URL parameter
+        const newsId = req.params.newsId;
 
         const comments = await Comments.aggregate([
             {
-                $match: { newsId: newsId } // filter berdasarkan newsId
+                $match: { newsId: newsId } 
             },
             {
                 $lookup: {
-                    from: "user", // nama collection di MongoDB
+                    from: "user", 
                     localField: "userId",
                     foreignField: "userId",
                     as: "userData"
                 }
             },
             {
-                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
+                $unwind: "$userData" 
             },
             {
-                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
+                $sort: { createdAt: -1 } 
             },
             {
                 $project: {
                     comment: 1,
                     createdAt: 1,
                     userId: 1,
-                    username: "$userData.displayName", // ambil nama pengguna dari hasil lookup
-                    profileImage: "$userData.profileImage" // ambil nama pengguna dari hasil lookup
+                    username: "$userData.displayName",
+                    profileImage: "$userData.profileImage" 
                 }
             }
         ]);
 
         if (comments.length === 0) {
-            return res.status(404).json({ success: false, message: "Komentar tidak ditemukan" });
+            return res.status(404).json({ false: true, message: "Komentar tidak ditemukan" });
         }
 
-        res.status(200).json({ success: true, data: comments });
+        res.status(200).json({ error: false, data: comments });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ error: true, message: error.message });
     }
 };
 const getReplies = async (req, res) => {
     try {
-        const commentId = req.params.commentId; // mengambil newsId dari URL parameter
+        const commentId = req.params.commentId; 
 
         const replies = await Reply.aggregate([
             {
-                $match: { commentId: commentId } // filter berdasarkan commrntId
+                $match: { commentId: commentId } 
             },
             {
                 $lookup: {
-                    from: "user", // nama collection di MongoDB
+                    from: "user",
                     localField: "userId",
                     foreignField: "userId",
                     as: "userData"
                 }
             },
             {
-                $unwind: "$userData" // untuk "meratakan" hasil lookup agar bisa dipakai
+                $unwind: "$userData" 
             },
             {
-                $sort: { createdAt: -1 } // urutkan berdasarkan tanggal komentar terbaru
+                $sort: { createdAt: -1 } 
             },
             {
                 $project: {
                     reply: 1,
                     createdAt: 1,
                     userId: 1,
-                    username: "$userData.displayName", // ambil nama pengguna dari hasil lookup
-                    profileImage: "$userData.profileImage" // ambil nama pengguna dari hasil lookup
+                    username: "$userData.displayName",
+                    profileImage: "$userData.profileImage" 
                 }
             }
         ]);
 
         if (replies.length === 0) {
-            return res.status(200).json({ success: true, data: replies, message: "Replies tidak ditemukan" });
+            return res.status(200).json({ error: false, data: replies, message: "Replies tidak ditemukan" });
         }
 
-        res.status(200).json({ success: true, data: replies });
+        res.status(200).json({ error: false, data: replies });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ error: true, message: error.message });
     }
 };
 
 
 const postComments = async (req, res) => {
-    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const userId = req.session.userId; 
     const { newsId, comment } = req.body;
     console.log("Session userId set:", userId);
 
@@ -251,51 +251,51 @@ const postComments = async (req, res) => {
     try {
         const newComment = new Comments({
             userId,
-            newsId, // untuk prototipe
+            newsId,
             comment,
             createdAt: new Date(),
         });
 
         await newComment.save();
-        res.status(201).json({ message: "Komentar berhasil ditambahkan" });
+        res.status(201).json({ error: false, message: "Komentar berhasil ditambahkan" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Terjadi kesalahan saat menyimpan komentar" });
+        res.status(500).json({ error: true, message: err.message });
     }
 };
 const postReply = async (req, res) => {
-    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const userId = req.session.userId;
     const { commentId, reply } = req.body;
     console.log("Session userId set:", userId);
 
     if (!commentId || !reply || !userId) {
-        return res.status(400).json({ message: "Data tidak lengkap" });
+        return res.status(400).json({ error: false, message: "Data tidak lengkap" });
     }
 
     try {
         const newReply = new Reply({
             userId,
-            commentId, // untuk prototipe
+            commentId,
             reply,
             createdAt: new Date(),
         });
 
         await newReply.save();
-        res.status(201).json({ message: "Reply berhasil ditambahkan" });
+        res.status(201).json({ error: false, message: "Reply berhasil ditambahkan" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Terjadi kesalahan saat menyimpan Reply" });
+        res.status(500).json({ error: true, message: err.message });
     }
 };
 
 const postCardioPredict = async (req, res) => {
-    const userId = req.session.userId; // asumsi login sudah dilakukan
+    const userId = req.session.userId; 
     const { age, gender, height, weight, ap_hi, ap_lo,
         cholesterol, glucose, smoke, alcohol, active, score } = req.body;
     console.log("Session userId set for record:", userId);
 
     if (!score || !userId) {
-        return res.status(400).json({ message: "Data tidak lengkap" });
+        return res.status(400).json({ error: true, message: "Data tidak lengkap" });
     }
 
     try {
@@ -307,10 +307,10 @@ const postCardioPredict = async (req, res) => {
         });
 
         await newCardioRecord.save();
-        res.status(201).json({ message: "cardio predict berhasil ditambahkan" });
+        res.status(201).json({ error: false, message: "cardio predict berhasil ditambahkan" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Terjadi kesalahan saat menyimpan cardio predict" });
+        res.status(500).json({ error: true, message: err.message });
     }
 };
 // const storage = multer.diskStorage({
@@ -328,28 +328,28 @@ const postCardioPredict = async (req, res) => {
 // });
 
 const postImageProfile = async (req, res) => {
-    const userId = req.session.userId; // asumsi user sudah login
+    const userId = req.session.userId;
     const { profileImage } = req.body;
 
     if (!profileImage || !userId) {
-        return res.status(400).json({ message: "Gambar atau userId tidak tersedia" });
+        return res.status(400).json({ error: true, message: "Gambar atau userId tidak tersedia" });
     }
 
     try {
         const updatedUser = await User.findOneAndUpdate(
             { userId },
             { profileImage: profileImage },
-            { new: true, upsert: false } // tidak buat user baru, hanya update
+            { new: true, upsert: false } 
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ message: "User tidak ditemukan" });
+            return res.status(404).json({ error: true, message: "User tidak ditemukan" });
         }
 
-        res.status(200).json({ message: "Gambar profil berhasil diperbarui", data: updatedUser });
+        res.status(200).json({ error:false, message: "Gambar profil berhasil diperbarui", data: updatedUser });
     } catch (err) {
         console.error("Error updating profile image:", err);
-        res.status(500).json({ message: "Terjadi kesalahan saat menyimpan gambar" });
+        res.status(500).json({ error:true, message: err.message });
     }
 };
 
@@ -375,10 +375,10 @@ const postImageProfile = async (req, res) => {
 
 const getCardioHistory = async (req, res) => {
     try {
-        const userId = req.session.userId; // Mengambil userId dari session
+        const userId = req.session.userId; 
 
         if (!userId) {
-            return res.status(401).json({ success: false, message: "Unauthorized" });
+            return res.status(401).json({ error: true, message: "Unauthorized" });
         }
 
         const cardioPredict = await CardioPredict.find({ userId })
@@ -388,12 +388,12 @@ const getCardioHistory = async (req, res) => {
             ); 
 
         if (cardioPredict.length === 0) {
-            return res.status(404).json({ success: false, message: "History tidak ditemukan" });
+            return res.status(404).json({ error: true, message: "History tidak ditemukan" });
         }
 
-        res.status(200).json({ success: true, data: cardioPredict });
+        res.status(200).json({ error: false, data: cardioPredict });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ error: true, message: error.message });
     }
 };
 
@@ -407,18 +407,18 @@ const getSuicidePredictions = async (req, res) => {
 
         if (!predictions || predictions.length === 0) {
             return res.status(404).json({
-                success: false,
+                error: true,
                 message: "Tidak ada riwayat prediksi ditemukan."
             });
         }
 
         res.status(200).json({
-            success: true,
+            error: false,
             data: predictions
         });
     } catch (err) {
         res.status(500).json({
-            success: false,
+            error: true,
             error: err.message
         });
     }

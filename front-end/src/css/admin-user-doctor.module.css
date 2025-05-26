@@ -1,0 +1,335 @@
+/* AdminUser.module.css - converted from admin-user.css and relevant admin-dashboard.css */
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 280px;
+    background: white;
+    border-right: 1px solid #8F98A8;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.logo {
+    display: block;
+    width: 180px;
+    max-width: 100%;
+    margin: 0 auto 40px auto;
+}
+
+.logoFull { display: block; }
+.logoIcon { display: none; }
+
+.navLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: #000;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.navItem:hover {
+    background-color: #f0f0f0;
+}
+
+.navItemActive {
+    background-color: #e0e0e0;
+}
+
+.navItemImg {
+    width: 24px;
+    height: 24px;
+}
+
+.mainContent {
+    margin-left: 280px;
+    padding: 30px;
+    flex-grow: 1;
+}
+
+.pageTitle {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #000;
+}
+
+.userActions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+}
+
+.actionBtn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: box-shadow 0.2s;
+}
+
+.actionBtnAdd:hover {
+    box-shadow: 0 0 0 2px #14590d44;
+}
+.actionBtnDelete:hover {
+    box-shadow: 0 0 0 2px #b90d0d44;
+}
+.actionBtnEdit:hover {
+    box-shadow: 0 0 0 2px #e6d60b44;
+}
+
+.actionBtnImg {
+    width: 26px;
+    height: 26px;
+}
+
+.userTableContainer {
+    flex: 1 1 auto;
+    width: 100%;
+    overflow-x: auto;
+}
+
+.userTable {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    background: #222;
+    border-radius: 8px;
+    overflow: hidden;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.userTableTh,
+.userTableTd {
+    padding: 12px 16px;
+    border: 1px solid #5b5b5b;
+    text-align: left;
+}
+
+.userTableTh {
+    background: #333;
+    font-weight: bold;
+}
+
+.userTableTrEven {
+    background: #292929;
+}
+
+.aksiCell {
+    text-align: center;
+    width: 56px;
+    background: #222;
+    border-left: 1px solid #5b5b5b;
+}
+
+/* Popup Overlay */
+.popupOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popupForm {
+    background: #bcc8ad;
+    border: 1px solid #000;
+    border-radius: 30px;
+    padding: 48px 32px 40px 32px;
+    min-width: 340px;
+    max-width: 95vw;
+    width: 440px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+}
+
+.popupFormTitle {
+    margin-bottom: 24px;
+    color: #222;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.popupFormInput {
+    padding: 16px 18px;
+    border-radius: 10px;
+    border: 1px solid #d8dadf;
+    font-size: 1.15rem;
+    background: #fff;
+    margin-bottom: 18px;
+    color: #222;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.popupActions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+}
+
+.popupActionsBtn {
+    width: 100%;
+    max-width: 320px;
+    padding: 20px 0;
+    border-radius: 12px;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    background: #b9e184;
+    color: #222;
+    font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.13);
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.popupActionsBtn:hover {
+    background: #a2c96a;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+.rowDeleteBtn {
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s, background 0.2s;
+    box-shadow: none;
+    margin: 0 auto;
+}
+
+.rowDeleteBtn:hover {
+    background: #f8d7da;
+    box-shadow: 0 0 0 2px #b90d0d44;
+}
+
+@media (max-width: 1200px) {
+    .sidebar {
+        width: 200px;
+    }
+    .mainContent {
+        margin-left: 200px;
+        padding: 24px 24px 24px 20px;
+    }
+    .popupForm {
+        width: 340px;
+        padding: 32px 18px 24px 18px;
+    }
+    .userTable {
+        font-size: 0.95rem;
+    }
+    .logo {
+        width: 120px;
+        max-width: 100%;
+        margin: 0 auto 32px auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        width: 70px;
+        padding: 20px 10px;
+    }
+    .logoFull { display: none !important; }
+    .logoIcon { display: block !important; width: 40px; max-width: 100%; margin: 0 auto 24px auto; }
+    .navItemSpan {
+        display: none;
+    }
+    .mainContent {
+        margin-left: 70px;
+        padding: 16px 8px 16px 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .popupForm {
+        width: 95vw;
+        min-width: unset;
+        padding: 18px 6vw;
+    }
+    .userTableContainer {
+        width: 100%;
+        min-width: 0;
+        padding: 0;
+        margin: 0;
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+    .userTable {
+        font-size: 0.9rem;
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 600px) {
+    .mainContent {
+        padding: 8px 2vw 2vw 12px;
+        margin-left: 70px;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+    .userTableContainer {
+        width: 100%;
+        min-width: 0;
+        padding: 0;
+        margin: 0;
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+    .userTable {
+        min-width: 520px;
+        font-size: 0.95rem;
+    }
+    .userActions {
+        gap: 6px;
+    }
+    .popupForm {
+        width: 98vw;
+        padding: 10px 2vw;
+    }
+    .popupFormTitle {
+        font-size: 1.3rem;
+    }
+    .popupActionsBtn {
+        font-size: 1rem;
+        padding: 12px 0;
+    }
+} 
