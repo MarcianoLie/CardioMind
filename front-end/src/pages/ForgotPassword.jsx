@@ -38,7 +38,7 @@ function ForgotPassword() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:8080/api/forgot-password", {
+      const response = await axios.post("http://localhost:8080/api/resetPassword", {
         email: email
       });
 
@@ -46,7 +46,11 @@ function ForgotPassword() {
       setEmail("");
     } catch (error) {
       console.error("Error:", error);
-      setError("Failed to send reset email. Please try again.");
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("Failed to send reset email. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

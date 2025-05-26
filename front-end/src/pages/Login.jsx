@@ -87,7 +87,7 @@ function Login() {
         password: formData.password,
       });
 
-      const { uid, userToken, message } = response.data;
+      const { uid, userToken, message, status } = response.data;
 
       console.log("Login berhasil:", message);
       console.log("UID:", uid);
@@ -101,10 +101,10 @@ function Login() {
 
         if (profileResponse.ok) {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", (profileResult.user.profileImage)?"data:image/jpeg;base64," + profileResult.user.profileImage : profile);
+          localStorage.setItem("profileImage", (profileResult.user.profileImage) ? "data:image/jpeg;base64," + profileResult.user.profileImage : profile);
 
         } else {
-          console.log("Username : ",profileResult.user.displayName)
+          console.log("Username : ", profileResult.user.displayName)
         }
       } catch (profileError) {
         console.error("Error mengambil profil:", profileError);
@@ -114,9 +114,11 @@ function Login() {
 
       // Simpan token ke localStorage/sessionStorage kalau perlu
       localStorage.setItem("token", userToken);
-
-      // On successful login
-      navigate("/");
+      if (status === "user") {
+        navigate("/")
+      } else if (status === "admin") {
+        navigate("/AdminDashboard")
+      }
     } catch (error) {
       console.error("Login error:", error);
       setErrors({
@@ -129,22 +131,22 @@ function Login() {
   };
 
   const formatProfileImage = (base64Data) => {
-        if (!base64Data) return profile;
-        
-        // Jika sudah memiliki prefix data:image
-        if (base64Data.startsWith('data:image')) {
-          return base64Data;
-        }
-        
-        // Jika sudah URL lengkap (http://)
-        if (base64Data.startsWith('http')) {
-          const encodedUrl = encodeURIComponent(base64Data);
-          return `http://localhost:8080/api/img/${encodedUrl}`;
-        }
-        
-        // Jika base64 tanpa prefix
-        return `data:image/jpeg;base64,${base64Data}`;
-      };
+    if (!base64Data) return profile;
+
+    // Jika sudah memiliki prefix data:image
+    if (base64Data.startsWith('data:image')) {
+      return base64Data;
+    }
+
+    // Jika sudah URL lengkap (http://)
+    if (base64Data.startsWith('http')) {
+      const encodedUrl = encodeURIComponent(base64Data);
+      return `http://localhost:8080/api/img/${encodedUrl}`;
+    }
+
+    // Jika base64 tanpa prefix
+    return `data:image/jpeg;base64,${base64Data}`;
+  };
 
   const handleGoogleLogin = async (e) => {
     e.preventDefault();
@@ -159,6 +161,9 @@ function Login() {
         },
         withCredentials: true
       });
+      const { status } = response.data;
+
+
 
       try {
         const profileResponse = await fetch("http://localhost:8080/api/profile", {
@@ -170,10 +175,10 @@ function Login() {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
           // localStorage.setItem("profileImage", "data:image/jpeg;base64," + profileResult.user.profileImage || '');
           localStorage.setItem("profileImage", (!profileResult.user.profileImage)
-                                                                    ? ''
-                                                                    : (profileResult.user.profileImage.startsWith('http')
-                                                                        ? formatProfileImage(profileResult.user.profileImage)
-                                                                        : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
+            ? ''
+            : (profileResult.user.profileImage.startsWith('http')
+              ? formatProfileImage(profileResult.user.profileImage)
+              : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
 
           console.log("Data profil berhasil disimpan ke localStorage");
         }
@@ -186,7 +191,11 @@ function Login() {
       alert("Sign in sukses dengan Google!");
       localStorage.setItem("user", "true");
 
-      navigate("/")
+      if (status === "user") {
+        navigate("/")
+      } else if (status === "admin") {
+        navigate("/AdminDashboard")
+      }
     } catch (error) {
       console.error("Error login Google:", error);
       alert("Gagal login dengan Google");
@@ -248,7 +257,7 @@ function Login() {
             </div>
 
             <div className="forgot-password" style={{ textAlign: "right", marginBottom: "15px" }}>
-              <Link to="/forgot" style={{ color: "#2b7a0b", textDecoration: "none", fontSize: "14px" }}>
+              <Link to="/ForgotPassword" style={{ color: "#2b7a0b", textDecoration: "none", fontSize: "14px" }}>
                 Forgot Password?
               </Link>
             </div>

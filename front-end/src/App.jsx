@@ -28,6 +28,7 @@ import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminDokter from "./pages/AdminDokter.jsx";
 import AdminUser from "./pages/AdminUser.jsx";
 import AdminRoute from "./routes/admin.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
 
 
 
@@ -40,6 +41,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/editprofile" element={<EditProfilePage />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword/>} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/infokesehatan" element={<InfoKesehatan />} />
         <Route path="/news/:newsId" element={<News />} />
