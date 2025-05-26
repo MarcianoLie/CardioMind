@@ -16,7 +16,8 @@ function SignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullname: "",
-    placeDob: "",
+    birthPlace: "",
+    birthDate: "",
     number: "",
     email: "",
     password: "",
@@ -37,15 +38,13 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("fullname").value;
-     const placeDob = document.getElementById("placeDob").value;
-     const number = document.getElementById("number").value;
-     const email = document.getElementById("email").value;
-     const password = document.getElementById("password").value;
-     const confirmPassword = document.getElementById("confirmPassword").value;
-     // const [birthPlace, birthDate] = placeDob.split(",");
-     const [birthPlace, birthDateStr] = placeDob.split(",");
-     const birthDate = new Date(birthDateStr);
+    const name = formData.fullname;
+    const birthPlace = formData.birthPlace;
+    const birthDate = new Date(formData.birthDate);
+    const number = formData.number;
+    const email = formData.email;
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
      if (isNaN(birthDate)) {
        alert("Tanggal lahir tidak valid, gunakan format misalnya: 'Medan, 01/01/2000'");
        return;
@@ -56,9 +55,9 @@ function SignUp() {
      }
      console.log({
        name,
-       birthPlace: birthPlace?.trim(),
+       birthPlace: birthPlace,
        birthDate: birthDate,
-       // birthDate: birthDate?.trim(),
+       // birthDate: birthDate,
        phone: number,
        email,
        password
@@ -67,7 +66,7 @@ function SignUp() {
        
        const response = await axios.post("http://localhost:8080/api/register", {
          name,
-         birthPlace: birthPlace?.trim(),
+         birthPlace: birthPlace,
          birthDate: birthDate,
          phone: number,
          email,
@@ -161,11 +160,23 @@ function SignUp() {
             <div className="form-group">
               <input
                 type="text"
-                id="placeDob"
-                placeholder="Place, Date of Birth"
-                value={formData.placeDob}
+                id="birthPlace"
+                placeholder="Tempat Lahir"
+                value={formData.birthPlace}
                 onChange={handleChange}
                 required
+              />
+            </div>
+
+            <div className="form-group">
+              <input
+                type="date"
+                id="birthDate"
+                placeholder="Tanggal Lahir"
+                value={formData.birthDate}
+                onChange={handleChange}
+                required
+                className="date-input"
               />
             </div>
 
