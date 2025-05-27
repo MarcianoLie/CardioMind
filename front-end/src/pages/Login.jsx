@@ -159,7 +159,7 @@ function Login() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      await axios.post("http://localhost:8080/api/googleAuth", {}, {
+      const response = await axios.post("http://localhost:8080/api/googleAuth", {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
