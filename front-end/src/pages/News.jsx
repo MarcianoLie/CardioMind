@@ -656,7 +656,7 @@ const News = () => {
                                   </div>
                                   <div className="comment-content">
                                     <div className="comment-header">
-                                      <h3 className="comment-username">{reply.username}</h3>
+                                      <h3 className="comment-username">{reply.username + ((reply.status=="medic")?" - ahli kesehatan":"")}</h3>
                                       <span className="comment-date">{formatDate(reply.timestamp || reply.createdAt)}</span>
                                     </div>
                                     <div className="comment-text">
