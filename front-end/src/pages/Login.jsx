@@ -101,7 +101,11 @@ function Login() {
 
         if (profileResponse.ok) {
           localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", (profileResult.user.profileImage) ? "data:image/jpeg;base64," + profileResult.user.profileImage : profile);
+          localStorage.setItem("profileImage", (!profileResult.user.profileImage)
+                                                                    ? ''
+                                                                    : (profileResult.user.profileImage.startsWith('http')
+                                                                        ? profileResult.user.profileImage
+                                                                        : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
 
         } else {
           console.log("Username : ", profileResult.user.displayName)

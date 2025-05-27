@@ -388,7 +388,7 @@ const getCardioHistory = async (req, res) => {
             ); 
 
         if (cardioPredict.length === 0) {
-            return res.status(404).json({ error: true, message: "History tidak ditemukan" });
+            return res.status(200).json({ error: true, message: "History tidak ditemukan" });
         }
 
         res.status(200).json({ error: false, data: cardioPredict });
@@ -406,7 +406,7 @@ const getSuicidePredictions = async (req, res) => {
             .select('-__v');
 
         if (!predictions || predictions.length === 0) {
-            return res.status(404).json({
+            return res.status(200).json({
                 error: true,
                 message: "Tidak ada riwayat prediksi ditemukan."
             });
