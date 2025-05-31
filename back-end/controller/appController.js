@@ -223,7 +223,8 @@ const getReplies = async (req, res) => {
                     createdAt: 1,
                     userId: 1,
                     username: "$userData.displayName",
-                    profileImage: "$userData.profileImage" 
+                    profileImage: "$userData.profileImage",
+                    status: "$userData.status" 
                 }
             }
         ]);
