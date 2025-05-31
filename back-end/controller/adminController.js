@@ -1,5 +1,7 @@
 const { User } = require('../models/userModel');
 const News = require("../models/newsModel.js");
+const { admin } = require("../auth/middleware.js");
+
 
 
 
@@ -187,18 +189,23 @@ const deleteUser = async (req, res) => {
         }
 
         const { email } = req.body;
-        
-        // Hapus user dari collection User
-        const result = await User.deleteOne({ email });
-        
-        if (result.deletedCount === 0) {
+
+        const user = await User.findOne({ email });
+        if (!user) {
             return res.status(404).json({ error: true, message: "User not found" });
         }
 
-        res.status(200).json({ error: false, message: "User deleted successfully" });
+        await User.deleteOne({ email });
+
+        const firebaseUser = await admin.auth().getUserByEmail(email);
+        await admin.auth().deleteUser(firebaseUser.uid);
+
+        res.status(200).json({ error: false, message: "User berhasil di hapus pada database dan auth" });
+
     } catch (error) {
         res.status(500).json({ error: true, message: error.message });
     }
 };
+
 
 module.exports = { getTotalMedics, getTotalNews, getTotalUsers, getAllUsers, getAllMedics, searchUser, promoteToMedic, deleteUser, changeToUser };
