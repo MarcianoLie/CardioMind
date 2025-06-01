@@ -74,9 +74,9 @@ app.use(session({
 app.use("/api", router);
 
 // Handle React routing: return index.html untuk semua request yang bukan API
-app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
-  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
-});
+// app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
+//  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
+// });
 
 // app.get('*', (req, res) => {
 //   if (!req.path.startsWith('/api')) {
