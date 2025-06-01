@@ -40,7 +40,9 @@ app.use(session({
   saveUninitialized: true,
   // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
   cookie: {
-    secure: true, // true kalau pakai https
+    secure: process.env.NODE_ENV === 'production', // true di production, false di development
+    httpOnly: true,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Penting untuk cross-site cookies
     maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
   }
 }));
