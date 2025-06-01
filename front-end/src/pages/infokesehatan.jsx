@@ -14,7 +14,7 @@ const InfoKesehatan = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/news");
+        const response = await fetch(`${process.env.BACKEND_URL}/api/news`);
         const result = await response.json();
 
         if (!response.ok) {

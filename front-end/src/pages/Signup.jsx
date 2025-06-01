@@ -64,7 +64,7 @@ function SignUp() {
      });
      try {
        
-       const response = await axios.post("http://localhost:8080/api/register", {
+       const response = await axios.post(`${process.env.BACKEND_URL}/api/register`, {
          name,
          birthPlace: birthPlace,
          birthDate: birthDate,
@@ -97,7 +97,7 @@ function SignUp() {
     const idToken = await user.getIdToken();
 
     // Melakukan autentikasi dengan backend
-    const response = await axios.post("http://localhost:8080/api/googleAuth", {}, {
+    const response = await axios.post(`${process.env.BACKEND_URL}/api/googleAuth`, {}, {
       headers: {
         Authorization: `Bearer ${idToken}`
       },
@@ -106,7 +106,7 @@ function SignUp() {
 
     // Setelah login berhasil, ambil profil
     try {
-      const profileResponse = await fetch("http://localhost:8080/api/profile", {
+      const profileResponse = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
         credentials: "include",
       });
       const profileResult = await profileResponse.json();

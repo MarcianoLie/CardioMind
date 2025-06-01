@@ -38,7 +38,7 @@ function ForgotPassword() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:8080/api/resetPassword", {
+      const response = await axios.post(`${process.env.BACKEND_URL}/api/resetPassword`, {
         email: email
       });
 

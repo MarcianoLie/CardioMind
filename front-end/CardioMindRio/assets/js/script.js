@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const [birthPlace, birthDate] = placeDob.split(",");
 
       try {
-        const response = await fetch("http://localhost:8080/register", {
+        const response = await fetch("process.env.HOST/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const idToken = await user.getIdToken();
 
         // Kirim token ke backend untuk verifikasi dan registrasi
-        const response = await fetch("http://localhost:8080/googleAuth", {
+        const response = await fetch("process.env.HOST/googleAuth", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const idToken = await user.getIdToken();
 
         // Ganti endpoint dari googleRegister ke googleLogin
-        const response = await fetch("http://localhost:8080/googleAuth", {
+        const response = await fetch("process.env.HOST/googleAuth", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const password = document.getElementById("password").value;
 
       try {
-        const response = await fetch("http://localhost:8080/login", {
+        const response = await fetch("process.env.HOST/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

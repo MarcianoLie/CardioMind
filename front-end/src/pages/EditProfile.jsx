@@ -49,7 +49,7 @@ function EditProfile() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8080/api/profile", {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
         credentials: "include",
       });
       const result = await response.json();
@@ -215,7 +215,7 @@ function EditProfile() {
       };
 
       // Kirim data profil dulu
-      const profileResponse = await fetch('http://localhost:8080/api/profile', {
+      const profileResponse = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -261,7 +261,7 @@ function EditProfile() {
         // Jika sudah URL lengkap (http://)
         if (base64Data.startsWith('http')) {
           const encodedUrl = encodeURIComponent(base64Data);
-          return `http://localhost:8080/api/img/${encodedUrl}`;
+          return `${process.env.BACKEND_URL}/api/img/${encodedUrl}`;
         }
         
         // Jika base64 tanpa prefix
@@ -275,7 +275,7 @@ function EditProfile() {
       const base64Data = base64Image.split(',')[1] || base64Image;
       localStorage.setItem("profileImage",base64Data)
 
-      const response = await fetch('http://localhost:8080/api/updateImage', {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/updateImage`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
