@@ -82,7 +82,8 @@ function Login() {
       // Simulate API call
       // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const response = await axios.post(`${process.env.BACKEND_URL}/api/login`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL
+}/api/login`, {
         email: formData.email,
         password: formData.password,
       });
@@ -94,7 +95,8 @@ function Login() {
       console.log("Token:", userToken);
       try {
         console.log("profileResult :")
-        const profileResponse = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+        const profileResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/profile`, {
           credentials: "include",
         });
         const profileResult = await profileResponse.json();
@@ -145,7 +147,8 @@ function Login() {
     // Jika sudah URL lengkap (http://)
     if (base64Data.startsWith('http')) {
       const encodedUrl = encodeURIComponent(base64Data);
-      return `process.env.BACKEND_URL/api/img/${encodedUrl}`;
+      return `import.meta.env.VITE_BACKEND_URL
+/api/img/${encodedUrl}`;
     }
 
     // Jika base64 tanpa prefix
@@ -158,8 +161,10 @@ function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
-
-      const response = await axios.post(`${process.env.BACKEND_URL}/api/googleAuth`, {}, {
+      console.log(import.meta.env.VITE_BACKEND_URL
+);
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL
+}/api/googleAuth`, {}, {
         headers: {
           Authorization: `Bearer ${idToken}`
         },
@@ -170,7 +175,8 @@ function Login() {
 
 
       try {
-        const profileResponse = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+        const profileResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/profile`, {
           credentials: "include",
         });
         const profileResult = await profileResponse.json();

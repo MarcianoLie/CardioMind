@@ -124,7 +124,8 @@ const SuicideQ1 = () => {
     sessionStorage.setItem("suicidePredictionResult", avgPrediction);
 
     try {
-      await fetch(`${process.env.BACKEND_URL}/api/suicideHistory`, {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/suicideHistory`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

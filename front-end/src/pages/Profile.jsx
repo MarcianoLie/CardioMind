@@ -42,7 +42,8 @@ function ProfilePage() {
         // Jika sudah URL lengkap (http://)
         if (base64Data.startsWith('http')) {
           const encodedUrl = encodeURIComponent(base64Data);
-          return `process.env.BACKEND_URL/api/img/${encodedUrl}`;
+          return `import.meta.env.VITE_BACKEND_URL
+/api/img/${encodedUrl}`;
         }
         
         // Jika base64 tanpa prefix
@@ -78,7 +79,8 @@ function ProfilePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/profile`, {
         credentials: "include",
       });
       const result = await response.json();

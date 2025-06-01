@@ -17,7 +17,8 @@ export default function AdminDokter() {
 
     const fetchMedics = async () => {
         try {
-            const response = await fetch(`${process.env.BACKEND_URL}/api/admin/medicsDetail`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/admin/medicsDetail`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -50,7 +51,8 @@ export default function AdminDokter() {
         }
 
         try {
-            const response = await fetch(`${process.env.BACKEND_URL}/api/admin/changeToUser`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/admin/changeToUser`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -77,7 +79,8 @@ export default function AdminDokter() {
 
         const checkSessionAndFetchData = async () => {
             try {
-                const sessionResponse = await fetch(`${process.env.BACKEND_URL}/api/check-session`, {
+                const sessionResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/check-session`, {
                     method: "GET",
                     credentials: "include",
                 });

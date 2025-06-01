@@ -81,7 +81,8 @@ const HasilJantung = () => {
           : "Anda tergolong dalam risiko rendah. Tetap jaga gaya hidup sehat!"
         );
         try {
-          const response = await axios.post(`${process.env.BACKEND_URL}/api/postcardiohistory`, {
+          const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL
+}/api/postcardiohistory`, {
             age, gender, height, weight, ap_hi, ap_lo,
             cholesterol, glucose, smoke, alcohol, active, score
           });

@@ -89,7 +89,8 @@ function ConfirmPassword() {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
 
-      const response = await axios.post(`${process.env.BACKEND_URL}/api/reset-password`, {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL
+}/api/reset-password`, {
         token: token,
         newPassword: formData.newPassword,
       });

@@ -20,7 +20,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     const checkSessionAndFetchCounts = async () => {
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/check-session`, {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/check-session`, {
           method: "GET",
           credentials: "include",
         });
@@ -30,21 +31,26 @@ const AdminDashboard = () => {
           setIsAuthorized(true);
 
           // Fetch total users
-          const usersRes = await fetch(`${process.env.BACKEND_URL}/api/admin/users`, {
+          const usersRes = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/admin/users`, {
             credentials: "include",
           });
           const usersData = await usersRes.json();
           if (!usersData.error) setUsersTotal(usersData.total);
 
-          // Fetch total medics
-          const medicsRes = await fetch(`${process.env.BACKEND_URL}/api/admin/medics`, {
+          // Fetch total medicsimport.meta.env.VITE_BACKEND_URL
+
+          const medicsRes = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/admin/medics`, {
             credentials: "include",
           });
           const medicsData = await medicsRes.json();
           if (!medicsData.error) setMedicsTotal(medicsData.total);
+import.meta.env.VITE_BACKEND_URL
 
           // Fetch total news
-          const newsRes = await fetch(`${process.env.BACKEND_URL}/api/admin/news`, {
+          const newsRes = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/admin/news`, {
             credentials: "include",
           });
           const newsData = await newsRes.json();

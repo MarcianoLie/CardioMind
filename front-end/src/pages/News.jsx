@@ -62,7 +62,8 @@ const News = () => {
   // Fetch user profile data
   const fetchUserProfile = async () => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/profile`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/profile`, {
         credentials: "include", // Include session cookies
       });
       const result = await response.json();
@@ -101,7 +102,8 @@ const News = () => {
   // Fetch comments from backend
   const fetchComments = async () => {
     try {
-      const response = await fetch(`process.env.BACKEND_URL/api/comments/${newsId}`);
+      const response = await fetch(`import.meta.env.VITE_BACKEND_URL
+/api/comments/${newsId}`);
       const result = await response.json();
       console.log("comment :",result)
 
@@ -143,7 +145,8 @@ const News = () => {
       // Jika sudah URL lengkap (http://)
       if (base64Data.startsWith('http')) {
         const encodedUrl = encodeURIComponent(base64Data);
-        return `process.env.BACKEND_URL/api/img/${encodedUrl}`;
+        return `import.meta.env.VITE_BACKEND_URL
+/api/img/${encodedUrl}`;
       }
       if (base64Data.endsWith('.png')) {
         return base64Data;
@@ -156,7 +159,8 @@ const News = () => {
   // Fetch replies from backend
   const fetchReplies = async (commentId) => {
     try {
-      const response = await fetch(`process.env.BACKEND_URL/api/reply/${commentId}`);
+      const response = await fetch(`import.meta.env.VITE_BACKEND_URL
+/api/reply/${commentId}`);
       const result = await response.json();
 
       if (response.ok) {
@@ -187,7 +191,8 @@ const News = () => {
     const fetchAllData = async () => {
       try {
         // Fetch berita
-        const newsResponse = await fetch(`process.env.BACKEND_URL/api/news/${newsId}`);
+        const newsResponse = await fetch(`import.meta.env.VITE_BACKEND_URL
+/api/news/${newsId}`);
         const newsResult = await newsResponse.json();
         if (newsResponse.ok) {
           setNewsData(newsResult.data);
@@ -199,7 +204,8 @@ const News = () => {
         fetchUserProfile();
 
         // Fetch komentar
-        const commentResponse = await fetch(`process.env.BACKEND_URL/api/comments/${newsId}`);
+        const commentResponse = await fetch(`import.meta.env.VITE_BACKEND_URL
+/api/comments/${newsId}`);
         const commentResult = await commentResponse.json();
         if (commentResponse.ok) {
           setComments(commentResult.data || []);
@@ -274,8 +280,10 @@ const News = () => {
     };
 
     try {
-      console.log(commentData.comment+" "+commentData.newsId)
-      const response = await fetch(`${process.env.BACKEND_URL}/api/comments`, {
+      console.log(commentData.comment+import.meta.env.VITE_BACKEND_URL
+
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -333,9 +341,11 @@ const News = () => {
       commentId: commentId,
     };
 
-    try {
+    try {import.meta.env.VITE_BACKEND_URL
+
       console.log("Data:"+replyData.reply+" dan "+replyData.commentId)
-      const response = await fetch(`${process.env.BACKEND_URL}/api/reply`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL
+}/api/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
