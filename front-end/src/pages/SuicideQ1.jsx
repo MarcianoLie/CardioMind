@@ -95,9 +95,9 @@ const SuicideQ1 = () => {
   };
 
   const handleCalculateClick = async () => {
-    const validMessages = suicideMessages.filter((msg) => msg.trim() !== "");
-    if (validMessages.length === 0) {
-      alert("Please enter at least one message.");
+    // Check if all messages are filled
+    if (suicideMessages.some(msg => msg.trim() === '')) {
+      alert("Mohon isi semua kotak teks yang tersedia.");
       return;
     }
 
@@ -110,7 +110,7 @@ const SuicideQ1 = () => {
 
     let sum = 0;
 
-    for (const msg of validMessages) {
+    for (const msg of suicideMessages) {
       const inputTensor = tokenize(msg, wordIndex);
       const prediction = model.predict(inputTensor);
       console.log(msg);
@@ -123,7 +123,7 @@ const SuicideQ1 = () => {
       console.log(value);
     }
 
-    const avgPrediction = sum / validMessages.length;
+    const avgPrediction = sum / suicideMessages.length;
     setPredictionResult(avgPrediction);
 
     const riskCategory =
