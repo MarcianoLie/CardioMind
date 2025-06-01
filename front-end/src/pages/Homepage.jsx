@@ -29,6 +29,8 @@ function Homepage() {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
 
   // Slide links - add your desired URLs here
   // const slideLinks = [

@@ -89,14 +89,14 @@ const Riwayat = () => {
     if (base64Data.startsWith('data:image')) {
       return base64Data;
     }
-    if (base64Data.startsWith('import.meta.env.VITE_BACKEND_URL/api/img')) {
+    if (base64Data.startsWith(`${import.meta.env.VITE_BACKEND_URL}/api/img`)) {
       return base64Data;
     }
 
     // Jika sudah URL lengkap (http://)
     if (base64Data.startsWith('http')) {
       const encodedUrl = encodeURIComponent(base64Data);
-      return `import.meta.env.VITE_BACKEND_URL/api/img/${encodedUrl}`;
+      return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
     }
 
     if (base64Data.endsWith('.png')) {

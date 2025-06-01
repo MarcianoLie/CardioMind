@@ -40,7 +40,7 @@ app.use(session({
   saveUninitialized: true,
   // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
   cookie: {
-    secure: false, // true kalau pakai https
+    secure: true, // true kalau pakai https
     maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
   }
 }));

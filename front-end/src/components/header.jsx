@@ -146,7 +146,7 @@ const Header = () => {
           localStorage.removeItem("token");
         }
       } catch (error) {
-        console.error("Gagal mengecek sesi:", error);
+       // console.error("Gagal mengecek sesi:", error);
         setIsLoggedIn(false);
       }
     };

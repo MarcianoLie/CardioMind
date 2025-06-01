@@ -145,7 +145,7 @@ function Login() {
     // Jika sudah URL lengkap (http://)
     if (base64Data.startsWith('http')) {
       const encodedUrl = encodeURIComponent(base64Data);
-      return `import.meta.env.VITE_BACKEND_URL/api/img/${encodedUrl}`;
+      return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
     }
 
     // Jika base64 tanpa prefix

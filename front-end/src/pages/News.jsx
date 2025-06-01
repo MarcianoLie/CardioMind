@@ -101,7 +101,7 @@ const News = () => {
   // Fetch comments from backend
   const fetchComments = async () => {
     try {
-      const response = await fetch(`import.meta.env.VITE_BACKEND_URL/api/comments/${newsId}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${newsId}`);
       const result = await response.json();
       console.log("comment :",result)
 
@@ -143,7 +143,7 @@ const News = () => {
       // Jika sudah URL lengkap (http://)
       if (base64Data.startsWith('http')) {
         const encodedUrl = encodeURIComponent(base64Data);
-        return `import.meta.env.VITE_BACKEND_URL/api/img/${encodedUrl}`;
+        return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
       }
       if (base64Data.endsWith('.png')) {
         return base64Data;
@@ -156,7 +156,7 @@ const News = () => {
   // Fetch replies from backend
   const fetchReplies = async (commentId) => {
     try {
-      const response = await fetch(`import.meta.env.VITE_BACKEND_URL/api/reply/${commentId}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reply/${commentId}`);
       const result = await response.json();
 
       if (response.ok) {
@@ -187,7 +187,7 @@ const News = () => {
     const fetchAllData = async () => {
       try {
         // Fetch berita
-        const newsResponse = await fetch(`import.meta.env.VITE_BACKEND_URL/api/news/${newsId}`);
+        const newsResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/news/${newsId}`);
         const newsResult = await newsResponse.json();
         if (newsResponse.ok) {
           setNewsData(newsResult.data);
@@ -199,7 +199,7 @@ const News = () => {
         fetchUserProfile();
 
         // Fetch komentar
-        const commentResponse = await fetch(`import.meta.env.VITE_BACKEND_URL/api/comments/${newsId}`);
+        const commentResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/comments/${newsId}`);
         const commentResult = await commentResponse.json();
         if (commentResponse.ok) {
           setComments(commentResult.data || []);
