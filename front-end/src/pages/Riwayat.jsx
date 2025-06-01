@@ -82,6 +82,31 @@ const Riwayat = () => {
     }
   };
 
+  const formatProfileImage = (base64Data) => {
+    if (!base64Data) return profile;
+
+    // Jika sudah memiliki prefix data:image
+    if (base64Data.startsWith('data:image')) {
+      return base64Data;
+    }
+    if (base64Data.startsWith('http://localhost:8080/api/img')) {
+      return base64Data;
+    }
+
+    // Jika sudah URL lengkap (http://)
+    if (base64Data.startsWith('http')) {
+      const encodedUrl = encodeURIComponent(base64Data);
+      return `http://localhost:8080/api/img/${encodedUrl}`;
+    }
+
+    if (base64Data.endsWith('.png')) {
+      return base64Data;
+    }
+
+    // Jika base64 tanpa prefix
+    return `data:image/jpeg;base64,${base64Data}`;
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -302,7 +327,7 @@ const Riwayat = () => {
             <div className="profile-image">
               <img
                 id="profile-card-img"
-                src={profileImage || profile}
+                src={formatProfileImage(profileImage) || profile}
                 alt="Profile Icon"
               />
             </div>

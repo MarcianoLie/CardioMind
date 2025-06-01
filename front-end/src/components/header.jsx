@@ -11,6 +11,7 @@ const Header = () => {
   const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState(""); // Default image
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [status, setStatus] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -127,6 +128,7 @@ const Header = () => {
           } else {
             setUserName(data.user); // Fallback ke data dari API
           }
+          setStatus(data.status)
 
           // Gunakan gambar profil dari localStorage jika tersedia
           if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "" && storedProfileImage !== null) {
@@ -211,7 +213,8 @@ const Header = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/" onClick={closeMenu}>Home</Link>
+              {(status == "admin")?<Link to="/AdminDashboard" onClick={closeMenu}>Home</Link>:<Link to="/" onClick={closeMenu}>Home</Link>}
+              {/* <Link to="/" onClick={closeMenu}>Home</Link> */}
             </li>
             <li>
               <Link to="/infokesehatan" onClick={closeMenu}>Info Kesehatan</Link>
