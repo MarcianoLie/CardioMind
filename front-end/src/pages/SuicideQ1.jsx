@@ -108,10 +108,12 @@ const SuicideQ1 = () => {
       inputTensor.dispose();
 
       sum += value;
+      console.log(value)
     }
 
     const avgPrediction = sum / validMessages.length;
     setPredictionResult(avgPrediction);
+    
 
     const riskCategory = avgPrediction >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
 
