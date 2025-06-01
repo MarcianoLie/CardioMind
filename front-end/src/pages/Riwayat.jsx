@@ -158,6 +158,7 @@ const Riwayat = () => {
   };
 
   const fetchCardioPredictions = async () => {
+
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/riwayatCardio`, {
         credentials: 'include'
@@ -216,6 +217,7 @@ const Riwayat = () => {
     }
     return [];
   })();
+  import.meta.env.VITE_BACKEND_URL
 
   const handleLogout = async () => {
     try {

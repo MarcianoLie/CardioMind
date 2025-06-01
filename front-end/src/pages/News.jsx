@@ -333,7 +333,8 @@ const News = () => {
       commentId: commentId,
     };
 
-    try {
+    try {import.meta.env.VITE_BACKEND_URL
+
       console.log("Data:"+replyData.reply+" dan "+replyData.commentId)
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/reply`, {
         method: "POST",

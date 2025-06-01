@@ -42,6 +42,7 @@ const AdminDashboard = () => {
           });
           const medicsData = await medicsRes.json();
           if (!medicsData.error) setMedicsTotal(medicsData.total);
+import.meta.env.VITE_BACKEND_URL
 
           // Fetch total news
           const newsRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/news`, {
