@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router } from 'react-router-dom';
 import Header from "./components/header"; // Ensure the import path is correct
 import Footer from "./components/footer";
 import Homepage from "./pages/Homepage";
@@ -34,8 +35,8 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 
 function App() {
   return (
-    <div>
-      <Header /> {/* Place Header outside of Routes */}
+    <Router basename={import.meta.env.BASE_URL}>
+      <Header />
       <Routes>
         <Route path="/" element={<Homepage />} />
         <Route path="/profile" element={<ProfilePage />} />
@@ -80,7 +81,7 @@ function App() {
         }/>
       </Routes>
       <Footer />
-    </div>
+    </Router>
   );
 }
 

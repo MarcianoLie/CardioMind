@@ -1,15 +1,18 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/', // Gunakan '/' untuk root domain (subdomain Railway)
   server: {
-    outDir: '../front-end/dist',
-    historyApiFallback: true,  // Pastikan ini aktif
+    host: true, // Penting untuk Railway
+    port: process.env.PORT || 3000,
   },
- 
-})
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+  },
+  preview: {
+    port: process.env.PORT || 3000,
+  }
+});
