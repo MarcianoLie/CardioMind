@@ -53,9 +53,9 @@ app.use(session({
 
 
 // app.use(express.static(path.join(__dirname, '../front-end/dist')));
-// app.get('/', (req, res) => {
-//   res.send('API is running successfully');
-// });
+app.get('/', (req, res) => {
+  res.send('API is running successfully');
+});
 // // console.log("aaa")
 // // Semua request selain API diarahkan ke index.html
 // // app.get("*", (req, res) => {
