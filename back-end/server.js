@@ -68,7 +68,7 @@ app.use(session({
 
 ///////////
 // Serve static files dari React
-app.use(express.static(path.join(__dirname, '../front-end/dist')));
+//app.use(express.static(path.join(__dirname, '../front-end/dist')));
 
 // API routes
 app.use("/api", router);

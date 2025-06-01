@@ -2,3 +2,4 @@ node_modules
 back-end/data/
 back-end/db/
 front-end/dist
+front-end/.env
