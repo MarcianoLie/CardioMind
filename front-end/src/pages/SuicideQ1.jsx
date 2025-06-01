@@ -68,7 +68,7 @@ const SuicideQ1 = () => {
     sessionStorage.setItem("suicideMessage", JSON.stringify(updatedMessages));
   };
 
-  const tokenize = (text, wordIndexMap, maxLen = 100) => {
+  const tokenize = (text, wordIndexMap, maxLen = 200) => {
     const words = text
       .toLowerCase()
       .replace(/[^\w\s]/g, "")
@@ -103,6 +103,8 @@ const SuicideQ1 = () => {
     for (const msg of validMessages) {
       const inputTensor = tokenize(msg, wordIndex);
       const prediction = model.predict(inputTensor);
+      console.log(msg)
+      console.log(prediction)
       const value = (await prediction.data())[0];
       prediction.dispose();
       inputTensor.dispose();
