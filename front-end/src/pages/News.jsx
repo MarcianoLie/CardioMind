@@ -517,10 +517,10 @@ const News = () => {
               <h1 className="featured-title">
                 {newsData?.title || "Untitled Article"}
               </h1>
-              <div className="author-section">
+             <div className="author-section">
                 <div className="rectangle-divider"></div>
                 <div className="article-author">
-                  <span>By {newsData?.author || "CardioMind"}</span>
+                  <span>By {newsData?.author || "Kemenkes"}</span>
                   <span className="article-date">
                     {formatDate(newsData?.pubDate)}
                   </span>
