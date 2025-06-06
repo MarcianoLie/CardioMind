@@ -53,9 +53,9 @@ app.use(session({
   cookie: {
     secure: true,
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: "none",
     maxAge: 1000 * 60 * 60 * 24, // ✅ 1 hari (dalam milidetik)
-    domain: '.railway.app'
+    domain: ".railway.app"
   }
 }));
 
