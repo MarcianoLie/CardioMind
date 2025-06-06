@@ -16,8 +16,16 @@ const app = express();
 const port = 8080;
 const host = process.env.HOST || 'localhost';
 
+// Perbaikan CORS - tambahkan domain Vercel
+const allowedOrigins = [
+  "http://localhost:5500",
+  "http://127.0.0.1:5500", 
+  "http://localhost:5173",
+  "https://cardiomind.up.railway.app",
+  "https://cardio-mind-zl7u.vercel.app"
+];
+
 app.use(cors({
-  origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:5173", "cardiomind.up.railway.app:3000", "https://cardiomind.up.railway.app:3000", "https://cardio-mind-zl7u.vercel.app"], 
   origin: function (origin, callback) {
     // Izinkan request tanpa origin (seperti mobile apps atau curl)
     if (!origin) return callback(null, true);
