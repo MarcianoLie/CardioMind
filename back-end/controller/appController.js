@@ -15,11 +15,12 @@ dotenv.config();
 const profile = async (req, res) => {
     const userId = req.session.userId;
     console.log(userId);
-
+    try{
     const userProfile = await User.findOne({ userId: userId });
-
-
     res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
+    } catch (err) {
+        res.status(404).json({error: true, message: "User tidak ditemukan"});
+    }
 };
 
 
