@@ -38,7 +38,7 @@ const register = async (req, res) => {
     });
     await mongoUser.save();
 
-    res.status(200).json({ error: false, message: "User berhasil terdaftar", uid: user.uid });
+    res.status(200).json({ error: false, message: "Email verifikasi telah dikirim pada email user", uid: user.uid });
   } catch (error) {
     console.error("Register Error:", error);
     res.status(400).json({ error: true, message: error.message });
@@ -76,7 +76,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error)
-    res.status(404).json({ error: true, message: 'Error melakukan Sign In' });
+    res.status(401).json({ error: true, message: error.message });
   }
 }
 
