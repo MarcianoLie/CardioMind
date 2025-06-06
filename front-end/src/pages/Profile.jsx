@@ -191,7 +191,7 @@ function ProfilePage() {
               <Link to="/editprofile" className="edit-profile-link">Edit Profile</Link>
             </div>
             
-            <div className="profile-nav">
+            {/* <div className="profile-nav">
               <div className="nav-item">
                 <Link to="/">
                   <img src={IconRumah} alt="Home" />
@@ -210,7 +210,7 @@ function ProfilePage() {
                   <span>Prediksi</span>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right side profile section */}

@@ -126,15 +126,15 @@ const InfoKesehatan = () => {
                     {featuredArticle.title}
                   </Link>
                 </h1>
-                <div className="author-section">
+               <div className="author-section">
                   <div className="rectangle-divider"></div>
                   <div className="article-author">
-                    <span>By CardioMind</span>
+                    <span>Oleh Kemenkes</span>
                     <span className="article-date">
                       {formatDate(featuredArticle.pubDate)}
                     </span>
                   </div>
-                </div>
+                </div> 
               </div>
             </div>
           )}

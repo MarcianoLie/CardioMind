@@ -23,7 +23,9 @@ const SuicideQ1 = () => {
     // Ambil pesan yang tersimpan sebelumnya
     if (sessionStorage.getItem("suicideMessage")) {
       try {
-        const savedMessages = JSON.parse(sessionStorage.getItem("suicideMessage"));
+        const savedMessages = JSON.parse(
+          sessionStorage.getItem("suicideMessage")
+        );
         if (Array.isArray(savedMessages) && savedMessages.length === 5) {
           setSuicideMessages(savedMessages);
         }
@@ -38,11 +40,15 @@ const SuicideQ1 = () => {
         const loadedModel = await tf.loadGraphModel("/suicide/model.json");
         console.log("Model loaded successfully");
 
-        console.log("Attempting to load word index from: /suicide/word_index.json");
+        console.log(
+          "Attempting to load word index from: /suicide/word_index.json"
+        );
         const wordIndexRes = await fetch("/suicide/word_index.json");
 
         if (!wordIndexRes.ok) {
-          throw new Error(`HTTP error when fetching word index: ${wordIndexRes.status}`);
+          throw new Error(
+            `HTTP error when fetching word index: ${wordIndexRes.status}`
+          );
         }
 
         const wordIndexJson = await wordIndexRes.json();
@@ -75,7 +81,9 @@ const SuicideQ1 = () => {
       .split(" ")
       .filter((w) => w !== "");
 
-    let tokens = words.map((word) => wordIndexMap[word] || wordIndexMap["<OOV>"] || 1);
+    let tokens = words.map(
+      (word) => wordIndexMap[word] || wordIndexMap["<OOV>"] || 1
+    );
 
     if (tokens.length < maxLen) {
       tokens = [...tokens, ...Array(maxLen - tokens.length).fill(0)];
@@ -87,37 +95,41 @@ const SuicideQ1 = () => {
   };
 
   const handleCalculateClick = async () => {
-    const validMessages = suicideMessages.filter((msg) => msg.trim() !== "");
-    if (validMessages.length === 0) {
-      alert("Please enter at least one message.");
+    // Check if all messages are filled
+    if (suicideMessages.some(msg => msg.trim() === '')) {
+      alert("Mohon isi semua kotak teks yang tersedia.");
       return;
     }
 
     if (!isLoaded || !model || Object.keys(wordIndex).length === 0) {
-      alert("Model atau kamus kata belum selesai dimuat. Mohon tunggu sebentar...");
+      alert(
+        "Model atau kamus kata belum selesai dimuat. Mohon tunggu sebentar..."
+      );
       return;
     }
 
     let sum = 0;
 
-    for (const msg of validMessages) {
+    for (const msg of suicideMessages) {
       const inputTensor = tokenize(msg, wordIndex);
       const prediction = model.predict(inputTensor);
-      console.log(msg)
-      console.log(prediction)
+      console.log(msg);
+      console.log(prediction);
       const value = (await prediction.data())[0];
       prediction.dispose();
       inputTensor.dispose();
 
       sum += value;
-      console.log(value)
+      console.log(value);
     }
 
-    const avgPrediction = sum / validMessages.length;
+    const avgPrediction = sum / suicideMessages.length;
     setPredictionResult(avgPrediction);
-    
 
-    const riskCategory = avgPrediction >= 0.5 ? "Berpotensi Bunuh Diri" : "Tidak Berpotensi Bunuh Diri";
+    const riskCategory =
+      avgPrediction >= 0.5
+        ? "Berpotensi Bunuh Diri"
+        : "Tidak Berpotensi Bunuh Diri";
 
     // Simpan ke sessionStorage
     sessionStorage.setItem("suicideMessage", JSON.stringify(suicideMessages));
@@ -155,11 +167,11 @@ const SuicideQ1 = () => {
           <div className="progress-container">
             <div className="progress-bar" style={{ width: "10%" }}></div>
           </div>
-          <div className="progress-text">Make sure the text is in English!</div>
+          {/*<div className="progress-text">Make sure the text is in English!</div>*/}
 
           <div className="predict-content">
             <div className="question-container">
-              <h2 className="question">Please input your 5 messages below:</h2>
+              <h2 className="question">Silahkan input 5 pesan dibawah :</h2>
 
               <div className="input-container">
                 {suicideMessages.map((msg, index) => (
@@ -168,18 +180,27 @@ const SuicideQ1 = () => {
                     type="text"
                     className="blood-pressure-input"
                     value={msg}
-                    onChange={(e) => handleSuicideMessageChange(index, e.target.value)}
-                    placeholder={`Enter message ${index + 1}`}
+                    onChange={(e) =>
+                      handleSuicideMessageChange(index, e.target.value)
+                    }
+                    placeholder={`Masukkan teks ${index + 1}`}
                   />
                 ))}
               </div>
             </div>
 
-            <button className="calculate-btn" id="calculate" onClick={handleCalculateClick} disabled={!isLoaded}>
+            <button
+              className="calculate-btn"
+              id="calculate"
+              onClick={handleCalculateClick}
+              disabled={!isLoaded}
+            >
               {isLoaded ? "Calculate" : "Loading..."}
             </button>
 
-            {!isLoaded && <p className="loading-text">Loading model... Please wait.</p>}
+            {!isLoaded && (
+              <p className="loading-text">Loading model... Please wait.</p>
+            )}
 
             <div className="nav-buttons">
               <a href="/PrediksiBunuhDiri" className="prev-btn">

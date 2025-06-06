@@ -357,7 +357,7 @@ function EditProfile() {
               <p className="profile-email">{profileData.email}</p>
             </div>
 
-            <div className="profile-nav">
+            {/* <div className="profile-nav">
               <div className="nav-item">
                 <Link to="/">
                   <img src={IconRumah} alt="Home" />
@@ -376,7 +376,7 @@ function EditProfile() {
                   <span>Prediksi</span>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right side edit profile section */}

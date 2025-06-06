@@ -28,7 +28,7 @@ const JantungQ3 = () => {
       const ageValue = ageInput.value.trim();
 
       // Check if the input is a valid integer and in the range
-      if (!ageValue || isNaN(ageValue) || ageValue <= 0) {
+      if (!ageValue || isNaN(ageValue) || ageValue <= 0 || ageValue >= 150) {
         e.preventDefault();
         alert("Silakan masukkan usia yang valid (angka lebih dari 0).");
       }
