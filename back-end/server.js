@@ -61,30 +61,34 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   store: MongoStore.create({
     mongoUrl: `mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`,
-    ttl: 14 * 24 * 60 * 60, // 14 hari
-    autoRemove: 'native',
-    crypto: {
-      secret: process.env.MONGO_STORE_SECRET // Gunakan secret berbeda dari SESSION_SECRET
-    }
+    ttl: 14 * 24 * 60 * 60 // 14 hari
   }),
-  resave: false,
-  saveUninitialized: false,
-  proxy: true, // Penting untuk Railway
-  name: 'cardiomind.sid', // Ganti nama cookie
+  name: 'cm_session', // Nama cookie custom
+  proxy: true, // WAJIB untuk Railway
   cookie: {
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 14 * 24 * 60 * 60 * 1000, // 14 hari
-    domain: process.env.COOKIE_DOMAIN // '.railway.app' atau domain Anda
-  }
+    domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined,
+    maxAge: 14 * 24 * 60 * 60 * 1000,
+    path: '/',
+    // Tambahkan header tambahan
+    overwrite: true
+  },
+  resave: false,
+  saveUninitialized: false
 }));
 
 // app.use(router);
 /////////////
 // app.use("/api", router);
 
-
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://cardio-mind-zl7u.vercel.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 
 // app.use(express.static(path.join(__dirname, '../front-end/dist')));
