@@ -14,7 +14,7 @@ const InfoKesehatan = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/news");
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/news`);
         const result = await response.json();
 
         if (!response.ok) {
@@ -126,15 +126,15 @@ const InfoKesehatan = () => {
                     {featuredArticle.title}
                   </Link>
                 </h1>
-                <div className="author-section">
+               <div className="author-section">
                   <div className="rectangle-divider"></div>
                   <div className="article-author">
-                    <span>By CardioMind</span>
+                    <span>Oleh Kemenkes</span>
                     <span className="article-date">
                       {formatDate(featuredArticle.pubDate)}
                     </span>
                   </div>
-                </div>
+                </div> 
               </div>
             </div>
           )}

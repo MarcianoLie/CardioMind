@@ -42,7 +42,7 @@ function ProfilePage() {
         // Jika sudah URL lengkap (http://)
         if (base64Data.startsWith('http')) {
           const encodedUrl = encodeURIComponent(base64Data);
-          return `http://localhost:8080/api/img/${encodedUrl}`;
+          return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
         }
         
         // Jika base64 tanpa prefix
@@ -78,7 +78,7 @@ function ProfilePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8080/api/profile", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
         credentials: "include",
       });
       const result = await response.json();
@@ -191,7 +191,7 @@ function ProfilePage() {
               <Link to="/editprofile" className="edit-profile-link">Edit Profile</Link>
             </div>
             
-            <div className="profile-nav">
+            {/* <div className="profile-nav">
               <div className="nav-item">
                 <Link to="/">
                   <img src={IconRumah} alt="Home" />
@@ -210,7 +210,7 @@ function ProfilePage() {
                   <span>Prediksi</span>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Right side profile section */}

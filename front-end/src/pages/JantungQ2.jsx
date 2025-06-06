@@ -23,11 +23,11 @@ const JantungQ2 = () => {
       const heightVal = parseInt(height, 10);
 
       if (
-        isNaN(weightVal) || weightVal < 1 || weightVal > 150 || 
-        isNaN(heightVal) || heightVal <= 100
+        isNaN(weightVal) || weightVal < 1 || weightVal > 600 || 
+        isNaN(heightVal) || heightVal <= 50
       ) {
         e.preventDefault();
-        alert("Silakan isi berat (1-150 kg) dan tinggi (lebih dari 100 cm) anda dengan benar.");
+        alert("Silakan isi berat (1-600 kg) dan tinggi (lebih dari 50 cm) anda dengan benar.");
       }
     };
 

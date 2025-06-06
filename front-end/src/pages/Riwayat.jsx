@@ -82,10 +82,35 @@ const Riwayat = () => {
     }
   };
 
+  const formatProfileImage = (base64Data) => {
+    if (!base64Data) return profile;
+
+    // Jika sudah memiliki prefix data:image
+    if (base64Data.startsWith('data:image')) {
+      return base64Data;
+    }
+    if (base64Data.startsWith(`${import.meta.env.VITE_BACKEND_URL}/api/img`)) {
+      return base64Data;
+    }
+
+    // Jika sudah URL lengkap (http://)
+    if (base64Data.startsWith('http')) {
+      const encodedUrl = encodeURIComponent(base64Data);
+      return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
+    }
+
+    if (base64Data.endsWith('.png')) {
+      return base64Data;
+    }
+
+    // Jika base64 tanpa prefix
+    return `data:image/jpeg;base64,${base64Data}`;
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/check-session", {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/check-session`, {
           method: "GET",
           credentials: "include",
         });
@@ -118,7 +143,7 @@ const Riwayat = () => {
 
   const fetchSuicidePredictions = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/suicideHistory", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/suicideHistory`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -134,7 +159,7 @@ const Riwayat = () => {
 
   const fetchCardioPredictions = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/riwayatCardio", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/riwayatCardio`, {
         credentials: 'include'
       });
       const data = await response.json();
@@ -194,7 +219,7 @@ const Riwayat = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8080/api/logout", {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -302,7 +327,7 @@ const Riwayat = () => {
             <div className="profile-image">
               <img
                 id="profile-card-img"
-                src={profileImage || profile}
+                src={formatProfileImage(profileImage) || profile}
                 alt="Profile Icon"
               />
             </div>

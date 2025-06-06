@@ -34,7 +34,7 @@ export default function AdminUser() {
     // Tambahkan fungsi fetchUsers yang hilang
     const fetchUsers = async () => {
         try {
-            const response = await fetch("http://localhost:8080/api/admin/usersDetail", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/usersDetail`, {
                 method: "GET",
                 credentials: "include"
             });
@@ -67,7 +67,7 @@ export default function AdminUser() {
         }
 
         try {
-            const response = await fetch("http://localhost:8080/api/admin/delete-user", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/delete-user`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json"
@@ -92,7 +92,7 @@ export default function AdminUser() {
 
     const fetchMedicUsers = async () => {
         try {
-            const response = await fetch("http://localhost:8080/api/admin/list-medic", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/list-medic`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -118,7 +118,7 @@ export default function AdminUser() {
         const checkSessionAndFetchData = async () => {
             try {
                 // 1. Check session dulu
-                const sessionResponse = await fetch("http://localhost:8080/api/check-session", {
+                const sessionResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/check-session`, {
                     method: "GET",
                     credentials: "include",
                 });
@@ -166,7 +166,7 @@ export default function AdminUser() {
 
     const handleEmailSearch = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/admin/search-user?email=${searchEmail}`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/search-user?email=${searchEmail}`, {
                 method: "GET",
                 credentials: "include",
             });
@@ -192,7 +192,7 @@ export default function AdminUser() {
         if (!searchResult) return;
 
         try {
-            const response = await fetch("http://localhost:8080/api/admin/promote-to-medic", {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/promote-to-medic`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"

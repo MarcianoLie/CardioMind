@@ -11,6 +11,7 @@ const Header = () => {
   const [userName, setUserName] = useState("");
   const [profileImage, setProfileImage] = useState(""); // Default image
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [status, setStatus] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -29,14 +30,14 @@ const Header = () => {
           if (base64Data.startsWith('data:image')) {
             return base64Data;
           }
-          if (base64Data.startsWith('http://localhost:8080/api/img')) {
+          if (base64Data.startsWith(`${import.meta.env.VITE_BACKEND_URL}/api/img`)) {
             return base64Data;
           }
           
           // Jika sudah URL lengkap (http://)
           if (base64Data.startsWith('http')) {
             const encodedUrl = encodeURIComponent(base64Data);
-            return `http://localhost:8080/api/img/${encodedUrl}`;
+            return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
           }
 
           if (base64Data.endsWith('.png')) {
@@ -108,7 +109,7 @@ const Header = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/check-session", {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/check-session`, {
           method: "GET",
           credentials: "include", // Wajib jika pakai session
         });
@@ -127,6 +128,7 @@ const Header = () => {
           } else {
             setUserName(data.user); // Fallback ke data dari API
           }
+          setStatus(data.status)
 
           // Gunakan gambar profil dari localStorage jika tersedia
           if (storedProfileImage && storedProfileImage !== "undefined" && storedProfileImage !== "" && storedProfileImage !== null) {
@@ -174,7 +176,7 @@ const Header = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8080/api/logout", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -211,7 +213,8 @@ const Header = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/" onClick={closeMenu}>Home</Link>
+              {(status == "admin")?<Link to="/AdminDashboard" onClick={closeMenu}>Home</Link>:<Link to="/" onClick={closeMenu}>Home</Link>}
+              {/* <Link to="/" onClick={closeMenu}>Home</Link> */}
             </li>
             <li>
               <Link to="/infokesehatan" onClick={closeMenu}>Info Kesehatan</Link>
