@@ -61,15 +61,22 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   store: MongoStore.create({
     mongoUrl: `mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`,
-    ttl: 24 * 60 * 60 // 1 hari
+    ttl: 14 * 24 * 60 * 60, // 14 hari
+    autoRemove: 'native',
+    crypto: {
+      secret: process.env.MONGO_STORE_SECRET // Gunakan secret berbeda dari SESSION_SECRET
+    }
   }),
   resave: false,
   saveUninitialized: false,
+  proxy: true, // Penting untuk Railway
+  name: 'cardiomind.sid', // Ganti nama cookie
   cookie: {
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 14 * 24 * 60 * 60 * 1000, // 14 hari
+    domain: process.env.COOKIE_DOMAIN // '.railway.app' atau domain Anda
   }
 }));
 

@@ -116,7 +116,19 @@ const handleGoogleAuth = async (req, res) => {
     req.session.username = user.displayName;
     console.log("Session status set:", req.session.status);
     console.log("Session userId set via Google login/signup:", req.session.userId);
-    await req.session.save();
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session save failed' });
+      }
+      
+      res.setHeader('Set-Cookie', `cardiomind.sid=${req.sessionID}; Path=/; Secure; SameSite=None; HttpOnly`);
+      
+      res.json({ 
+        success: true,
+        sessionId: req.sessionID 
+      });
+    });
 
     return res.status(200).json({
       error: false,
