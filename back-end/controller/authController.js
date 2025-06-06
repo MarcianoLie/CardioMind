@@ -65,8 +65,19 @@ const login = async (req, res) => {
     req.session.username = user.displayName;
     console.log("Session userId set:", req.session.userId);
     console.log("Session status set:", req.session.status);
-    await req.session.save();
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session save failed' });
+      }
 
+      // Set cookie header secara eksplisit
+      res.setHeader('Set-Cookie', [
+        `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
+      ]);
+
+      res.json({ success: true });
+    });
     res.json({
       error: false,
       message: 'Berhasil Sign In',
@@ -121,13 +132,12 @@ const handleGoogleAuth = async (req, res) => {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'Session save failed' });
       }
-      
-      res.setHeader('Set-Cookie', `cardiomind.sid=${req.sessionID}; Path=/; Secure; SameSite=None; HttpOnly`);
-      
-      res.json({ 
-        success: true,
-        sessionId: req.sessionID 
-      });
+
+      res.setHeader('Set-Cookie', [
+        `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
+      ]);
+
+      res.json({ success: true });
     });
 
     return res.status(200).json({

@@ -15,6 +15,7 @@ const MongoStore = require('connect-mongo');
 
 dotenv.config();
 const app = express();
+app.set('trust proxy', 1);
 const port = 8080;
 const host = process.env.HOST || 'localhost';
 
@@ -30,18 +31,14 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-      return callback(new Error(msg), false);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(null, true);
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  exposedHeaders: ['set-cookie']
 }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
@@ -61,23 +58,28 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   store: MongoStore.create({
     mongoUrl: `mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`,
-    ttl: 14 * 24 * 60 * 60 // 14 hari
+    ttl: 14 * 24 * 60 * 60
   }),
-  name: 'cm_session', // Nama cookie custom
+  name: 'cm_auth', // Nama cookie khusus
   proxy: true, // WAJIB untuk Railway
   cookie: {
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    domain: process.env.NODE_ENV === 'production' ? '.railway.app' : undefined,
+    domain: '.railway.app', // Gunakan domain utama Railway
     maxAge: 14 * 24 * 60 * 60 * 1000,
     path: '/',
-    // Tambahkan header tambahan
     overwrite: true
   },
   resave: false,
   saveUninitialized: false
 }));
+
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session:', req.session);
+  next();
+});
 
 // app.use(router);
 /////////////
