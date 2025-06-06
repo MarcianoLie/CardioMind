@@ -87,12 +87,7 @@ function Login() {
         password: formData.password,
       });
 
-      const { uid, userToken, message, status, requiresVerification, displayName } = response.data;
-
-      if (requiresVerification) {
-      alert("Email belum diverifikasi. Cek inbox email kamu.");
-      return;
-    }
+      const { uid, userToken, message, status } = response.data;
 
       console.log("Login berhasil:", message);
       console.log("UID:", uid);
