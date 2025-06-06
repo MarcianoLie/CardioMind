@@ -18,7 +18,19 @@ const host = process.env.HOST || 'localhost';
 
 app.use(cors({
   origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:5173", "cardiomind.up.railway.app:3000", "https://cardiomind.up.railway.app:3000", "https://cardio-mind-zl7u.vercel.app"], 
-  credentials: true
+  origin: function (origin, callback) {
+    // Izinkan request tanpa origin (seperti mobile apps atau curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || 
+        origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Penting untuk mengirim cookie
+  exposedHeaders: ["set-cookie"] // Izinkan frontend baca cookie
 }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
@@ -37,9 +49,11 @@ app.use(fileUpload());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     secure: true,
+    httpOnly: true,
+    sameSite: 'none',
     maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
   }
 }));
