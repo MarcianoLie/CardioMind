@@ -13,13 +13,22 @@ dotenv.config();
 
 // profile
 const profile = async (req, res) => {
-    const userId = req.session.userId;
-    console.log(userId);
-    try{
-    const userProfile = await User.findOne({ userId: userId });
-    res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
+    try {
+        const userId = req.session.userId; 
+
+        console.log("Fetching profile for user:", userId);
+
+        const userProfile = await User.findOne({ userId: userId });
+        
+        if (!userProfile) {
+            return res.status(404).json({ error: true, message: "User tidak ditemukan" });
+        }
+
+        res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
+
     } catch (err) {
-        res.status(404).json({error: true, message: "User tidak ditemukan"});
+        console.error("Error fetching user profile:", err);
+        res.status(500).json({ error: true, message: "Terjadi kesalahan server" });
     }
 };
 
