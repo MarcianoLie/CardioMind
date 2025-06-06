@@ -65,6 +65,7 @@ const login = async (req, res) => {
     req.session.username = user.displayName;
     console.log("Session userId set:", req.session.userId);
     console.log("Session status set:", req.session.status);
+    await req.session.save();
 
     res.json({
       error: false,
@@ -115,6 +116,7 @@ const handleGoogleAuth = async (req, res) => {
     req.session.username = user.displayName;
     console.log("Session status set:", req.session.status);
     console.log("Session userId set via Google login/signup:", req.session.userId);
+    await req.session.save();
 
     return res.status(200).json({
       error: false,

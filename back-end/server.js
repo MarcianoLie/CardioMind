@@ -7,6 +7,8 @@ const path = require("path");
 const cors = require("cors");
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
 
 
 
@@ -57,14 +59,17 @@ app.use(fileUpload());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
+  store: MongoStore.create({
+    mongoUrl: `mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`,
+    ttl: 24 * 60 * 60 // 1 hari
+  }),
   resave: false,
   saveUninitialized: false,
-  proxy: true, // Penting jika di belakang proxy (Railway menggunakan proxy)
   cookie: {
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000, // 1 hari
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -113,3 +118,10 @@ app.listen(port, host, () => {
   console.log(`Server berjalan pada http://${host}:${port}`);
 });
 
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
