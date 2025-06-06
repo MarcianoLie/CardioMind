@@ -49,46 +49,63 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    if (!userCredential.user.emailVerified) {
-      alert("Email belum diverifikasi. Cek inbox email kamu.");
-      return;
-    }
     const firebaseUser = userCredential.user;
-    const idToken = await firebaseUser.getIdToken();
 
-    const user = await User.findOne({ email: firebaseUser.email });
-    if (!user) {
-      return res.status(404).json({ error: true, message: "User tidak ditemukan di MongoDB" });
+    // Pindahkan pengecekan email verified ke frontend
+    if (!firebaseUser.emailVerified) {
+      return res.status(403).json({
+        error: true,
+        message: "Email belum diverifikasi. Cek inbox email kamu.",
+        requiresVerification: true
+      });
     }
+
+    const idToken = await firebaseUser.getIdToken();
+    const user = await User.findOne({ email: firebaseUser.email });
+
+    if (!user) {
+      return res.status(404).json({
+        error: true,
+        message: "User tidak ditemukan di MongoDB"
+      });
+    }
+
+    // Set session
     req.session.userId = user.userId;
     req.session.status = user.status;
     req.session.username = user.displayName;
-    console.log("Session userId set:", req.session.userId);
-    console.log("Session status set:", req.session.status);
+
+    // Simpan session dan kirim response
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
         return res.status(500).json({ error: 'Session save failed' });
       }
 
-      // Set cookie header secara eksplisit
+      // Set cookie header
       res.setHeader('Set-Cookie', [
         `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
       ]);
 
-      res.json({ success: true });
-    });
-    res.json({
-      error: false,
-      message: 'Berhasil Sign In',
-      uid: firebaseUser.uid,
-      userId: user.userId,
-      userToken: idToken,
-      status: user.status
+      // Hanya satu response
+      res.json({
+        error: false,
+        message: 'Berhasil Sign In',
+        uid: firebaseUser.uid,
+        userId: user.userId,
+        userToken: idToken,
+        status: user.status,
+        displayName: user.displayName,
+        profileImage: user.profileImage
+      });
     });
   } catch (error) {
-    console.error(error)
-    res.status(404).json({ error: true, message: 'Error melakukan Sign In' });
+    console.error("Login error:", error);
+    res.status(401).json({
+      error: true,
+      message: 'Email atau password salah',
+      firebaseError: error.message
+    });
   }
 }
 
