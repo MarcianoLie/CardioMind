@@ -23,7 +23,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://cardiomind.up.railway.app",
   "cardiomind-backend-production.up.railway.app",
-  "https://cardio-mind-zl7u.vercel.app"
+  "https://cardio-mind-zl7u.vercel.app",
+  "*"
 ];
 
 app.use(cors({
