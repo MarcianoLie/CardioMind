@@ -23,15 +23,23 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://cardiomind.up.railway.app",
   "cardiomind-backend-production.up.railway.app",
-  "https://cardio-mind-zl7u.vercel.app",
-  "*"
+  "https://cardio-mind-zl7u.vercel.app"
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
@@ -51,12 +59,12 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  proxy: true, // Penting jika di belakang proxy (Railway menggunakan proxy)
   cookie: {
     secure: true,
     httpOnly: true,
-    sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24, // ✅ 1 hari (dalam milidetik)
-    domain: ".railway.app"
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000, // 1 hari
   }
 }));
 
