@@ -30,14 +30,14 @@ const Header = () => {
           if (base64Data.startsWith('data:image')) {
             return base64Data;
           }
-          if (base64Data.startsWith('http://localhost:8080/api/img')) {
+          if (base64Data.startsWith(`${import.meta.env.VITE_BACKEND_URL}/api/img`)) {
             return base64Data;
           }
           
           // Jika sudah URL lengkap (http://)
           if (base64Data.startsWith('http')) {
             const encodedUrl = encodeURIComponent(base64Data);
-            return `http://localhost:8080/api/img/${encodedUrl}`;
+            return `${import.meta.env.VITE_BACKEND_URL}/api/img/${encodedUrl}`;
           }
 
           if (base64Data.endsWith('.png')) {
@@ -109,7 +109,7 @@ const Header = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/check-session", {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/check-session`, {
           method: "GET",
           credentials: "include", // Wajib jika pakai session
         });
@@ -176,7 +176,7 @@ const Header = () => {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8080/api/logout", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

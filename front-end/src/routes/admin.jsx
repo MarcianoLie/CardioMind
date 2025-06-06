@@ -10,7 +10,7 @@ export default function AdminRoute({ children }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/check-session", {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/check-session`, {
           method: "GET",
           credentials: "include", // cookie session dikirim
         });
