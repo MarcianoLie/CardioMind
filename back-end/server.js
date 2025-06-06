@@ -16,9 +16,30 @@ const app = express();
 const port = 8080;
 const host = process.env.HOST || 'localhost';
 
+// Perbaikan CORS - tambahkan domain Vercel
+const allowedOrigins = [
+  "http://localhost:5500",
+  "http://127.0.0.1:5500", 
+  "http://localhost:5173",
+  "https://cardiomind.up.railway.app",
+  "cardiomind-backend-production.up.railway.app",
+  "https://cardio-mind-zl7u.vercel.app"
+];
+
 app.use(cors({
-  origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:5173", "cardiomind.up.railway.app:3000", "https://cardiomind.up.railway.app:3000"], 
-  credentials: true
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
@@ -37,13 +58,13 @@ app.use(fileUpload());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
-  // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
+  saveUninitialized: false,
+  proxy: true, // Penting jika di belakang proxy (Railway menggunakan proxy)
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true di production, false di development
+    secure: true,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Penting untuk cross-site cookies
-    maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000, // 1 hari
   }
 }));
 
