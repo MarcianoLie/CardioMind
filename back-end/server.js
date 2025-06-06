@@ -38,11 +38,8 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // true di production, false di development
-    httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Penting untuk cross-site cookies
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
   }
 }));
