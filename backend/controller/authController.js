@@ -49,36 +49,65 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    if (!userCredential.user.emailVerified) {
-      alert("Email belum diverifikasi. Cek inbox email kamu.");
-      return;
-    }
     const firebaseUser = userCredential.user;
-    const idToken = await firebaseUser.getIdToken();
 
-    const user = await User.findOne({ email: firebaseUser.email });
-    if (!user) {
-      return res.status(404).json({ error: true, message: "User tidak ditemukan di MongoDB" });
+    // Pindahkan pengecekan email verified ke frontend
+    if (!firebaseUser.emailVerified) {
+      return res.status(403).json({
+        error: true,
+        message: "Email belum diverifikasi. Cek inbox email kamu.",
+        requiresVerification: true
+      });
     }
+
+    const idToken = await firebaseUser.getIdToken();
+    const user = await User.findOne({ email: firebaseUser.email });
+
+    if (!user) {
+      return res.status(404).json({
+        error: true,
+        message: "User tidak ditemukan di MongoDB"
+      });
+    }
+
+    // Set session
     req.session.userId = user.userId;
     req.session.status = user.status;
     req.session.username = user.displayName;
-    console.log("Session userId set:", req.session.userId);
-    console.log("Session status set:", req.session.status);
 
-    res.json({
-      error: false,
-      message: 'Berhasil Sign In',
-      uid: firebaseUser.uid,
-      userId: user.userId,
-      userToken: idToken,
-      status: user.status
+    // Simpan session dan kirim response
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session save failed' });
+      }
+
+      // Set cookie header
+      res.setHeader('Set-Cookie', [
+        `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
+      ]);
+
+      // Hanya satu response
+      res.json({
+        error: false,
+        message: 'Berhasil Sign In',
+        uid: firebaseUser.uid,
+        userId: user.userId,
+        userToken: idToken,
+        status: user.status,
+        displayName: user.displayName,
+        profileImage: user.profileImage
+      });
     });
   } catch (error) {
-    console.error(error)
-    res.status(401).json({ error: true, message: error.message });
+    console.error("Login error:", error);
+    res.status(401).json({
+      error: true,
+      message: 'Email atau password salah',
+      firebaseError: error.message
+    });
   }
-}
+};
 
 // sign google
 const handleGoogleAuth = async (req, res) => {
@@ -115,6 +144,18 @@ const handleGoogleAuth = async (req, res) => {
     req.session.username = user.displayName;
     console.log("Session status set:", req.session.status);
     console.log("Session userId set via Google login/signup:", req.session.userId);
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ error: 'Session save failed' });
+      }
+
+      res.setHeader('Set-Cookie', [
+        `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
+      ]);
+
+      res.json({ success: true });
+    });
 
     return res.status(200).json({
       error: false,
