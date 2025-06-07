@@ -50,8 +50,8 @@ const login = async (req, res) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const firebaseUser = userCredential.user;
-
-    // Pindahkan pengecekan email verified ke frontend
+    
+    // Cek email verification
     if (!firebaseUser.emailVerified) {
       return res.status(403).json({
         error: true,
@@ -62,7 +62,7 @@ const login = async (req, res) => {
 
     const idToken = await firebaseUser.getIdToken();
     const user = await User.findOne({ email: firebaseUser.email });
-
+    
     if (!user) {
       return res.status(404).json({
         error: true,
@@ -75,11 +75,17 @@ const login = async (req, res) => {
     req.session.status = user.status;
     req.session.username = user.displayName;
 
+    console.log("Email Login - Session userId set:", req.session.userId);
+    console.log("Email Login - Session status set:", req.session.status);
+
     // Simpan session dan kirim response
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).json({ error: 'Session save failed' });
+        return res.status(500).json({ 
+          error: true, 
+          message: 'Session save failed' 
+        });
       }
 
       // Set cookie header
@@ -87,7 +93,7 @@ const login = async (req, res) => {
         `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
       ]);
 
-      // Hanya satu response
+      // Send response
       res.json({
         error: false,
         message: 'Berhasil Sign In',
@@ -99,6 +105,7 @@ const login = async (req, res) => {
         profileImage: user.profileImage
       });
     });
+
   } catch (error) {
     console.error("Login error:", error);
     res.status(401).json({
@@ -107,22 +114,25 @@ const login = async (req, res) => {
       firebaseError: error.message
     });
   }
-}
+};
 
-// sign google
+// Fixed Google Auth Handler
 const handleGoogleAuth = async (req, res) => {
   try {
     const idToken = req.headers.authorization?.split("Bearer ")[1];
+    
     if (!idToken) {
-      return res.status(401).json({ error: true, message: "Token tidak ditemukan" });
+      return res.status(401).json({ 
+        error: true, 
+        message: "Token tidak ditemukan" 
+      });
     }
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const { uid, name, email, picture } = decodedToken;
 
-
     let user = await User.findOne({ userId: uid });
-
+    
     if (!user) {
       const newUser = new User({
         userId: uid,
@@ -135,41 +145,51 @@ const handleGoogleAuth = async (req, res) => {
         created_at: new Date(),
         status: "user"
       });
-
       user = await newUser.save();
     }
 
+    // Set session
     req.session.userId = user.userId;
     req.session.status = user.status;
     req.session.username = user.displayName;
-    console.log("Session status set:", req.session.status);
-    console.log("Session userId set via Google login/signup:", req.session.userId);
+
+    console.log("Google Login - Session userId set:", req.session.userId);
+    console.log("Google Login - Session status set:", req.session.status);
+
+    // Save session and send response
     req.session.save(err => {
       if (err) {
         console.error('Session save error:', err);
-        return res.status(500).json({ error: 'Session save failed' });
+        return res.status(500).json({ 
+          error: true, 
+          message: 'Session save failed' 
+        });
       }
 
+      // Set cookie header
       res.setHeader('Set-Cookie', [
         `cm_auth=${req.sessionID}; Domain=.railway.app; Path=/; Secure; SameSite=None; HttpOnly; Max-Age=${14 * 24 * 60 * 60}`
       ]);
 
-      res.json({ success: true });
-    });
-
-    return res.status(200).json({
-      error: false,
-      message: "Login Google sukses",
-      uid,
-      email,
-      displayName: name,
-      profileImage: picture,
-      status: user.status
+      // HANYA SATU RESPONSE - yang ini saja
+      res.status(200).json({
+        error: false,
+        message: "Login Google sukses",
+        uid,
+        userId: user.userId,
+        email,
+        displayName: name,
+        profileImage: picture,
+        status: user.status
+      });
     });
 
   } catch (error) {
     console.error("Error Google Auth:", error);
-    return res.status(400).json({ error: true, message: error.message });
+    return res.status(400).json({ 
+      error: true, 
+      message: error.message 
+    });
   }
 };
 
