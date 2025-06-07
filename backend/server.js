@@ -7,18 +7,37 @@ const path = require("path");
 const cors = require("cors");
 const mongoose = require('mongoose');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 
 
 
 dotenv.config();
 const app = express();
+app.set('trust proxy', 1);
 const port = 8080;
-const host = 'localhost';
+const host = process.env.HOST || 'localhost';
+
+
+const allowedOrigins = [
+  "http://localhost:5500",
+  "http://127.0.0.1:5500", 
+  "http://localhost:5173",
+  "https://cardiomind.up.railway.app",
+  "cardiomind-backend-production.up.railway.app",
+  "https://cardio-mind-zl7u.vercel.app"
+];
 
 app.use(cors({
-  origin: ["http://localhost:5500", "http://127.0.0.1:5500", "http://localhost:5173"], 
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  exposedHeaders: ['set-cookie']
 }));
 
 mongoose.connect(`mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`)
@@ -36,26 +55,47 @@ app.use(fileUpload());
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  // cookie: { secure: false } // Ubah ke `true` kalau pakai HTTPS
+  store: MongoStore.create({
+    mongoUrl: `mongodb+srv://root:${process.env.MONGODB_PASS}@cardiomind.qb0usur.mongodb.net/CardioMind`,
+    ttl: 14 * 24 * 60 * 60
+  }),
+  name: 'cm_auth', // Nama cookie khusus
+  proxy: true, // WAJIB untuk Railway
   cookie: {
-    secure: false, // true kalau pakai https
-    maxAge: 1000 * 60 * 60 * 24 // ✅ 1 hari (dalam milidetik)
-  }
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+    domain: '.railway.app', // Gunakan domain utama Railway
+    maxAge: 14 * 24 * 60 * 60 * 1000,
+    path: '/',
+    overwrite: true
+  },
+  resave: false,
+  saveUninitialized: false
 }));
+
+app.use((req, res, next) => {
+  console.log('Session ID:', req.sessionID);
+  console.log('Session:', req.session);
+  next();
+});
 
 // app.use(router);
 /////////////
 // app.use("/api", router);
 
-
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://cardio-mind-zl7u.vercel.app');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 
 
 // app.use(express.static(path.join(__dirname, '../front-end/dist')));
-// app.get('/', (req, res) => {
-//   res.send('API is running successfully');
-// });
+app.get('/', (req, res) => {
+  res.send('API is running successfully');
+});
 // // console.log("aaa")
 // // Semua request selain API diarahkan ke index.html
 // // app.get("*", (req, res) => {
@@ -68,15 +108,15 @@ app.use(session({
 
 ///////////
 // Serve static files dari React
-app.use(express.static(path.join(__dirname, '../front-end/dist')));
+//app.use(express.static(path.join(__dirname, '../front-end/dist')));
 
 // API routes
 app.use("/api", router);
 
 // Handle React routing: return index.html untuk semua request yang bukan API
-app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
-  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
-});
+// app.get(/^(?!\/api).*/, (req, res) => { // Abaikan route yang diawali /api
+//  res.sendFile(path.join(__dirname, '../front-end/dist/index.html'));
+// });
 
 // app.get('*', (req, res) => {
 //   if (!req.path.startsWith('/api')) {
@@ -90,3 +130,10 @@ app.listen(port, host, () => {
   console.log(`Server berjalan pada http://${host}:${port}`);
 });
 
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
