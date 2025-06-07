@@ -34,7 +34,7 @@ import ForgotPassword from "./pages/ForgotPassword.jsx";
 
 function App() {
   return (
-    <div>
+    <>
       <Header /> {/* Place Header outside of Routes */}
       <Routes>
         <Route path="/" element={<Homepage />} />
@@ -80,7 +80,7 @@ function App() {
         }/>
       </Routes>
       <Footer />
-    </div>
+    </>
   );
 }
 

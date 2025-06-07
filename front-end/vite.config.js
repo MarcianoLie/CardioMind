@@ -8,8 +8,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/',
   server: {
-    outDir: '../front-end/dist',
-    historyApiFallback: true,  // Pastikan ini aktif
+    outDir: 'dist',
+    emptyOutDir: true,
   },
- 
-})
+});
