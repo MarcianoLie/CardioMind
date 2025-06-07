@@ -72,63 +72,56 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsLoading(true);
+
     try {
-      console.log("Login form submitted", formData);
-      // Simulate API call
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      const { uid, userToken, message, status } = response.data;
-
-      console.log("Login berhasil:", message);
-      console.log("UID:", uid);
-      console.log("Token:", userToken);
-      try {
-        console.log("profileResult :")
-        const profileResponse = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/profile`, {
-          credentials: "include",
-        });
-        const profileResult = await profileResponse.json();
-
-        if (profileResponse.ok) {
-          localStorage.setItem("profileName", profileResult.user.displayName || '');
-          localStorage.setItem("profileImage", (!profileResult.user.profileImage)
-                                                                    ? ''
-                                                                    : (profileResult.user.profileImage.startsWith('http')
-                                                                        ? profileResult.user.profileImage
-                                                                        : "data:image/jpeg;base64," + profileResult.user.profileImage) || '');
-
-        } else {
-          console.log("Username : ", profileResult.user.displayName)
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/login`,
+        {
+          email: formData.email,
+          password: formData.password,
+        },
+        {
+          withCredentials: true,
+          headers: { 'Content-Type': 'application/json' }
         }
-      } catch (profileError) {
-        console.error("Error mengambil profil:", profileError);
-        localStorage.setItem("profileName", user.displayName || '');
-        localStorage.setItem("profileImage", user.photoURL || '');
+      );
+
+      const { uid, userToken, message, status, displayName, profileImage } = response.data;
+
+      // Handle profile image
+      const profileImageUrl = profileImage?.startsWith('http')
+        ? profileImage
+        : profileImage
+          ? `data:image/jpeg;base64,${profileImage}`
+          : '';
+
+      // Store data
+      localStorage.setItem("token", userToken);
+      localStorage.setItem("profileName", displayName);
+      localStorage.setItem("profileImage", profileImageUrl);
+
+      // Redirect
+      if (status === "admin") {
+        navigate("/AdminDashboard");
+      } else {
+        navigate("/");
       }
 
-      // Simpan token ke localStorage/sessionStorage kalau perlu
-      localStorage.setItem("token", userToken);
-      if (status === "user") {
-        navigate("/")
-      } else if (status === "admin") {
-        navigate("/AdminDashboard")
-      }
     } catch (error) {
-      console.error("Login error:", error);
-      setErrors({
-        email: "Invalid credentials",
-        password: "Invalid credentials",
-      });
+      if (error.response) {
+        setErrors({
+          email: error.response.data.message || "Invalid credentials",
+          password: error.response.data.message || "Invalid credentials",
+        });
+      } else {
+        setErrors({
+          email: "Network error",
+          password: "Network error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
