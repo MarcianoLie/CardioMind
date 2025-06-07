@@ -20,10 +20,6 @@ const profile = async (req, res) => {
 
         const userProfile = await User.findOne({ userId: userId });
         
-        if (!userProfile) {
-            return res.status(404).json({ error: true, message: "User tidak ditemukan" });
-        }
-
         res.status(200).json({ error: false, message: "Data User ditemukan", user: userProfile });
 
     } catch (err) {
